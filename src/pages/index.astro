@@ -1,0 +1,420 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BackgroundCanvas from '../components/BackgroundCanvas.astro';
+---
+
+<Layout>
+  <!-- Fixed header -->
+  <header class="fixed top-0 left-0 right-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-[rgba(251,251,249,0.72)] backdrop-blur-[14px]">
+    <a href="#top" class="text-[13px] font-semibold tracking-[0.26em] text-[#161513]">TERREROV</a>
+    <nav class="flex gap-[clamp(18px,3.4vw,44px)]">
+      <a href="#works" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">WORKS</a>
+      <a href="#services" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">SERVICES</a>
+      <a href="#about" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">ABOUT</a>
+      <a href="#contact" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">CONTACT</a>
+    </nav>
+  </header>
+
+  <!-- Canvas background -->
+  <BackgroundCanvas />
+
+  <div class="relative z-10">
+    <!-- HERO -->
+    <section id="top" class="min-h-[100svh] flex flex-col justify-center px-[clamp(20px,5vw,64px)] pt-[120px] pb-20 max-w-[1280px] mx-auto box-border">
+      <p class="mb-[clamp(28px,4vh,48px)] text-[11px] font-medium tracking-[0.24em] text-[#98968E]">CUSTOM WEB DESIGN</p>
+      <h1 class="m-0 text-[clamp(44px,8.5vw,118px)] leading-[1.02] font-light tracking-[-0.035em] max-w-[14ch] text-balance">
+        Web design that elevates local business.
+      </h1>
+      <p class="mt-[clamp(24px,3.5vh,40px)] mb-0 text-[clamp(15px,1.6vw,19px)] font-normal text-[#75736C] tracking-[0.01em] italic">
+        Diseño web que eleva negocios locales.
+      </p>
+      <div class="flex items-center gap-9 mt-[clamp(40px,6vh,72px)] flex-wrap">
+        <a href="#contact" 
+           class="inline-flex items-center gap-3 px-[34px] py-[17px] bg-[#161513] !text-[#FBFBF9] text-[12px] font-medium tracking-[0.16em] rounded-[2px] transition-all hover:bg-[#2E2C28] hover:!text-[#FBFBF9] hover:-translate-y-0.5">
+          START A PROJECT<span class="text-[14px]">→</span>
+        </a>
+        <a href="#works" 
+           class="text-[12px] font-medium tracking-[0.16em] text-[#161513] border-b border-[#C9C8C0] pb-[5px] transition-colors hover:border-[#161513]">
+          VIEW WORKS
+        </a>
+      </div>
+    </section>
+
+    <!-- WORKS -->
+    <section id="works" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+      <div class="flex items-baseline justify-between gap-6 flex-wrap mb-[clamp(48px,7vh,80px)]">
+        <h2 class="m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Selected works</h2>
+        <span class="text-[11px] font-medium tracking-[0.22em] text-[#98968E]">2024 — 2026</span>
+      </div>
+
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-[clamp(48px,6vh,72px)_48px]">
+        <!-- Work 1: Iron Bloom -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">TACTILE / GALLERY</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Iron Bloom Tattoo</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Iron Bloom Tattoo</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">PORTFOLIO · BOOKING</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            Artist portfolio with a full-bleed gallery and an integrated booking flow — consultations up 3× in the first quarter.
+          </p>
+        </div>
+
+        <!-- Work 2 -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">MULTI-ARTIST</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Cardinal Ink Collective</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Cardinal Ink Collective</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">MULTI-ARTIST SITE</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            Six resident artists, one elegant home — individual galleries, styles, and direct booking per artist.
+          </p>
+        </div>
+
+        <!-- Work 3 -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">BOOKING + SHOP</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Solstice Studio</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Solstice Studio</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">TATTOO · PIERCING</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            Reservations, aftercare guides, and a small shop — everything a walk-in studio needs, nothing it doesn't.
+          </p>
+        </div>
+
+        <!-- Work 4 -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">MENU / LOCAL</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Vía Norte Taquería</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Vía Norte Taquería</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">RESTAURANT · LOCAL SEO</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            A bilingual menu site tuned for local search — first page of Google for "tacos Louisville" in eight weeks.
+          </p>
+        </div>
+
+        <!-- Work 5 -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">SCHEDULING</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Fern &amp; Fade Barbershop</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Fern &amp; Fade Barbershop</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">BOOKING</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            Chair-by-chair online booking replaced the phone tag — no-shows cut nearly in half.
+          </p>
+        </div>
+
+        <!-- Work 6 -->
+        <div class="reveal">
+          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
+            <div class="relative z-10 text-center px-6">
+              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">LEADS</div>
+              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">River City Contracting</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline gap-4 mt-5">
+            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">River City Contracting</h3>
+            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">LEAD GENERATION</span>
+          </div>
+          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+            From no web presence to a steady stream of qualified estimate requests every week.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+      <h2 class="reveal m-0 mb-[clamp(48px,7vh,80px)] text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Services</h2>
+      
+      <div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">01</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Custom web design &amp; development</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Sites designed and built from scratch around your business — never a template with your logo swapped in.</p>
+          </div>
+        </div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">02</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Sites for tattoo studios &amp; artists</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Powerful galleries that honor the work, plus booking that fills your calendar. A specialty of the studio.</p>
+          </div>
+        </div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">03</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Local SEO</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Show up when Louisville searches for what you do — maps, reviews, and pages built to rank locally.</p>
+          </div>
+        </div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">04</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Online booking integration</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Appointments, deposits, and reminders that run themselves — so the phone stops being a bottleneck.</p>
+          </div>
+        </div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">05</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Care &amp; monthly updates</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Hosting, security, content changes, and small improvements — your site stays fast and current.</p>
+          </div>
+        </div>
+        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-[#E7E6E0] border-b border-[#E7E6E0] transition-colors hover:bg-[rgba(22,21,19,0.015)]">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em] pt-[6px]">06</span>
+          <div>
+            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Redesign of existing sites</h3>
+            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-[#75736C] max-w-[58ch]">Keep what works, rebuild what doesn't — a considered refresh instead of starting over.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
+        <h2 class="reveal m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em] max-w-[16ch] text-balance">
+          A small studio for businesses that deserve better.
+        </h2>
+        <div class="reveal">
+          <p class="m-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-[#403E39] max-w-[56ch]">
+            Terrerov is an independent web studio. I work with local businesses — many building their first real web presence — and treat each site as a craft object: designed carefully, built fast, and made to bring in actual customers, not just compliments.
+          </p>
+          <p class="mt-5 mb-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-[#403E39] max-w-[56ch]">
+            No agencies, no account managers, no handoffs. You work directly with the person designing and building your site — en inglés o en español.
+          </p>
+          <div class="flex gap-[clamp(28px,4vw,56px)] mt-[clamp(32px,5vh,48px)] flex-wrap">
+            <div>
+              <p class="m-0 text-[11px] tracking-[0.2em] text-[#98968E]">BASED IN</p>
+              <p class="mt-1.5 mb-0 text-[15px] font-medium">UNITED STATES</p>
+            </div>
+            <div>
+              <p class="m-0 text-[11px] tracking-[0.2em] text-[#98968E]">FOCUS</p>
+              <p class="mt-1.5 mb-0 text-[15px] font-medium">Local business</p>
+            </div>
+            <div>
+              <p class="m-0 text-[11px] tracking-[0.2em] text-[#98968E]">LANGUAGES</p>
+              <p class="mt-1.5 mb-0 text-[15px] font-medium">English · Español</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+      <h2 class="reveal m-0 mb-[clamp(48px,7vh,80px)] text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Process</h2>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-[clamp(36px,5vw,56px)]">
+        <div class="reveal border-t border-[#161513] pt-6">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em]">01</span>
+          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Listen</h3>
+          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-[#75736C]">A short conversation about your business, your customers, and what a win looks like.</p>
+        </div>
+        <div class="reveal border-t border-[#161513] pt-6">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em]">02</span>
+          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Design</h3>
+          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-[#75736C]">You see the design before anything is built. We refine it together until it feels right.</p>
+        </div>
+        <div class="reveal border-t border-[#161513] pt-6">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em]">03</span>
+          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Build</h3>
+          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-[#75736C]">Fast, accessible, search-ready. Most sites launch in two to four weeks.</p>
+        </div>
+        <div class="reveal border-t border-[#161513] pt-6">
+          <span class="text-[12px] text-[#98968E] tracking-[0.1em]">04</span>
+          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Grow</h3>
+          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-[#75736C]">Monthly care, measurement, and small improvements that compound over time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-[clamp(40px,5vw,64px)]">
+        <figure class="reveal m-0">
+          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
+            "The site looks like it cost five times what it did. Clients mention it before they mention the tattoos."
+          </blockquote>
+          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-[#98968E]">— STUDIO OWNER, LOUISVILLE <span class="text-[#C9C8C0]">· placeholder</span></figcaption>
+        </figure>
+        <figure class="reveal m-0">
+          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
+            "We went from invisible on Google to booked out three weeks. That's the whole story."
+          </blockquote>
+          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-[#98968E]">— BARBERSHOP OWNER <span class="text-[#C9C8C0]">· placeholder</span></figcaption>
+        </figure>
+        <figure class="reveal m-0">
+          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
+            "Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."
+          </blockquote>
+          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-[#98968E]">— RESTAURANT OWNER <span class="text-[#C9C8C0]">· placeholder</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="px-[clamp(20px,5vw,64px)] pt-[clamp(80px,12vh,140px)] pb-[clamp(80px,10vh,120px)] max-w-[1280px] mx-auto box-border">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
+        <div class="reveal">
+          <h2 class="m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em] max-w-[14ch] text-balance">Let's build yours.</h2>
+          <p class="mt-6 mb-0 text-[16px] leading-[1.7] text-[#75736C] max-w-[44ch]">
+            Tell me a little about your business. I reply within one business day — in English or Spanish.
+          </p>
+          <div class="mt-[clamp(32px,5vh,48px)] flex flex-col gap-[14px]">
+            <a href="mailto:hola@terrerov.com" 
+               class="text-[16px] font-medium border-b border-[#C9C8C0] pb-[3px] w-fit transition-colors hover:border-[#161513]">
+              hola@terrerov.com
+            </a>
+            <span class="text-[14px] text-[#75736C]">Louisville, Kentucky</span>
+          </div>
+        </div>
+
+        <form id="contact-form" class="reveal flex flex-col gap-2">
+          <label for="c-name" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-1">NAME</label>
+          <input id="c-name" name="name" type="text" 
+                 class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] rounded-none transition-colors focus:border-b-[#161513]" />
+
+          <label for="c-email" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-7">EMAIL</label>
+          <input id="c-email" name="email" type="email" 
+                 class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] rounded-none transition-colors focus:border-b-[#161513]" />
+
+          <label for="c-msg" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-7">ABOUT YOUR BUSINESS</label>
+          <textarea id="c-msg" name="message" rows="4" 
+                    class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] resize-y rounded-none transition-colors focus:border-b-[#161513]"></textarea>
+
+          <button type="submit"
+                  class="mt-10 self-start inline-flex items-center gap-3 px-[34px] py-[17px] bg-[#161513] !text-[#FBFBF9] text-[12px] font-medium tracking-[0.16em] rounded-[2px] border-0 cursor-pointer transition-all hover:bg-[#2E2C28] hover:!text-[#FBFBF9] hover:-translate-y-0.5">
+            SEND INQUIRY<span class="text-[14px]">→</span>
+          </button>
+
+          <p id="success-msg" class="hidden mt-[18px] mb-0 text-[14px] text-[#75736C]">
+            Gracias — your email app should open with the message ready to send.
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-[#E7E6E0] px-[clamp(20px,5vw,64px)] py-[clamp(48px,7vh,72px)] bg-[rgba(251,251,249,0.6)]">
+      <div class="max-w-[1280px] mx-auto flex justify-between items-start gap-10 flex-wrap">
+        <div>
+          <p class="m-0 text-[13px] font-semibold tracking-[0.26em]">TERREROV</p>
+          <p class="mt-4 mb-0 text-[13px] leading-[1.7] text-[#75736C]">
+            hola@terrerov.com
+          </p>
+        </div>
+        <div class="flex gap-[clamp(20px,3vw,40px)]">
+          <a href="https://instagram.com/terrerov" target="_blank" rel="noopener" 
+             class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">INSTAGRAM</a>
+          <a href="https://linkedin.com/company/terrerov" target="_blank" rel="noopener" 
+             class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">LINKEDIN</a>
+          <a href="mailto:hola@terrerov.com" 
+             class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">EMAIL</a>
+        </div>
+        <p class="m-0 text-[12px] text-[#98968E]">© 2026 Terrerov Studio</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Contact form mailto handler (matches the design prototype behavior)
+    const form = document.getElementById('contact-form');
+    const success = document.getElementById('success-msg');
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const f = e.currentTarget;
+        const name = f.name.value.trim();
+        const email = f.email.value.trim();
+        const msg = f.message.value.trim();
+
+        const body = encodeURIComponent(
+          (msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : '')
+        );
+
+        window.location.href =
+          'mailto:hola@terrerov.com?subject=' +
+          encodeURIComponent('Project inquiry — ' + (name || 'new project')) +
+          '&body=' + body;
+
+        if (success) success.classList.remove('hidden');
+      });
+    }
+
+    // Reveal on scroll (IntersectionObserver, respects reduced motion)
+    function setupReveals() {
+      const els = document.querySelectorAll('.reveal');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced || !('IntersectionObserver' in window)) {
+        els.forEach(el => el.style.opacity = '1');
+        return;
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.transition = 'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'none';
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      els.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top > window.innerHeight * 0.92) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(22px)';
+          io.observe(el);
+        } else {
+          el.style.opacity = '1';
+        }
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupReveals();
+    });
+  </script>
+</Layout>

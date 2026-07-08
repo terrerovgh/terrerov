@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#FBFBF9;color:#161513;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:'kern' 1}
+a{color:#161513;text-decoration:none}
+a:hover{color:#75736C}
+::selection{background:#161513;color:#FBFBF9}
+input,textarea,button{font-family:'Inter',system-ui,sans-serif}
+input:focus,textarea:focus{outline:none}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+</style>
+</helmet>
+
+<canvas ref="{{ bgRef }}" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+
+<div style="position:relative;z-index:1">
+
+  <!-- ============ NAV ============ -->
+  <header style="position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:20px clamp(20px,5vw,64px);background:rgba(251,251,249,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+    <a href="#top" style="font-size:13px;font-weight:600;letter-spacing:0.26em;color:#161513">TERREROV</a>
+    <nav style="display:flex;gap:clamp(18px,3.4vw,44px)">
+      <a href="#works" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">WORKS</a>
+      <a href="#services" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">SERVICES</a>
+      <a href="#about" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">ABOUT</a>
+      <a href="#contact" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">CONTACT</a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section id="top" data-screen-label="Hero" style="min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:120px clamp(20px,5vw,64px) 80px;max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <p style="margin:0 0 clamp(28px,4vh,48px);font-size:11px;font-weight:500;letter-spacing:0.24em;color:#98968E">WEB STUDIO — LOUISVILLE, KY</p>
+    <h1 style="margin:0;font-size:clamp(44px,8.5vw,118px);line-height:1.02;font-weight:300;letter-spacing:-0.035em;max-width:14ch;text-wrap:balance">Web design that elevates local business.</h1>
+    <p style="margin:clamp(24px,3.5vh,40px) 0 0;font-size:clamp(15px,1.6vw,19px);font-weight:400;color:#75736C;letter-spacing:0.01em;font-style:italic">Diseño web que eleva negocios locales.</p>
+    <div style="display:flex;align-items:center;gap:36px;margin-top:clamp(40px,6vh,72px);flex-wrap:wrap">
+      <a href="#contact" style="display:inline-flex;align-items:center;gap:12px;padding:17px 34px;background:#161513;color:#FBFBF9;font-size:12px;font-weight:500;letter-spacing:0.16em;border-radius:2px;transition:background .3s,transform .3s" style-hover="background:#2E2C28;color:#FBFBF9;transform:translateY(-2px)">START A PROJECT<span style="font-size:14px">→</span></a>
+      <a href="#works" style="font-size:12px;font-weight:500;letter-spacing:0.16em;color:#161513;border-bottom:1px solid #C9C8C0;padding-bottom:5px;transition:border-color .3s" style-hover="color:#161513;border-bottom-color:#161513">VIEW WORKS</a>
+    </div>
+  </section>
+
+  <!-- ============ WORKS ============ -->
+  <section id="works" data-screen-label="Works" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <div data-reveal="" style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:clamp(48px,7vh,80px)">
+      <h2 style="margin:0;font-size:clamp(30px,4vw,48px);font-weight:300;letter-spacing:-0.03em">Selected works</h2>
+      <span style="font-size:11px;font-weight:500;letter-spacing:0.22em;color:#98968E">2024 — 2026</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:clamp(48px,6vh,72px) 48px">
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-ironbloom" shape="rect" placeholder="Iron Bloom Tattoo — homepage shot" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">Iron Bloom Tattoo</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">PORTFOLIO · BOOKING</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">Artist portfolio with a full-bleed gallery and an integrated booking flow — consultations up 3× in the first quarter.</p>
+      </div>
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-cardinal" shape="rect" placeholder="Cardinal Ink — gallery view" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">Cardinal Ink Collective</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">MULTI-ARTIST SITE</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">Six resident artists, one elegant home — individual galleries, styles, and direct booking per artist.</p>
+      </div>
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-solstice" shape="rect" placeholder="Solstice Studio — booking page" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">Solstice Studio</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">TATTOO · PIERCING</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">Reservations, aftercare guides, and a small shop — everything a walk-in studio needs, nothing it doesn't.</p>
+      </div>
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-vianorte" shape="rect" placeholder="Vía Norte — menu page" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">Vía Norte Taquería</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">RESTAURANT · LOCAL SEO</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">A bilingual menu site tuned for local search — first page of Google for "tacos Louisville" in eight weeks.</p>
+      </div>
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-fernfade" shape="rect" placeholder="Fern &amp; Fade — booking flow" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">Fern &amp; Fade Barbershop</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">BOOKING</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">Chair-by-chair online booking replaced the phone tag — no-shows cut nearly in half.</p>
+      </div>
+
+      <div data-reveal="">
+        <div style="aspect-ratio:4/3;background:#F0EFEA;overflow:hidden">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="work-rivercity" shape="rect" placeholder="River City — landing page" style="width:100%;height:100%" hint-size="100%,100%"></x-import>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:20px">
+          <h3 style="margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em">River City Contracting</h3>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#98968E;white-space:nowrap">LEAD GENERATION</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#75736C;max-width:44ch">From no web presence to a steady stream of qualified estimate requests every week.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ SERVICES ============ -->
+  <section id="services" data-screen-label="Services" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <h2 data-reveal="" style="margin:0 0 clamp(48px,7vh,80px);font-size:clamp(30px,4vw,48px);font-weight:300;letter-spacing:-0.03em">Services</h2>
+    <div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">01</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Custom web design &amp; development</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Sites designed and built from scratch around your business — never a template with your logo swapped in.</p></div>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">02</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Sites for tattoo studios &amp; artists</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Powerful galleries that honor the work, plus booking that fills your calendar. A specialty of the studio.</p></div>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">03</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Local SEO</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Show up when Louisville searches for what you do — maps, reviews, and pages built to rank locally.</p></div>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">04</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Online booking integration</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Appointments, deposits, and reminders that run themselves — so the phone stops being a bottleneck.</p></div>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">05</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Care &amp; monthly updates</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Hosting, security, content changes, and small improvements — your site stays fast and current.</p></div>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:64px 1fr;gap:8px 24px;padding:32px 0;border-top:1px solid #E7E6E0;border-bottom:1px solid #E7E6E0;transition:background .3s" style-hover="background:rgba(22,21,19,0.015)">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em;padding-top:6px">06</span>
+        <div><h3 style="margin:0;font-size:clamp(19px,2.2vw,24px);font-weight:400;letter-spacing:-0.015em">Redesign of existing sites</h3>
+        <p style="margin:10px 0 0;font-size:15px;line-height:1.65;color:#75736C;max-width:58ch">Keep what works, rebuild what doesn't — a considered refresh instead of starting over.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about" data-screen-label="About" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:clamp(40px,6vw,96px)">
+      <h2 data-reveal="" style="margin:0;font-size:clamp(30px,4vw,48px);font-weight:300;letter-spacing:-0.03em;max-width:16ch;text-wrap:balance">A small studio for businesses that deserve better.</h2>
+      <div data-reveal="">
+        <p style="margin:0;font-size:clamp(15px,1.6vw,17px);line-height:1.75;color:#403E39;max-width:56ch">Terrerov is an independent web studio in Louisville, Kentucky. I work with local businesses — many building their first real web presence — and treat each site as a craft object: designed carefully, built fast, and made to bring in actual customers, not just compliments.</p>
+        <p style="margin:20px 0 0;font-size:clamp(15px,1.6vw,17px);line-height:1.75;color:#403E39;max-width:56ch">No agencies, no account managers, no handoffs. You work directly with the person designing and building your site — en inglés o en español.</p>
+        <div style="display:flex;gap:clamp(28px,4vw,56px);margin-top:clamp(32px,5vh,48px);flex-wrap:wrap">
+          <div><p style="margin:0;font-size:11px;letter-spacing:0.2em;color:#98968E">BASED IN</p><p style="margin:6px 0 0;font-size:15px;font-weight:500">Louisville, KY</p></div>
+          <div><p style="margin:0;font-size:11px;letter-spacing:0.2em;color:#98968E">FOCUS</p><p style="margin:6px 0 0;font-size:15px;font-weight:500">Local business</p></div>
+          <div><p style="margin:0;font-size:11px;letter-spacing:0.2em;color:#98968E">LANGUAGES</p><p style="margin:6px 0 0;font-size:15px;font-weight:500">English · Español</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section data-screen-label="Process" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <h2 data-reveal="" style="margin:0 0 clamp(48px,7vh,80px);font-size:clamp(30px,4vw,48px);font-weight:300;letter-spacing:-0.03em">Process</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:clamp(36px,5vw,56px)">
+      <div data-reveal="" style="border-top:1px solid #161513;padding-top:24px">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em">01</span>
+        <h3 style="margin:14px 0 0;font-size:19px;font-weight:500;letter-spacing:-0.01em">Listen</h3>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.65;color:#75736C">A short conversation about your business, your customers, and what a win looks like.</p>
+      </div>
+      <div data-reveal="" style="border-top:1px solid #161513;padding-top:24px">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em">02</span>
+        <h3 style="margin:14px 0 0;font-size:19px;font-weight:500;letter-spacing:-0.01em">Design</h3>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.65;color:#75736C">You see the design before anything is built. We refine it together until it feels right.</p>
+      </div>
+      <div data-reveal="" style="border-top:1px solid #161513;padding-top:24px">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em">03</span>
+        <h3 style="margin:14px 0 0;font-size:19px;font-weight:500;letter-spacing:-0.01em">Build</h3>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.65;color:#75736C">Fast, accessible, search-ready. Most sites launch in two to four weeks.</p>
+      </div>
+      <div data-reveal="" style="border-top:1px solid #161513;padding-top:24px">
+        <span style="font-size:12px;color:#98968E;letter-spacing:0.1em">04</span>
+        <h3 style="margin:14px 0 0;font-size:19px;font-weight:500;letter-spacing:-0.01em">Grow</h3>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.65;color:#75736C">Monthly care, measurement, and small improvements that compound over time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS ============ -->
+  <section data-screen-label="Testimonials" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(40px,5vw,64px)">
+      <figure data-reveal="" style="margin:0">
+        <blockquote style="margin:0;font-size:clamp(17px,1.8vw,20px);line-height:1.6;font-weight:300;letter-spacing:-0.01em">"The site looks like it cost five times what it did. Clients mention it before they mention the tattoos."</blockquote>
+        <figcaption style="margin-top:22px;font-size:12px;letter-spacing:0.18em;color:#98968E">— STUDIO OWNER, LOUISVILLE <span style="color:#C9C8C0">· placeholder</span></figcaption>
+      </figure>
+      <figure data-reveal="" style="margin:0">
+        <blockquote style="margin:0;font-size:clamp(17px,1.8vw,20px);line-height:1.6;font-weight:300;letter-spacing:-0.01em">"We went from invisible on Google to booked out three weeks. That's the whole story."</blockquote>
+        <figcaption style="margin-top:22px;font-size:12px;letter-spacing:0.18em;color:#98968E">— BARBERSHOP OWNER <span style="color:#C9C8C0">· placeholder</span></figcaption>
+      </figure>
+      <figure data-reveal="" style="margin:0">
+        <blockquote style="margin:0;font-size:clamp(17px,1.8vw,20px);line-height:1.6;font-weight:300;letter-spacing:-0.01em">"Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."</blockquote>
+        <figcaption style="margin-top:22px;font-size:12px;letter-spacing:0.18em;color:#98968E">— RESTAURANT OWNER <span style="color:#C9C8C0">· placeholder</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact" data-screen-label="Contact" style="padding:clamp(80px,12vh,140px) clamp(20px,5vw,64px) clamp(80px,10vh,120px);max-width:1280px;margin:0 auto;box-sizing:border-box">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:clamp(40px,6vw,96px)">
+      <div data-reveal="">
+        <h2 style="margin:0;font-size:clamp(30px,4vw,48px);font-weight:300;letter-spacing:-0.03em;max-width:14ch;text-wrap:balance">Let's build yours.</h2>
+        <p style="margin:24px 0 0;font-size:16px;line-height:1.7;color:#75736C;max-width:44ch">Tell me a little about your business. I reply within one business day — in English or Spanish.</p>
+        <div style="margin-top:clamp(32px,5vh,48px);display:flex;flex-direction:column;gap:14px">
+          <a href="mailto:hola@terrerov.com" style="font-size:16px;font-weight:500;border-bottom:1px solid #C9C8C0;padding-bottom:3px;width:fit-content;transition:border-color .3s" style-hover="color:#161513;border-bottom-color:#161513">hola@terrerov.com</a>
+          <span style="font-size:14px;color:#75736C">Louisville, Kentucky</span>
+        </div>
+      </div>
+      <form data-reveal="" onSubmit="{{ onSubmit }}" style="display:flex;flex-direction:column;gap:8px">
+        <label style="font-size:11px;letter-spacing:0.2em;color:#98968E;margin-top:4px" for="c-name">NAME</label>
+        <input id="c-name" name="name" type="text" style="border:0;border-bottom:1px solid #D9D8D2;background:transparent;padding:12px 0 14px;font-size:16px;color:#161513;border-radius:0;transition:border-color .3s" style-focus="border-bottom-color:#161513" />
+        <label style="font-size:11px;letter-spacing:0.2em;color:#98968E;margin-top:28px" for="c-email">EMAIL</label>
+        <input id="c-email" name="email" type="email" style="border:0;border-bottom:1px solid #D9D8D2;background:transparent;padding:12px 0 14px;font-size:16px;color:#161513;border-radius:0;transition:border-color .3s" style-focus="border-bottom-color:#161513" />
+        <label style="font-size:11px;letter-spacing:0.2em;color:#98968E;margin-top:28px" for="c-msg">ABOUT YOUR BUSINESS</label>
+        <textarea id="c-msg" name="message" rows="4" style="border:0;border-bottom:1px solid #D9D8D2;background:transparent;padding:12px 0 14px;font-size:16px;color:#161513;resize:vertical;border-radius:0;transition:border-color .3s" style-focus="border-bottom-color:#161513"></textarea>
+        <button type="submit" style="margin-top:40px;align-self:flex-start;display:inline-flex;align-items:center;gap:12px;padding:17px 34px;background:#161513;color:#FBFBF9;font-size:12px;font-weight:500;letter-spacing:0.16em;border:0;border-radius:2px;cursor:pointer;transition:background .3s,transform .3s" style-hover="background:#2E2C28;transform:translateY(-2px)">SEND INQUIRY<span style="font-size:14px">→</span></button>
+        <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:18px 0 0;font-size:14px;color:#75736C">Gracias — your email app should open with the message ready to send.</p>
+        </sc-if>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer data-screen-label="Footer" style="border-top:1px solid #E7E6E0;padding:clamp(48px,7vh,72px) clamp(20px,5vw,64px);background:rgba(251,251,249,0.6)">
+    <div style="max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap">
+      <div>
+        <p style="margin:0;font-size:13px;font-weight:600;letter-spacing:0.26em">TERREROV</p>
+        <p style="margin:16px 0 0;font-size:13px;line-height:1.7;color:#75736C">Louisville, Kentucky<br />hola@terrerov.com</p>
+      </div>
+      <div style="display:flex;gap:clamp(20px,3vw,40px)">
+        <a href="https://instagram.com/terrerov" target="_blank" rel="noopener" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">INSTAGRAM</a>
+        <a href="https://linkedin.com/company/terrerov" target="_blank" rel="noopener" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">LINKEDIN</a>
+        <a href="mailto:hola@terrerov.com" style="font-size:10.5px;font-weight:500;letter-spacing:0.2em;color:#75736C;transition:color .25s" style-hover="color:#161513">EMAIL</a>
+      </div>
+      <p style="margin:0;font-size:12px;color:#98968E">© 2026 Terrerov Studio</p>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Background&quot;},&quot;linesOpacity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.7,&quot;min&quot;:0,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Background&quot;},&quot;particleDensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:96,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Background&quot;}}">
+class Component extends DCLogic {
+  state = { sent: false };
+
+  renderVals() {
+    return {
+      bgRef: (el) => { this._cv = el; },
+      sent: this.state.sent,
+      onSubmit: (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const name = f.name.value.trim();
+        const email = f.email.value.trim();
+        const msg = f.message.value.trim();
+        const body = encodeURIComponent(
+          (msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : '')
+        );
+        window.location.href = 'mailto:hola@terrerov.com?subject=' +
+          encodeURIComponent('Project inquiry — ' + (name || 'new project')) +
+          '&body=' + body;
+        this.setState({ sent: true });
+      }
+    };
+  }
+
+  componentDidMount() {
+    this._startBackground();
+    this._setupReveal();
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    if (this._io) this._io.disconnect();
+    window.removeEventListener('resize', this._onResize);
+  }
+
+  _setupReveal() {
+    const els = document.querySelectorAll('[data-reveal]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) return;
+    this._io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) {
+          en.target.style.opacity = '1';
+          en.target.style.transform = 'none';
+          this._io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    els.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top > window.innerHeight * 0.92) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(22px)';
+        el.style.transition = 'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
+        this._io.observe(el);
+      }
+    });
+  }
+
+  _startBackground() {
+    const cv = this._cv;
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      w = window.innerWidth; h = window.innerHeight;
+      cv.width = w * dpr; cv.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    this._onResize = resize;
+    resize();
+    window.addEventListener('resize', resize);
+
+    // particles
+    const P = [];
+    const seedParticles = (n) => {
+      while (P.length < n) P.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.6 + Math.random() * 1.3,
+        vx: (Math.random() - 0.5) * 0.08,
+        vy: -0.03 - Math.random() * 0.07,
+        a: 0.35 + Math.random() * 0.65
+      });
+      P.length = n;
+    };
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let t = 0;
+
+    const draw = () => {
+      const opac = Math.max(0, Math.min(2, this.props.linesOpacity ?? 1));
+      const density = Math.round(this.props.particleDensity ?? 36);
+      seedParticles(density);
+      ctx.clearRect(0, 0, w, h);
+
+      // topographic contour lines, rendered as dotted point-chains
+      const lines = 9;
+      for (let i = 0; i < lines; i++) {
+        const base = h * (0.06 + (i / (lines - 1)) * 0.88);
+        const ph = i * 1.7;
+        for (let x = -20; x <= w + 20; x += 9) {
+          const y = base
+            + Math.sin(x * 0.0022 + t * 0.00012 + ph) * 46
+            + Math.sin(x * 0.0061 - t * 0.00008 + ph * 2.3) * 18
+            + Math.cos(x * 0.0013 + t * 0.00005 + ph * 0.7) * 30;
+          ctx.beginPath();
+          ctx.arc(x, y, 1.15, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(22,21,19,' + (0.09 * opac).toFixed(4) + ')';
+          ctx.fill();
+        }
+      }
+
+      // particles
+      for (const p of P) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.y < -6) { p.y = h + 6; p.x = Math.random() * w; }
+        if (p.x < -6) p.x = w + 6;
+        if (p.x > w + 6) p.x = -6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(22,21,19,' + (0.07 * p.a * opac).toFixed(4) + ')';
+        ctx.fill();
+      }
+
+      t += 16;
+      if (!reduced && (this.props.motion ?? true)) {
+        this._raf = requestAnimationFrame(draw);
+      }
+    };
+    draw();
+    // if motion was off and gets toggled on, poll cheaply
+    this._raf2 = setInterval(() => {
+      if ((this.props.motion ?? true) && !reduced) {
+        cancelAnimationFrame(this._raf);
+        this._raf = requestAnimationFrame(draw);
+      }
+    }, 800);
+  }
+}
+</script>
+</body>
+</html>

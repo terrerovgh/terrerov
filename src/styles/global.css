@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1;
+}
+
+a {
+  color: #161513;
+  text-decoration: none;
+}
+
+/* Do not override explicit button/link colors used on dark CTAs */
+a.bg-\[\#161513\],
+a:hover.bg-\[\#161513\] {
+  color: #FBFBF9;
+}
+
+a:hover {
+  color: #75736C;
+}
+
+::selection {
+  background: #161513;
+  color: #FBFBF9;
+}
+
+input, textarea, button {
+  font-family: var(--font-sans);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+}
