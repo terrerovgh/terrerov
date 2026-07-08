@@ -1,6 +1,6 @@
 # Terrerov — Web Design Studio
 
-**GitHub:** https://github.com/terrerov/terrerov  
+**GitHub:** https://github.com/terrerovgh/terrerov  
 **Target live site:** https://www.terrerov.com
 
 Pixel-perfect implementation of the Terrerov premium web design (from handoff) built in **Astro + Tailwind CSS**.
@@ -53,7 +53,7 @@ This project is pre-configured for **Cloudflare Pages** (static output via `@ast
 
 1. Go to the [Cloudflare Pages dashboard](https://dash.cloudflare.com/?to=/:account/pages).
 2. **Create a project** → **Connect to Git**.
-3. Authorize GitHub if needed and select the repository **`terrerov/terrerov`**.
+3. Authorize GitHub if needed and select the repository **`terrerovgh/terrerov`**.
 4. Configure build settings:
    - **Framework preset**: Astro (or leave as "None")
    - **Build command**: `npm run build`
