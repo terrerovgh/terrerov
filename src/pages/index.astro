@@ -1,16 +1,69 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BackgroundCanvas from '../components/BackgroundCanvas.astro';
+
+const works = [
+  {
+    name: 'Iron Bloom Tattoo',
+    kicker: 'TACTILE / GALLERY',
+    tag: 'PORTFOLIO · BOOKING',
+    tint: '#F0EFEA',
+    description:
+      'Artist portfolio with a full-bleed gallery and an integrated booking flow — consultations up 3× in the first quarter.',
+  },
+  {
+    name: 'Cardinal Ink Collective',
+    kicker: 'MULTI-ARTIST',
+    tag: 'MULTI-ARTIST SITE',
+    tint: '#EFEDE6',
+    description:
+      'Six resident artists, one elegant home — individual galleries, styles, and direct booking per artist.',
+  },
+  {
+    name: 'Solstice Studio',
+    kicker: 'BOOKING + SHOP',
+    tag: 'TATTOO · PIERCING',
+    tint: '#EDEEE9',
+    description:
+      "Reservations, aftercare guides, and a small shop — everything a walk-in studio needs, nothing it doesn't.",
+  },
+  {
+    name: 'Vía Norte Taquería',
+    kicker: 'MENU / LOCAL',
+    tag: 'RESTAURANT · LOCAL SEO',
+    tint: '#F1EEE6',
+    description:
+      'A bilingual menu site tuned for local search — first page of Google for "tacos Louisville" in eight weeks.',
+  },
+  {
+    name: 'Fern & Fade Barbershop',
+    kicker: 'SCHEDULING',
+    tag: 'BOOKING',
+    tint: '#ECEDE8',
+    description:
+      'Chair-by-chair online booking replaced the phone tag — no-shows cut nearly in half.',
+  },
+  {
+    name: 'River City Contracting',
+    kicker: 'LEADS',
+    tag: 'LEAD GENERATION',
+    tint: '#F0EEE9',
+    description:
+      'From no web presence to a steady stream of qualified estimate requests every week.',
+  },
+];
 ---
 
 <Layout>
+  <a href="#main" class="skip-link">SKIP TO CONTENT</a>
+
   <!-- Fixed header -->
-  <header class="fixed top-0 left-0 right-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-[rgba(251,251,249,0.72)] backdrop-blur-[14px]">
-    <a href="#top" class="text-[13px] font-semibold tracking-[0.26em] text-[#161513]">TERREROV</a>
-    <nav class="flex gap-[clamp(18px,3.4vw,44px)]">
+  <header class="fixed top-0 left-0 right-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-[rgba(251,251,249,0.72)] backdrop-blur-[14px] border-b border-[rgba(22,21,19,0.06)]">
+    <a href="#top" class="text-[13px] font-semibold tracking-[0.26em] text-[#161513]" aria-label="Terrerov — back to top">TERREROV</a>
+    <nav class="flex gap-[clamp(18px,3.4vw,44px)]" aria-label="Main navigation">
       <a href="#works" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">WORKS</a>
       <a href="#services" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">SERVICES</a>
-      <a href="#about" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">ABOUT</a>
+      <a href="#about" class="max-[460px]:hidden text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">ABOUT</a>
       <a href="#contact" class="text-[10.5px] font-medium tracking-[0.2em] text-[#75736C] transition-colors hover:text-[#161513]">CONTACT</a>
     </nav>
   </header>
@@ -19,13 +72,14 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
   <BackgroundCanvas />
 
   <div class="relative z-10">
+    <main id="main">
     <!-- HERO -->
     <section id="top" class="min-h-[100svh] flex flex-col justify-center px-[clamp(20px,5vw,64px)] pt-[120px] pb-20 max-w-[1280px] mx-auto box-border">
-      <p class="mb-[clamp(28px,4vh,48px)] text-[11px] font-medium tracking-[0.24em] text-[#98968E]">CUSTOM WEB DESIGN</p>
+      <p class="mb-[clamp(28px,4vh,48px)] text-[11px] font-medium tracking-[0.24em] text-[#98968E]">CUSTOM WEB DESIGN — LOUISVILLE, KY</p>
       <h1 class="m-0 text-[clamp(44px,8.5vw,118px)] leading-[1.02] font-light tracking-[-0.035em] max-w-[14ch] text-balance">
         Web design that elevates local business.
       </h1>
-      <p class="mt-[clamp(24px,3.5vh,40px)] mb-0 text-[clamp(15px,1.6vw,19px)] font-normal text-[#75736C] tracking-[0.01em] italic">
+      <p lang="es" class="mt-[clamp(24px,3.5vh,40px)] mb-0 text-[clamp(15px,1.6vw,19px)] font-normal text-[#75736C] tracking-[0.01em] italic">
         Diseño web que eleva negocios locales.
       </p>
       <div class="flex items-center gap-9 mt-[clamp(40px,6vh,72px)] flex-wrap">
@@ -48,113 +102,24 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
       </div>
 
       <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-[clamp(48px,6vh,72px)_48px]">
-        <!-- Work 1: Iron Bloom -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">TACTILE / GALLERY</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Iron Bloom Tattoo</div>
+        {works.map((work) => (
+          <article class="reveal group">
+            <div class="aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]" style={`background:${work.tint}`}>
+              <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
+              <div class="relative z-10 text-center px-6" aria-hidden="true">
+                <div class="text-[#98968E] text-xs tracking-[3px] mb-1">{work.kicker}</div>
+                <div class="text-[#75736C] text-[13px] font-medium tracking-wide">{work.name}</div>
+              </div>
             </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Iron Bloom Tattoo</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">PORTFOLIO · BOOKING</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            Artist portfolio with a full-bleed gallery and an integrated booking flow — consultations up 3× in the first quarter.
-          </p>
-        </div>
-
-        <!-- Work 2 -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">MULTI-ARTIST</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Cardinal Ink Collective</div>
+            <div class="flex justify-between items-baseline gap-4 mt-5">
+              <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">{work.name}</h3>
+              <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">{work.tag}</span>
             </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Cardinal Ink Collective</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">MULTI-ARTIST SITE</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            Six resident artists, one elegant home — individual galleries, styles, and direct booking per artist.
-          </p>
-        </div>
-
-        <!-- Work 3 -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">BOOKING + SHOP</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Solstice Studio</div>
-            </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Solstice Studio</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">TATTOO · PIERCING</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            Reservations, aftercare guides, and a small shop — everything a walk-in studio needs, nothing it doesn't.
-          </p>
-        </div>
-
-        <!-- Work 4 -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">MENU / LOCAL</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Vía Norte Taquería</div>
-            </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Vía Norte Taquería</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">RESTAURANT · LOCAL SEO</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            A bilingual menu site tuned for local search — first page of Google for "tacos Louisville" in eight weeks.
-          </p>
-        </div>
-
-        <!-- Work 5 -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">SCHEDULING</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">Fern &amp; Fade Barbershop</div>
-            </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">Fern &amp; Fade Barbershop</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">BOOKING</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            Chair-by-chair online booking replaced the phone tag — no-shows cut nearly in half.
-          </p>
-        </div>
-
-        <!-- Work 6 -->
-        <div class="reveal">
-          <div class="aspect-[4/3] bg-[#F0EFEA] overflow-hidden relative flex items-center justify-center">
-            <div class="absolute inset-0 bg-[radial-gradient(#D9D6CD_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60"></div>
-            <div class="relative z-10 text-center px-6">
-              <div class="text-[#98968E] text-xs tracking-[3px] mb-1">LEADS</div>
-              <div class="text-[#75736C] text-[13px] font-medium tracking-wide">River City Contracting</div>
-            </div>
-          </div>
-          <div class="flex justify-between items-baseline gap-4 mt-5">
-            <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">River City Contracting</h3>
-            <span class="text-[11px] tracking-[0.18em] text-[#98968E] whitespace-nowrap">LEAD GENERATION</span>
-          </div>
-          <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
-            From no web presence to a steady stream of qualified estimate requests every week.
-          </p>
-        </div>
+            <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-[#75736C] max-w-[44ch]">
+              {work.description}
+            </p>
+          </article>
+        ))}
       </div>
     </section>
 
@@ -267,7 +232,7 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
     </section>
 
     <!-- TESTIMONIALS -->
-    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
+    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border" aria-label="Testimonials">
       <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-[clamp(40px,5vw,64px)]">
         <figure class="reveal m-0">
           <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
@@ -282,7 +247,7 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
           <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-[#98968E]">— BARBERSHOP OWNER <span class="text-[#C9C8C0]">· placeholder</span></figcaption>
         </figure>
         <figure class="reveal m-0">
-          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
+          <blockquote lang="es" class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
             "Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."
           </blockquote>
           <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-[#98968E]">— RESTAURANT OWNER <span class="text-[#C9C8C0]">· placeholder</span></figcaption>
@@ -309,15 +274,15 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
 
         <form id="contact-form" class="reveal flex flex-col gap-2">
           <label for="c-name" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-1">NAME</label>
-          <input id="c-name" name="name" type="text" 
+          <input id="c-name" name="name" type="text" required autocomplete="name"
                  class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] rounded-none transition-colors focus:border-b-[#161513]" />
 
           <label for="c-email" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-7">EMAIL</label>
-          <input id="c-email" name="email" type="email" 
+          <input id="c-email" name="email" type="email" required autocomplete="email"
                  class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] rounded-none transition-colors focus:border-b-[#161513]" />
 
           <label for="c-msg" class="text-[11px] tracking-[0.2em] text-[#98968E] mt-7">ABOUT YOUR BUSINESS</label>
-          <textarea id="c-msg" name="message" rows="4" 
+          <textarea id="c-msg" name="message" rows="4" required
                     class="border-0 border-b border-[#D9D8D2] bg-transparent py-[12px] pb-[14px] text-[16px] text-[#161513] resize-y rounded-none transition-colors focus:border-b-[#161513]"></textarea>
 
           <button type="submit"
@@ -331,6 +296,8 @@ import BackgroundCanvas from '../components/BackgroundCanvas.astro';
         </form>
       </div>
     </section>
+
+    </main>
 
     <!-- FOOTER -->
     <footer class="border-t border-[#E7E6E0] px-[clamp(20px,5vw,64px)] py-[clamp(48px,7vh,72px)] bg-[rgba(251,251,249,0.6)]">
