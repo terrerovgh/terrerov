@@ -100,8 +100,23 @@ const structuredData = {
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
+
+		<script is:inline>
+			// Apply the saved (or system) theme before first paint to avoid a flash
+			(function () {
+				var stored = localStorage.getItem('theme');
+				var dark = stored
+					? stored === 'dark'
+					: window.matchMedia('(prefers-color-scheme: dark)').matches;
+				document.documentElement.classList.toggle('dark', dark);
+				if (dark) {
+					var meta = document.querySelector('meta[name="theme-color"]');
+					if (meta) meta.setAttribute('content', '#141312');
+				}
+			})();
+		</script>
 	</head>
-	<body class="bg-[#FBFBF9] text-[#161513] font-sans antialiased">
+	<body class="bg-(--bg) text-(--ink) font-sans antialiased">
 		<slot />
 	</body>
 </html>

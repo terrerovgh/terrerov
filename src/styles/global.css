@@ -1,7 +1,46 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Semantic palette — light theme */
+  color-scheme: light;
+  --bg: #FBFBF9;
+  --ink: #161513;
+  --ink-hover: #2E2C28;
+  --text-strong: #403E39;
+  --muted: #75736C;
+  --faint: #98968E;
+  --line: #E7E6E0;
+  --line-soft: #C9C8C0;
+  --line-form: #D9D8D2;
+  --tile-dot: #D9D6CD;
+  --header-bg: rgba(251, 251, 249, 0.72);
+  --footer-bg: rgba(251, 251, 249, 0.6);
+  --hover-tint: rgba(22, 21, 19, 0.015);
+  --header-line: rgba(22, 21, 19, 0.06);
+  --canvas-ink: 22, 21, 19;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #141312;
+  --ink: #ECEAE4;
+  --ink-hover: #D8D5CC;
+  --text-strong: #C9C6BE;
+  --muted: #A3A099;
+  --faint: #807D76;
+  --line: #2A2925;
+  --line-soft: #45433E;
+  --line-form: #3A3833;
+  --tile-dot: #35332E;
+  --header-bg: rgba(20, 19, 18, 0.72);
+  --footer-bg: rgba(20, 19, 18, 0.6);
+  --hover-tint: rgba(236, 234, 228, 0.02);
+  --header-line: rgba(236, 234, 228, 0.07);
+  --canvas-ink: 236, 234, 228;
 }
 
 html {
@@ -28,23 +67,17 @@ body {
 }
 
 a {
-  color: #161513;
+  color: var(--ink);
   text-decoration: none;
 }
 
-/* Do not override explicit button/link colors used on dark CTAs */
-a.bg-\[\#161513\],
-a:hover.bg-\[\#161513\] {
-  color: #FBFBF9;
-}
-
 a:hover {
-  color: #75736C;
+  color: var(--muted);
 }
 
 ::selection {
-  background: #161513;
-  color: #FBFBF9;
+  background: var(--ink);
+  color: var(--bg);
 }
 
 input, textarea, button {
@@ -58,7 +91,7 @@ input:focus, textarea:focus {
 /* Visible focus for keyboard navigation */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid #161513;
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -66,7 +99,7 @@ button:focus-visible {
 input:focus-visible,
 textarea:focus-visible {
   outline: none;
-  border-bottom-color: #161513;
+  border-bottom-color: var(--ink);
 }
 
 /* Skip-to-content link (visually hidden until focused) */
@@ -76,8 +109,8 @@ textarea:focus-visible {
   left: 16px;
   z-index: 50;
   padding: 10px 18px;
-  background: #161513;
-  color: #FBFBF9;
+  background: var(--ink);
+  color: var(--bg);
   font-size: 12px;
   letter-spacing: 0.14em;
   border-radius: 2px;
@@ -86,5 +119,39 @@ textarea:focus-visible {
 
 .skip-link:focus {
   top: 12px;
-  color: #FBFBF9;
+  color: var(--bg);
+}
+
+/* Work card preview tiles — per-card tint set inline as --tint / --tint-dark */
+.work-tile {
+  background: var(--tint);
+}
+
+.dark .work-tile {
+  background: var(--tint-dark);
+}
+
+/* Theme toggle icons */
+.theme-toggle .icon-moon { display: none; }
+.theme-toggle .icon-sun { display: block; }
+.dark .theme-toggle .icon-moon { display: block; }
+.dark .theme-toggle .icon-sun { display: none; }
+
+/*
+ * Theme-switch circular reveal (View Transitions API).
+ * The default crossfade is disabled; the incoming snapshot is
+ * clip-path-animated from the toggle button's position in JS.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
 }

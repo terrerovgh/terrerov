@@ -25,6 +25,21 @@
     const P = [];
     let t = 0;
 
+    // Theme-aware ink color, kept in sync with the .dark class on <html>
+    let ink = getInk();
+    function getInk() {
+      const v = getComputedStyle(document.documentElement)
+        .getPropertyValue('--canvas-ink')
+        .trim();
+      return v || '22, 21, 19';
+    }
+    const themeObserver = new MutationObserver(() => {
+      ink = getInk();
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced) draw();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
     function resize() {
       w = window.innerWidth;
       h = window.innerHeight;
@@ -67,7 +82,7 @@
 
           ctx.beginPath();
           ctx.arc(x, y, 1.15, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(22,21,19,${(0.09 * opac).toFixed(4)})`;
+          ctx.fillStyle = `rgba(${ink},${(0.09 * opac).toFixed(4)})`;
           ctx.fill();
         }
       }
@@ -86,7 +101,7 @@
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(22,21,19,${(0.07 * p.a * opac).toFixed(4)})`;
+        ctx.fillStyle = `rgba(${ink},${(0.07 * p.a * opac).toFixed(4)})`;
         ctx.fill();
       }
 
@@ -115,6 +130,7 @@
     function cleanup() {
       if (raf) cancelAnimationFrame(raf);
       if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+      themeObserver.disconnect();
     }
 
     start();

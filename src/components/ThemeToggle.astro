@@ -1,0 +1,67 @@
+---
+// Light/dark toggle with a circular reveal driven by the View Transitions API
+// (https://theme-toggle.rdsx.dev). Falls back to an instant switch when the
+// API is unavailable or the user prefers reduced motion.
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  class="theme-toggle inline-flex items-center justify-center w-8 h-8 -my-1 text-(--muted) transition-colors hover:text-(--ink) cursor-pointer bg-transparent border-0 p-0"
+  aria-label="Toggle dark mode"
+>
+  <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.4"></circle>
+    <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"></path>
+  </svg>
+  <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.6 8.6 0 1 0 10.8 10.8Z"></path>
+  </svg>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+
+  function applyTheme(dark: boolean) {
+    document.documentElement.classList.toggle('dark', dark);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#141312' : '#FBFBF9');
+  }
+
+  btn?.addEventListener('click', (e) => {
+    const dark = !document.documentElement.classList.contains('dark');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!document.startViewTransition || reduced) {
+      applyTheme(dark);
+      return;
+    }
+
+    // Expand a circle from the click point to the farthest viewport corner
+    const x = e.clientX || window.innerWidth - 40;
+    const y = e.clientY || 40;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => applyTheme(dark));
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 600,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    });
+  });
+</script>
