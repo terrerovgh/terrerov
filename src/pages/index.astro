@@ -5,58 +5,44 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 
 const works = [
   {
-    name: 'Iron Bloom Tattoo',
-    kicker: 'TACTILE / GALLERY',
-    tag: 'PORTFOLIO · BOOKING',
-    tint: '#F0EFEA',
-    tintDark: '#201F1B',
+    name: 'Surviving Chernarus',
+    slug: 'surviving-chernarus',
+    kicker: 'AUTONOMY / RESILIENCE',
+    tag: 'SYSTEM · CONCEPT',
+    tileClass: 'tile-chernarus',
+    tileTitle: 'SURVIVING CHERNARUS_',
     description:
-      'Artist portfolio with a full-bleed gallery and an integrated booking flow — consultations up 3× in the first quarter.',
+      'An autonomous digital-resilience system that runs real-world tasks — mission-control UI with a post-apocalyptic tone.',
   },
   {
-    name: 'Cardinal Ink Collective',
-    kicker: 'MULTI-ARTIST',
-    tag: 'MULTI-ARTIST SITE',
-    tint: '#EFEDE6',
-    tintDark: '#211F19',
+    name: 'Whale Fall',
+    slug: 'whale-fall',
+    kicker: 'DATA / DECISIONS',
+    tag: 'ANALYTICS PLATFORM',
+    tileClass: 'tile-whalefall',
+    tileTitle: 'Whale Fall',
     description:
-      'Six resident artists, one elegant home — individual galleries, styles, and direct booking per artist.',
+      'Autonomous data collection, analytics, and decision-making — a deep-sea design language for a system that never sleeps.',
   },
   {
-    name: 'Solstice Studio',
-    kicker: 'BOOKING + SHOP',
-    tag: 'TATTOO · PIERCING',
-    tint: '#EDEEE9',
-    tintDark: '#1E201B',
+    name: 'Cuba Tattoo Studio',
+    slug: 'cuba-tattoo-studio',
+    kicker: 'STUDIO / ALBUQUERQUE NM',
+    tag: 'TATTOO STUDIO',
+    tileClass: 'tile-cuba',
+    tileTitle: 'CUBA★TATTOO',
     description:
-      "Reservations, aftercare guides, and a small shop — everything a walk-in studio needs, nothing it doesn't.",
+      'A bold one-page site for an Albuquerque tattoo studio — heritage typography, artist roster, and walk-in info.',
   },
   {
-    name: 'Vía Norte Taquería',
-    kicker: 'MENU / LOCAL',
-    tag: 'RESTAURANT · LOCAL SEO',
-    tint: '#F1EEE6',
-    tintDark: '#221F19',
+    name: 'GoodNinaInk',
+    slug: 'goodninaink',
+    kicker: 'ARTIST / ALBUQUERQUE NM',
+    tag: 'TATTOO ARTIST',
+    tileClass: 'tile-nina',
+    tileTitle: 'GoodNinaInk',
     description:
-      'A bilingual menu site tuned for local search — first page of Google for "tacos Louisville" in eight weeks.',
-  },
-  {
-    name: 'Fern & Fade Barbershop',
-    kicker: 'SCHEDULING',
-    tag: 'BOOKING',
-    tint: '#ECEDE8',
-    tintDark: '#1D1F1A',
-    description:
-      'Chair-by-chair online booking replaced the phone tag — no-shows cut nearly in half.',
-  },
-  {
-    name: 'River City Contracting',
-    kicker: 'LEADS',
-    tag: 'LEAD GENERATION',
-    tint: '#F0EEE9',
-    tintDark: '#201E1A',
-    description:
-      'From no web presence to a steady stream of qualified estimate requests every week.',
+      'A quiet, editorial portfolio for a fine-line tattoo artist in Albuquerque — gallery-first with direct booking.',
   },
 ];
 ---
@@ -108,26 +94,31 @@ const works = [
     <section id="works" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
       <div class="flex items-baseline justify-between gap-6 flex-wrap mb-[clamp(48px,7vh,80px)]">
         <h2 class="m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Selected works</h2>
-        <span class="text-[11px] font-medium tracking-[0.22em] text-(--faint)">2024 — 2026</span>
+        <span class="text-[11px] font-medium tracking-[0.22em] text-(--faint)">DESIGN CONCEPTS · 2024 — 2026</span>
       </div>
 
       <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-[clamp(48px,6vh,72px)_48px]">
         {works.map((work) => (
           <article class="reveal group">
-            <div class="work-tile aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]" style={`--tint:${work.tint}; --tint-dark:${work.tintDark}`}>
-              <div class="absolute inset-0 bg-[radial-gradient(var(--tile-dot)_0.6px,transparent_0.6px)] bg-[length:3px_3px] opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
-              <div class="relative z-10 text-center px-6" aria-hidden="true">
-                <div class="text-(--faint) text-xs tracking-[3px] mb-1">{work.kicker}</div>
-                <div class="text-(--muted) text-[13px] font-medium tracking-wide">{work.name}</div>
+            <a href={`/works/${work.slug}/`} class="block" aria-label={`${work.name} — view design concept`}>
+              <div class={`work-tile ${work.tileClass} aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]`}>
+                <div class="tile-texture absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
+                <div class="relative z-10 text-center px-6" aria-hidden="true">
+                  <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
+                  <div class="tile-title">{work.tileTitle}</div>
+                </div>
               </div>
-            </div>
-            <div class="flex justify-between items-baseline gap-4 mt-5">
-              <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">{work.name}</h3>
-              <span class="text-[11px] tracking-[0.18em] text-(--faint) whitespace-nowrap">{work.tag}</span>
-            </div>
-            <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">
-              {work.description}
-            </p>
+              <div class="flex justify-between items-baseline gap-4 mt-5">
+                <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em] text-(--ink)">{work.name}</h3>
+                <span class="text-[11px] tracking-[0.18em] text-(--faint) whitespace-nowrap">{work.tag}</span>
+              </div>
+              <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">
+                {work.description}
+              </p>
+              <span class="inline-block mt-3 text-[11px] font-medium tracking-[0.18em] text-(--ink) border-b border-(--line-soft) pb-[3px] transition-colors group-hover:border-(--ink)">
+                VIEW DESIGN →
+              </span>
+            </a>
           </article>
         ))}
       </div>
