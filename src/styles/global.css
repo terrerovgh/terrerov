@@ -15,7 +15,8 @@ html {
 }
 
 /* Keep anchored section headings clear of the fixed header */
-[id] {
+section[id],
+main[id] {
   scroll-margin-top: 88px;
 }
 

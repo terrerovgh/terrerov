@@ -13,8 +13,8 @@ const {
 	ogImage = "/og-image.png"
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = new URL(ogImage, Astro.site);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const ogImageURL = new URL(ogImage, Astro.site ?? Astro.url.origin);
 
 const structuredData = {
 	"@context": "https://schema.org",
@@ -99,7 +99,7 @@ const structuredData = {
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+		<script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 	</head>
 	<body class="bg-[#FBFBF9] text-[#161513] font-sans antialiased">
 		<slot />
