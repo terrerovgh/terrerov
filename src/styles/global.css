@@ -122,13 +122,75 @@ textarea:focus-visible {
   color: var(--bg);
 }
 
-/* Work card preview tiles — per-card tint set inline as --tint / --tint-dark */
-.work-tile {
-  background: var(--tint);
+/*
+ * Work card preview tiles. Each tile is a mini-lockup in its project's own
+ * brand colors, deliberately fixed across light/dark themes — the tiles are
+ * previews of the linked design concepts, not part of the site palette.
+ */
+.tile-chernarus {
+  background: #0c0e0b;
+}
+.tile-chernarus .tile-texture {
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, 0.4) 2px 4px);
+}
+.tile-chernarus .tile-kicker {
+  color: #d9662a;
+}
+.tile-chernarus .tile-title {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #8fbf6b;
 }
 
-.dark .work-tile {
-  background: var(--tint-dark);
+.tile-whalefall {
+  background: linear-gradient(180deg, #0a1a2c 0%, #030b14 100%);
+}
+.tile-whalefall .tile-texture {
+  background: radial-gradient(circle at 68% 30%, rgba(94, 234, 212, 0.18) 0%, transparent 55%);
+}
+.tile-whalefall .tile-kicker {
+  color: #5eead4;
+}
+.tile-whalefall .tile-title {
+  font-size: 26px;
+  font-weight: 200;
+  letter-spacing: 0.06em;
+  color: #d7e3ee;
+}
+
+.tile-cuba {
+  background: #0a0a0a;
+}
+.tile-cuba .tile-texture {
+  background: repeating-linear-gradient(45deg, rgba(245, 242, 236, 0.045) 0 12px, transparent 12px 24px);
+}
+.tile-cuba .tile-kicker {
+  color: #c8392b;
+}
+.tile-cuba .tile-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #f5f2ec;
+}
+
+.tile-nina {
+  background: #f1ebe1;
+}
+.tile-nina .tile-texture {
+  background-image: radial-gradient(#d9cfbe 0.6px, transparent 0.6px);
+  background-size: 3px 3px;
+}
+.tile-nina .tile-kicker {
+  color: #a5673f;
+}
+.tile-nina .tile-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 25px;
+  color: #1c1a17;
 }
 
 /* Theme toggle icons */

@@ -1,0 +1,200 @@
+---
+// Design concept: quiet editorial portfolio for a tattoo artist in Albuquerque, NM
+const title = 'GoodNinaInk — Tattoo Artist, Albuquerque NM · Design Concept by Terrerov';
+const description =
+  'Design concept: a quiet, editorial one-page portfolio for GoodNinaInk, a fine-line tattoo artist in Albuquerque, New Mexico — gallery-first with direct booking.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#faf6f0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="backlink" href="/#works">← TERREROV · DESIGN CONCEPT</a>
+
+    <header class="top">
+      <span class="brand">GoodNina<em>Ink</em></span>
+      <nav>
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="#book">Booking</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="kicker">FINE LINE · BOTANICAL · SINGLE NEEDLE</p>
+        <h1>Tattoos that whisper,<br /><em>not shout.</em></h1>
+        <p class="lede">
+          Nina is a tattoo artist in Albuquerque, New Mexico, working in fine line and
+          botanical illustration. Small pieces, careful hands, honest opinions about
+          what will still look good in twenty years.
+        </p>
+        <a class="btn" href="#book">Book a consultation</a>
+      </section>
+
+      <section id="work" class="gallery">
+        <h2>Selected pieces</h2>
+        <div class="grid">
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M100 170 C100 120 80 110 70 80 M100 170 C100 115 122 105 132 70 M100 170 L100 60 M100 60 C92 48 92 38 100 28 C108 38 108 48 100 60" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <figcaption>Yucca stem — inner forearm</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="86" r="34" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M100 120 L100 168 M84 140 L116 140" stroke="currentColor" stroke-width="1.4"/><path d="M78 66 C88 52 112 52 122 66" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <figcaption>Desert moon — shoulder</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M60 160 C60 100 140 140 140 60 M140 60 L126 74 M140 60 L150 78" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <figcaption>Single-needle vine — spine</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M100 40 C60 80 60 120 100 160 C140 120 140 80 100 40 Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M100 52 L100 148" stroke="currentColor" stroke-width="1"/></svg>
+            <figcaption>Piñon leaf — wrist</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M50 150 Q100 30 150 150" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M70 150 Q100 70 130 150" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="100" cy="58" r="3" fill="currentColor"/></svg>
+            <figcaption>Sandia ridgeline — ankle</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M100 30 L100 170 M100 60 L74 40 M100 60 L126 40 M100 100 L68 82 M100 100 L132 82 M100 140 L76 126 M100 140 L124 126" stroke="currentColor" stroke-width="1.3"/></svg>
+            <figcaption>Sage sprig — behind the ear</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="about" class="about">
+        <div class="rule" aria-hidden="true"></div>
+        <blockquote>
+          "Skin isn't paper — it moves, it ages, it heals. I design for the body
+          you'll live in, not the photo you'll post."
+        </blockquote>
+        <p class="sig">— Nina · GoodNinaInk, Albuquerque NM</p>
+      </section>
+
+      <section id="book" class="book">
+        <h2>Booking</h2>
+        <p>
+          Books open the first week of every month. Send a short description of
+          your idea, placement, and approximate size — Nina replies to everyone,
+          usually within two days. English y español.
+        </p>
+        <div class="row">
+          <a class="btn" href="mailto:hola@terrerov.com?subject=GoodNinaInk%20Booking">Request a spot</a>
+          <a class="ig" href="https://instagram.com/goodninaink" target="_blank" rel="noopener noreferrer">@goodninaink</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>GOODNINAINK — ALBUQUERQUE, NM</span>
+      <span>DESIGN CONCEPT BY <a href="/">TERREROV</a></span>
+    </footer>
+  </body>
+</html>
+
+<style>
+  :root {
+    --bg: #faf6f0;
+    --ink: #1c1a17;
+    --dim: #70695d;
+    --line: #e6ded2;
+    --acc: #a5673f;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.75;
+  }
+  a { color: inherit; text-decoration: none; }
+  em { font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+  .backlink {
+    position: fixed; bottom: 18px; left: 18px; z-index: 30;
+    font-size: 11px; letter-spacing: 0.14em; color: var(--dim);
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: 999px;
+    transition: color .2s, border-color .2s;
+  }
+  .backlink:hover { color: var(--ink); border-color: var(--acc); }
+
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px clamp(20px, 5vw, 64px);
+    background: rgba(250, 246, 240, 0.82); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 500; }
+  .brand em { color: var(--acc); }
+  .top nav { display: flex; gap: clamp(18px, 3vw, 38px); }
+  .top nav a { font-size: 12px; letter-spacing: 0.08em; color: var(--dim); transition: color .2s; }
+  .top nav a:hover { color: var(--ink); }
+
+  main > section { padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); max-width: 1000px; margin: 0 auto; }
+
+  .hero { min-height: 78svh; display: flex; flex-direction: column; justify-content: center; }
+  .kicker { font-size: 10.5px; letter-spacing: 0.32em; color: var(--acc); margin-bottom: 30px; }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 7vw, 84px);
+    font-weight: 400; line-height: 1.08; letter-spacing: -0.01em;
+  }
+  .lede { margin-top: 28px; max-width: 54ch; color: var(--dim); }
+  .btn {
+    display: inline-block; width: fit-content; margin-top: 40px;
+    padding: 15px 32px;
+    background: var(--ink); color: var(--bg);
+    font-size: 12px; letter-spacing: 0.16em;
+    border-radius: 2px;
+    transition: background .2s, transform .15s;
+  }
+  .btn:hover { background: var(--acc); transform: translateY(-2px); }
+
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; margin-bottom: 48px; }
+
+  .gallery .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 34px; }
+  .gallery figure { margin: 0; }
+  .gallery svg {
+    width: 100%; aspect-ratio: 1; display: block;
+    background: #f1ebe1; color: var(--ink);
+    padding: 24px; transition: background .25s;
+  }
+  .gallery figure:hover svg { background: #ece4d6; }
+  .gallery figcaption { margin-top: 14px; font-size: 12.5px; color: var(--dim); letter-spacing: 0.04em; }
+
+  .about { text-align: center; }
+  .rule { width: 56px; height: 1px; background: var(--acc); margin: 0 auto 44px; }
+  blockquote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 3.4vw, 36px); font-style: italic;
+    line-height: 1.4; max-width: 26em; margin: 0 auto;
+  }
+  .sig { margin-top: 30px; font-size: 11px; letter-spacing: 0.24em; color: var(--dim); }
+
+  .book p { max-width: 56ch; color: var(--dim); }
+  .row { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+  .ig { margin-top: 40px; font-size: 13px; color: var(--acc); border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  .ig:hover { border-color: var(--acc); }
+
+  footer {
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 28px clamp(20px, 5vw, 64px);
+    border-top: 1px solid var(--line);
+    font-size: 10.5px; letter-spacing: 0.18em; color: var(--dim);
+  }
+  footer a { color: var(--ink); border-bottom: 1px solid var(--acc); }
+</style>

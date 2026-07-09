@@ -1,0 +1,181 @@
+---
+// Design concept: autonomous data collection, analytics & decision-making
+const title = 'Whale Fall — Data, Analytics & Decisions · Design Concept by Terrerov';
+const description =
+  'Design concept: a one-page site for Whale Fall, an autonomous system for data collection, analytics, and decision-making, with a deep-sea design language.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#06121f" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="backlink" href="/#works">← TERREROV · DESIGN CONCEPT</a>
+
+    <header class="top">
+      <span class="brand">WHALE FALL</span>
+      <nav>
+        <a href="#pipeline">PIPELINE</a>
+        <a href="#signals">SIGNALS</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="kicker">AUTONOMOUS DATA · ANALYTICS · DECISIONS</p>
+        <h1>Every signal<br /><em>feeds</em> the system.</h1>
+        <p class="lede">
+          In the deep ocean, a single whale fall sustains an ecosystem for decades.
+          Whale Fall does the same with your data — collecting it continuously,
+          decomposing it into insight, and feeding decisions long after the source is gone.
+        </p>
+        <a class="btn" href="#pipeline">Descend ↓</a>
+      </section>
+
+      <section id="pipeline" class="pipeline">
+        <h2>The pipeline</h2>
+        <ol>
+          <li>
+            <span class="phase">01 — SINK</span>
+            <h3>Collect</h3>
+            <p>Sensors, APIs, logs, forms — every source streams into one calm, ordered descent. Nothing is lost on the way down.</p>
+          </li>
+          <li>
+            <span class="phase">02 — SETTLE</span>
+            <h3>Analyze</h3>
+            <p>Data settles into structure. Patterns surface, anomalies glow, and models keep learning in the dark — no dashboards babysitting required.</p>
+          </li>
+          <li>
+            <span class="phase">03 — SUSTAIN</span>
+            <h3>Decide</h3>
+            <p>The system acts: reorder, reroute, alert, adjust. Autonomous decisions with an audit trail you can read like a story.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="signals" class="signals">
+        <div class="stat"><span class="n">4.2M</span><span class="l">signals ingested / day</span></div>
+        <div class="stat"><span class="n">140ms</span><span class="l">median decision latency</span></div>
+        <div class="stat"><span class="n">96.4%</span><span class="l">decisions untouched by humans</span></div>
+      </section>
+
+      <section id="contact" class="contact">
+        <h2>Put your data to work<br /><em>in the deep.</em></h2>
+        <a class="btn solid" href="mailto:hola@terrerov.com?subject=Whale%20Fall">Request a demo</a>
+      </section>
+    </main>
+
+    <footer>
+      <span>WHALE FALL — NOTHING IS WASTED</span>
+      <span>DESIGN CONCEPT BY <a href="/">TERREROV</a></span>
+    </footer>
+  </body>
+</html>
+
+<style>
+  :root {
+    --bg0: #0a1a2c;
+    --bg1: #06121f;
+    --bg2: #030b14;
+    --ink: #d7e3ee;
+    --dim: #7f97ab;
+    --line: rgba(127, 151, 171, 0.18);
+    --glow: #5eead4;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.7;
+    background: linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 45%, var(--bg2) 100%);
+  }
+  a { color: inherit; text-decoration: none; }
+  em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--glow); }
+
+  .backlink {
+    position: fixed; bottom: 18px; left: 18px; z-index: 30;
+    font-size: 11px; letter-spacing: 0.14em; color: var(--dim);
+    background: rgba(3, 11, 20, 0.7); border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: 999px; backdrop-filter: blur(8px);
+    transition: color .2s, border-color .2s;
+  }
+  .backlink:hover { color: var(--ink); border-color: var(--dim); }
+
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px clamp(20px, 5vw, 64px);
+    background: rgba(10, 26, 44, 0.5); backdrop-filter: blur(12px);
+  }
+  .brand { font-size: 13px; letter-spacing: 0.32em; font-weight: 400; }
+  .top nav { display: flex; gap: clamp(18px, 3vw, 40px); }
+  .top nav a { font-size: 10.5px; letter-spacing: 0.2em; color: var(--dim); transition: color .2s; }
+  .top nav a:hover { color: var(--glow); }
+
+  main > section { padding: clamp(70px, 11vh, 130px) clamp(20px, 5vw, 64px); max-width: 1040px; margin: 0 auto; }
+
+  .hero { min-height: 82svh; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .hero::before {
+    content: ''; position: absolute; top: 8%; right: 4%;
+    width: 340px; height: 340px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(94, 234, 212, 0.13) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .kicker { font-size: 11px; letter-spacing: 0.34em; color: var(--glow); margin-bottom: 30px; }
+  h1 { font-size: clamp(42px, 7.2vw, 92px); font-weight: 200; line-height: 1.06; letter-spacing: -0.02em; }
+  .lede { margin-top: 30px; max-width: 58ch; color: var(--dim); }
+  .btn {
+    display: inline-block; margin-top: 46px; width: fit-content;
+    padding: 14px 30px; border: 1px solid var(--glow); border-radius: 999px;
+    color: var(--glow); font-size: 12px; letter-spacing: 0.2em;
+    transition: background .25s, color .25s, box-shadow .25s;
+  }
+  .btn:hover { background: var(--glow); color: var(--bg2); box-shadow: 0 0 34px rgba(94, 234, 212, 0.35); }
+  .btn.solid { background: var(--glow); color: var(--bg2); }
+  .btn.solid:hover { box-shadow: 0 0 44px rgba(94, 234, 212, 0.5); }
+
+  h2 { font-size: clamp(26px, 3.6vw, 40px); font-weight: 200; letter-spacing: -0.01em; margin-bottom: 56px; }
+
+  .pipeline ol { list-style: none; padding: 0; display: grid; gap: 0; }
+  .pipeline li {
+    display: grid; grid-template-columns: 160px 1fr; gap: 8px 40px;
+    padding: 40px 0; border-top: 1px solid var(--line);
+  }
+  .pipeline li:last-child { border-bottom: 1px solid var(--line); }
+  .phase { font-size: 11px; letter-spacing: 0.26em; color: var(--glow); padding-top: 6px; }
+  .pipeline h3 { font-size: 22px; font-weight: 300; letter-spacing: 0.01em; }
+  .pipeline p { grid-column: 2; color: var(--dim); max-width: 56ch; font-size: 15px; }
+  @media (max-width: 620px) {
+    .pipeline li { grid-template-columns: 1fr; }
+    .pipeline p { grid-column: 1; }
+  }
+
+  .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: clamp(28px, 5vw, 64px); }
+  .stat { border-top: 1px solid var(--glow); padding-top: 22px; }
+  .n { display: block; font-size: clamp(34px, 4.6vw, 54px); font-weight: 200; color: var(--ink); }
+  .l { font-size: 12px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; }
+
+  .contact { text-align: center; }
+  .contact h2 { margin-bottom: 0; }
+
+  footer {
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 30px clamp(20px, 5vw, 64px);
+    border-top: 1px solid var(--line);
+    font-size: 10.5px; letter-spacing: 0.18em; color: var(--dim);
+  }
+  footer a { color: var(--ink); border-bottom: 1px solid var(--dim); }
+</style>
