@@ -97,7 +97,8 @@ const description =
     --ink: #f5f2ec;
     --dim: #8f8b83;
     --line: #262421;
-    --red: #c8392b;
+    --red: #e64a3b; /* text accents on dark bg (WCAG AA) */
+    --red-deep: #c8392b; /* fills behind light text */
   }
   * { margin: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -148,7 +149,7 @@ const description =
   .hero-meta { display: flex; gap: clamp(18px, 4vw, 44px); margin-top: 34px; flex-wrap: wrap; font-size: 10.5px; letter-spacing: 0.24em; color: var(--dim); }
   .btn {
     display: inline-block; width: fit-content; margin-top: 44px;
-    background: var(--red); color: var(--ink);
+    background: var(--red-deep); color: var(--ink);
     font-size: 12px; font-weight: 600; letter-spacing: 0.2em;
     padding: 16px 34px;
     transition: transform .15s, background .2s;

@@ -99,26 +99,26 @@ const works = [
 
       <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-[clamp(48px,6vh,72px)_48px]">
         {works.map((work) => (
-          <article class="reveal group">
-            <a href={`/works/${work.slug}/`} class="block" aria-label={`${work.name} — view design concept`}>
-              <div class={`work-tile ${work.tileClass} aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]`}>
-                <div class="tile-texture absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
-                <div class="relative z-10 text-center px-6" aria-hidden="true">
-                  <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
-                  <div class="tile-title">{work.tileTitle}</div>
-                </div>
+          <article class="reveal group relative">
+            <div class={`work-tile ${work.tileClass} aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]`}>
+              <div class="tile-texture absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
+              <div class="relative z-10 text-center px-6" aria-hidden="true">
+                <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
+                <div class="tile-title">{work.tileTitle}</div>
               </div>
-              <div class="flex justify-between items-baseline gap-4 mt-5">
-                <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em] text-(--ink)">{work.name}</h3>
-                <span class="text-[11px] tracking-[0.18em] text-(--faint) whitespace-nowrap">{work.tag}</span>
-              </div>
-              <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">
-                {work.description}
-              </p>
-              <span class="inline-block mt-3 text-[11px] font-medium tracking-[0.18em] text-(--ink) border-b border-(--line-soft) pb-[3px] transition-colors group-hover:border-(--ink)">
-                VIEW DESIGN →
-              </span>
-            </a>
+            </div>
+            <div class="flex justify-between items-baseline gap-4 mt-5">
+              <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">
+                <a href={`/works/${work.slug}/`} class="text-(--ink) after:absolute after:inset-0">{work.name}</a>
+              </h3>
+              <span class="text-[11px] tracking-[0.18em] text-(--faint) whitespace-nowrap">{work.tag}</span>
+            </div>
+            <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">
+              {work.description}
+            </p>
+            <span class="inline-block mt-3 text-[11px] font-medium tracking-[0.18em] text-(--ink) border-b border-(--line-soft) pb-[3px] transition-colors group-hover:border-(--ink)">
+              VIEW DESIGN →
+            </span>
           </article>
         ))}
       </div>
