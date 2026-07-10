@@ -1,0 +1,70 @@
+---
+// Vector lockup for the Surviving Chernarus design concept: a gas-mask
+// silhouette in a circular badge, with an optional two-line wordmark below.
+export interface Props {
+  size?: number;
+  withWordmark?: boolean;
+  class?: string;
+}
+const { size = 160, withWordmark = true, class: className = '' } = Astro.props;
+---
+
+<svg
+  class={className}
+  width={size}
+  height={withWordmark ? size * 1.42 : size}
+  viewBox={withWordmark ? '0 0 300 426' : '0 0 300 300'}
+  role="img"
+  aria-label="Surviving Chernarus"
+>
+  <circle cx="150" cy="148" r="118" fill="#d9662a" />
+
+  <!-- shoulder / pack, bleeds below the badge -->
+  <path
+    d="M60 300
+       C 60 250 92 214 132 206
+       L 150 202
+       C 196 210 224 246 226 300
+       Z"
+    fill="#161311"
+  />
+
+  <!-- head + gas mask, profile facing right -->
+  <path
+    d="M118 96
+       C 112 68 132 44 164 42
+       C 196 40 220 62 224 92
+       C 226 108 222 120 232 128
+       C 244 136 250 148 244 158
+       C 238 166 226 166 220 160
+       C 214 178 198 192 176 196
+       C 148 202 122 188 112 162
+       C 104 142 106 116 118 96 Z"
+    fill="#161311"
+  />
+
+  <!-- eye lens -->
+  <circle cx="168" cy="104" r="21" fill="#d9662a" />
+  <circle cx="168" cy="104" r="21" fill="none" stroke="#161311" stroke-width="5" />
+  <circle cx="175" cy="97" r="5.5" fill="#f4ede1" opacity="0.85" />
+
+  <!-- filter canister -->
+  <path
+    d="M222 130 C 238 130 252 138 256 150 C 259 159 254 168 244 170 C 232 172 220 166 216 154 C 213 144 214 134 222 130 Z"
+    fill="#161311"
+  />
+
+  {withWordmark && (
+    <g
+      fill="#161311"
+      font-family="'Archivo Black', 'IBM Plex Mono', ui-monospace, sans-serif"
+      font-size="38"
+      font-weight="900"
+      letter-spacing="1"
+      text-anchor="middle"
+    >
+      <text x="150" y="352">SURVIVING</text>
+      <text x="150" y="400">CHERNARUS</text>
+    </g>
+  )}
+</svg>
