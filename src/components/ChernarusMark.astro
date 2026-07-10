@@ -24,11 +24,7 @@ const { size = 160, withWordmark = true, class: className = '' } = Astro.props;
     d="M60 300
        C 60 250 92 214 132 206
        L 150 202
-       C 150 202 150 202 150 202
-       L 150 202
        C 196 210 224 246 226 300
-       L 226 300
-       C 226 300 226 300 226 300
        Z"
     fill="#161311"
   />
@@ -59,27 +55,16 @@ const { size = 160, withWordmark = true, class: className = '' } = Astro.props;
   />
 
   {withWordmark && (
-    <text
-      x="150"
-      y="352"
-      text-anchor="middle"
+    <g
+      fill="#161311"
       font-family="'Archivo Black', 'IBM Plex Mono', ui-monospace, sans-serif"
       font-size="38"
       font-weight="900"
       letter-spacing="1"
-      fill="#161311"
-    >SURVIVING</text>
-  )}
-  {withWordmark && (
-    <text
-      x="150"
-      y="400"
       text-anchor="middle"
-      font-family="'Archivo Black', 'IBM Plex Mono', ui-monospace, sans-serif"
-      font-size="38"
-      font-weight="900"
-      letter-spacing="1"
-      fill="#161311"
-    >CHERNARUS</text>
+    >
+      <text x="150" y="352">SURVIVING</text>
+      <text x="150" y="400">CHERNARUS</text>
+    </g>
   )}
 </svg>
