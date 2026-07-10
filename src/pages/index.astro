@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import BackgroundCanvas from '../components/BackgroundCanvas.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import ChernarusMark from '../components/ChernarusMark.astro';
 
 const works = [
   {
@@ -102,10 +103,17 @@ const works = [
           <article class="reveal group relative">
             <div class={`work-tile ${work.tileClass} aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]`}>
               <div class="tile-texture absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
-              <div class="relative z-10 text-center px-6" aria-hidden="true">
-                <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
-                <div class="tile-title">{work.tileTitle}</div>
-              </div>
+              {work.slug === 'surviving-chernarus' ? (
+                <div class="relative z-10 text-center px-6" aria-hidden="true">
+                  <ChernarusMark size={92} withWordmark={false} />
+                  <div class="tile-kicker text-xs tracking-[3px] mt-3">{work.kicker}</div>
+                </div>
+              ) : (
+                <div class="relative z-10 text-center px-6" aria-hidden="true">
+                  <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
+                  <div class="tile-title">{work.tileTitle}</div>
+                </div>
+              )}
             </div>
             <div class="flex justify-between items-baseline gap-4 mt-5">
               <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">
