@@ -133,8 +133,44 @@ export const faqs = [
   },
 ] as const;
 
+export const survivingChernarus = {
+  kicker: 'Featured personal project',
+  title: 'Surviving Chernarus',
+  logoAlt: 'Surviving Chernarus — gas-mask survivor mark over a sun disk',
+  lede:
+    'A personal <strong>life OS</strong>: gamified productivity, AI agents as a second brain, and a self-hosted “Beacon” on Raspberry Pi + laptop Kubernetes — not a product for sale, but the lab where the craft lives.',
+  body:
+    'Hotspot, proxy, Radio Chernarus, n8n automation, secure access, and a command hub — all wrapped in survival lore so systems work stays motivating. The same rigor (networks, automation, interfaces, narrative) informs client work at Terrerov.',
+  pillars: [
+    {
+      n: '01',
+      title: 'Beacon infrastructure',
+      body: 'RPi 5 master + Lenovo worker (K3s), Docker services, Pi-hole, Squid, captive portal, client certs.',
+    },
+    {
+      n: '02',
+      title: 'Radio & agents',
+      body: 'Icecast stream, AI DJ, NotebookLM podcasts, n8n + Telegram as the nervous system of the refugio.',
+    },
+    {
+      n: '03',
+      title: 'Life RPG layer',
+      body: 'Missions from calendar/tasks, XP & rewards, tactical city map, context DB for a personal coach.',
+    },
+    {
+      n: '04',
+      title: 'Guardian perimeter',
+      body: 'Logs, secrets discipline, vulnerability watch, and privacy-first handling of personal data.',
+    },
+  ],
+  repoUrl: 'https://github.com/terrerovgh/surviving-chernarus',
+  repoLabel: 'View on GitHub',
+  ctaLabel: 'Talk about systems work',
+} as const;
+
 export const nav = [
   { href: '#about', label: 'About' },
+  { href: '#chernarus', label: 'Project' },
   { href: '#services', label: 'Services' },
   { href: '#clients', label: 'Audience' },
   { href: '#process', label: 'Process' },

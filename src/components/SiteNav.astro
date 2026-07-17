@@ -1,11 +1,11 @@
 ---
-import { site } from '../data/site';
+import { site, nav } from '../data/site';
 
 const mobileTabs = [
   { id: 'hero', label: 'Home', icon: 'home' },
-  { id: 'services', label: 'Services', icon: 'grid' },
-  { id: 'process', label: 'Process', icon: 'steps' },
-  { id: 'faq', label: 'FAQ', icon: 'help' },
+  { id: 'chernarus', label: 'Project', icon: 'grid' },
+  { id: 'services', label: 'Services', icon: 'steps' },
+  { id: 'process', label: 'Process', icon: 'help' },
   { id: 'contact', label: 'Contact', icon: 'mail' },
 ] as const;
 ---
@@ -19,12 +19,17 @@ const mobileTabs = [
   <header class="site-nav">
     <a class="logo" href="#hero" data-panel-link>{site.name}</a>
     <nav aria-label="Site sections">
-      <a href="#about" data-panel-link>About</a>
-      <a href="#services" data-panel-link>Services</a>
-      <a href="#clients" data-panel-link>Audience</a>
-      <a href="#process" data-panel-link>Process</a>
-      <a href="#faq" data-panel-link>FAQ</a>
-      <a href="#contact" data-panel-link class="nav-cta">Contact</a>
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            data-panel-link
+            class={item.href === '#contact' ? 'nav-cta' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
     </nav>
   </header>
 </div>
@@ -35,7 +40,7 @@ const mobileTabs = [
 </div>
 
 <div class="chrome-meta chrome--desktop" aria-hidden="true">
-  <span class="chrome-meta__index"><span id="panel-index">01</span> / 07</span>
+  <span class="chrome-meta__index"><span id="panel-index">01</span> / 08</span>
   <span id="panel-label">Intro</span>
 </div>
 

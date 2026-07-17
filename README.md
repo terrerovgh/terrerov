@@ -7,8 +7,10 @@ Live: [www.terrerov.com](https://www.terrerov.com)
 ## Experience
 
 - **Horizontal scroll** powered by GSAP ScrollTrigger (vertical wheel → horizontal panels)
+- **Mobile app shell** (tabs + FAB) under ~900px
 - Interactive Temple of Heaven curtain (QR to terrerov.com)
-- Premium motion: scrubbed track, staggered reveals, parallax, magnetic buttons, custom cursor
+- Featured personal project: **Surviving Chernarus** (life OS / Beacon lab)
+- Premium motion: scrubbed track, staggered reveals, magnetic buttons
 - Fixed chrome: progress rail, section index, active nav
 - Keyboard: ← → between panels
 - Reduced-motion / fallback: vertical layout with soft reveals

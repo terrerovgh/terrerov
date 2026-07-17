@@ -11,7 +11,16 @@ type AppApi = {
 };
 
 const DESKTOP_MQ = '(min-width: 901px)';
-const PANEL_ORDER = ['hero', 'about', 'services', 'clients', 'process', 'faq', 'contact'] as const;
+const PANEL_ORDER = [
+  'hero',
+  'about',
+  'chernarus',
+  'services',
+  'clients',
+  'process',
+  'faq',
+  'contact',
+] as const;
 
 let activeApi: AppApi | null = null;
 let mode: 'desktop' | 'mobile' | null = null;
@@ -105,6 +114,7 @@ function initMobileApp(reduced: boolean): AppApi {
       // Map intermediate sections onto nearest primary tab
       if (id === 'about') match = tab.dataset.tab === 'hero';
       if (id === 'clients') match = tab.dataset.tab === 'services';
+      if (id === 'faq') match = tab.dataset.tab === 'process';
       tab.classList.toggle('is-active', match);
       if (match) tab.setAttribute('aria-current', 'page');
       else tab.removeAttribute('aria-current');
