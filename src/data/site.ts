@@ -136,7 +136,7 @@ export const faqs = [
 export const nav = [
   { href: '#about', label: 'About' },
   { href: '#services', label: 'Services' },
-  { href: '#clients', label: 'Who I help' },
+  { href: '#clients', label: 'Audience' },
   { href: '#process', label: 'Process' },
   { href: '#faq', label: 'FAQ' },
   { href: '#contact', label: 'Contact' },

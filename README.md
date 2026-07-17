@@ -1,24 +1,24 @@
 # Terrerov
 
-Premium single-page site for **Terrerov Studio** — independent web design for small businesses.
+Premium horizontal studio site for **Terrerov** — independent web design for small businesses.
 
 Live: [www.terrerov.com](https://www.terrerov.com)
 
+## Experience
+
+- **Horizontal scroll** powered by GSAP ScrollTrigger (vertical wheel → horizontal panels)
+- Interactive Temple of Heaven curtain (QR to terrerov.com)
+- Premium motion: scrubbed track, staggered reveals, parallax, magnetic buttons, custom cursor
+- Fixed chrome: progress rail, section index, active nav
+- Keyboard: ← → between panels
+- Reduced-motion / fallback: vertical layout with soft reveals
+
 ## Stack
 
-- [Astro](https://astro.build) 7 (static output)
-- Vanilla CSS (paper / ink editorial system)
-- Interactive Temple of Heaven curtain → scannable QR (`uqr`)
-- Deploy: Cloudflare Pages / Workers via `@astrojs/cloudflare`
-
-## Features
-
-- Conversion-focused sections: about, services, audience, process, FAQ, contact
-- Bilingual positioning (English · Español)
-- SEO: meta, Open Graph, JSON-LD (ProfessionalService + FAQPage), sitemap, robots.txt
-- Accessible: skip link, focus styles, reduced-motion support
-- Contact form via FormSubmit (mailto fallback offline)
-- Security + cache headers for Cloudflare (`public/_headers`)
+- Astro 7 (static) + Cloudflare Pages
+- GSAP 3 + ScrollTrigger + ScrollToPlugin
+- Vanilla CSS (paper / ink system)
+- `uqr` for the live QR curtain
 
 ## Develop
 
@@ -34,29 +34,21 @@ npm run build
 npm run preview
 ```
 
-Build output for Cloudflare: `dist/client`.
+Output: `dist/client`
 
-## Project structure
+## Structure
 
 ```
 src/
-  components/   # Page sections
-  data/site.ts  # Copy & structured content
-  layouts/      # Document shell (meta, schema)
+  components/   # Full-viewport panels
+  data/site.ts  # Copy
+  layouts/      # Document shell
   pages/        # Routes
-  scripts/      # Curtain physics (client)
-  styles/       # Global design system
-public/         # Static assets, robots, headers, OG image
+  scripts/      # curtain.ts + horizontal.ts (GSAP)
+  styles/       # Design system
 ```
-
-## Deploy (Cloudflare Pages)
-
-1. Connect this repo to Cloudflare Pages
-2. Build command: `npm run build`
-3. Output directory: `dist/client`
-4. Custom domain: `www.terrerov.com`
 
 ## Credits
 
-Temple assets and curtain interaction model adapted from
+Temple assets adapted from
 [CodeMaryy/temple-of-heaven-curtain](https://github.com/CodeMaryy/temple-of-heaven-curtain).

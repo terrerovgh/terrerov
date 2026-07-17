@@ -2,97 +2,107 @@
 import { site } from '../data/site';
 ---
 
-<section class="artboard" id="artboard" aria-label="Interactive hero">
-  <canvas
-    id="curtain"
-    role="img"
-    aria-label="Interactive curtain that forms a scannable QR code to terrerov.com"
-  ></canvas>
+<section
+  class="panel panel--hero"
+  id="hero"
+  data-panel="hero"
+  data-label="Intro"
+  aria-label="Interactive hero"
+>
+  <div class="panel-inner">
+    <div class="artboard" id="artboard">
+      <canvas
+        id="curtain"
+        role="img"
+        aria-label="Interactive curtain that forms a scannable QR code to terrerov.com"
+      ></canvas>
 
-  <header class="masthead">
-    <a class="brand" href="/">{site.name}</a>
-    <nav class="nav" aria-label="Primary">
-      <a href="#services">Services</a>
-      <a href="#process">Process</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <div class="masthead-actions">
-      <a class="mail-link" href={`mailto:${site.email}`}>{site.email}</a>
-      <button
-        class="configure"
-        id="configure"
-        type="button"
-        aria-expanded="false"
-        aria-controls="settings"
-      >
-        Play
+      <header class="masthead">
+        <span class="eyebrow hero-fade">Web design studio · Louisville, KY · EN / ES</span>
+        <div class="masthead-actions">
+          <a class="mail-link" href={`mailto:${site.email}`}>{site.email}</a>
+          <button
+            class="configure"
+            id="configure"
+            type="button"
+            aria-expanded="false"
+            aria-controls="settings"
+          >
+            Play
+          </button>
+        </div>
+      </header>
+
+      <div class="temple" id="temple" data-parallax="0.08">
+        <picture>
+          <source id="temple-webp" srcset="/assets/temple-roof-cutout-web.webp" type="image/webp" />
+          <img
+            id="temple-img"
+            src="/assets/temple-roof-cutout-web.png"
+            width="901"
+            height="730"
+            fetchpriority="high"
+            decoding="async"
+            alt="Temple of Heaven roof illustration"
+          />
+        </picture>
+      </div>
+
+      <button class="destination left hero-fade" type="button" data-go="services">
+        <span>Services</span>
       </button>
-    </div>
-  </header>
+      <button class="destination right hero-fade" type="button" data-go="contact">
+        <span>Contact</span>
+      </button>
 
-  <div class="temple" id="temple">
-    <picture>
-      <source id="temple-webp" srcset="/assets/temple-roof-cutout-web.webp" type="image/webp" />
-      <img
-        id="temple-img"
-        src="/assets/temple-roof-cutout-web.png"
-        width="901"
-        height="730"
-        fetchpriority="high"
-        decoding="async"
-        alt="Temple of Heaven roof illustration"
-      />
-    </picture>
+      <div class="headline">
+        <p class="eyebrow hero-fade">Independent studio</p>
+        <h1 class="hero-fade">
+          Sites that<br />grow business<span class="rule" aria-hidden="true"></span>
+        </h1>
+      </div>
+
+      <p class="caption hero-fade">
+        Custom websites for small businesses — designed carefully, built fast, made to bring in
+        customers. Drag the curtain; it is a live QR to this studio.
+      </p>
+
+      <div class="scan-hint hero-fade" aria-hidden="true">
+        <div class="progress"></div>
+        <p>Drag curtain · scroll to explore</p>
+      </div>
+
+      <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+      <aside class="settings" id="settings" hidden>
+        <p class="settings-title">Curtain playground</p>
+        <div class="setting">
+          <label for="roof">Roof study</label>
+          <select id="roof"></select>
+        </div>
+        <div class="setting">
+          <label for="mode">Curtain</label>
+          <select id="mode">
+            <option value="qr" selected>QR · terrerov.com</option>
+            <option value="classic">Classic characters</option>
+          </select>
+        </div>
+        <div class="setting">
+          <label for="strength">Strength <output id="strengthValue">72</output></label>
+          <input id="strength" type="range" min="20" max="110" value="72" />
+        </div>
+        <div class="setting">
+          <label for="reach">Reach <output id="reachValue">34</output></label>
+          <input id="reach" type="range" min="18" max="56" value="34" />
+        </div>
+        <div class="setting">
+          <label for="inertia">Inertia <output id="inertiaValue">97</output></label>
+          <input id="inertia" type="range" min="86" max="99" value="97" />
+        </div>
+        <button class="reset" id="reset" type="button">Reset curtain</button>
+      </aside>
+    </div>
   </div>
-
-  <a class="destination left" href="#services"><span>Services</span></a>
-  <a class="destination right" href="#contact"><span>Contact</span></a>
-
-  <div class="headline">
-    <p class="eyebrow">Web design studio · Louisville, KY · EN / ES</p>
-    <h1>Sites that<br />grow business<span class="rule" aria-hidden="true"></span></h1>
-  </div>
-
-  <p class="caption">
-    Custom websites for small businesses and companies — designed carefully, built fast, made to
-    bring in customers. Move the curtain; it is a live QR to this studio.
-  </p>
-
-  <div class="scan-hint" aria-hidden="true">
-    <div class="progress"></div>
-    <p>Drag the curtain · scroll for services</p>
-  </div>
-
-  <a class="scroll-cue" href="#about">Scroll ↓</a>
-  <div class="cursor" id="cursor" aria-hidden="true"></div>
-
-  <aside class="settings" id="settings" hidden>
-    <p class="settings-title">Curtain playground</p>
-    <div class="setting">
-      <label for="roof">Roof study</label>
-      <select id="roof"></select>
-    </div>
-    <div class="setting">
-      <label for="mode">Curtain</label>
-      <select id="mode">
-        <option value="qr" selected>QR · terrerov.com</option>
-        <option value="classic">Classic characters</option>
-      </select>
-    </div>
-    <div class="setting">
-      <label for="strength">Strength <output id="strengthValue">72</output></label>
-      <input id="strength" type="range" min="20" max="110" value="72" />
-    </div>
-    <div class="setting">
-      <label for="reach">Reach <output id="reachValue">34</output></label>
-      <input id="reach" type="range" min="18" max="56" value="34" />
-    </div>
-    <div class="setting">
-      <label for="inertia">Inertia <output id="inertiaValue">97</output></label>
-      <input id="inertia" type="range" min="86" max="99" value="97" />
-    </div>
-    <button class="reset" id="reset" type="button">Reset curtain</button>
-  </aside>
 </section>
 
 <script>
