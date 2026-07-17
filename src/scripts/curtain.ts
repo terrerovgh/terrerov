@@ -1,21 +1,71 @@
 import { encode } from 'uqr';
 
-export type CurtainOptions = {
-  /** Root scene element (scoped queries) */
-  root: HTMLElement;
-  /** URL (or text) encoded into the hanging QR curtain */
-  qrPayload: string;
-  ecc?: 'L' | 'M' | 'Q' | 'H';
-  /** Asset native width used for roofScale */
-  roofNativeW?: number;
-  roofCenterY?: number;
-  roofSideY?: number;
-  eaveWidthRatio?: number;
-  /** Disable chimes (gallery cards) */
-  enableSound?: boolean;
-  /** Compact layout (gallery card) */
-  compact?: boolean;
+/** Roof studies from the original temple-of-heaven-curtain assets */
+export type RoofId = 'cutout' | 'enhanced' | 'crop' | 'watercolor';
+
+export type RoofStudy = {
+  id: RoofId;
+  label: string;
+  src: string;
+  webp?: string;
+  /** Native asset width (px) — used for eave scale */
+  nativeW: number;
+  nativeH: number;
+  /** Eave pin Y in asset pixels (center / sides) */
+  centerY: number;
+  sideY: number;
+  /** Curtain width as fraction of roof box */
+  eaveRatio: number;
+  multiply: boolean;
 };
+
+export const ROOFS: RoofStudy[] = [
+  {
+    id: 'cutout',
+    label: 'Cutout',
+    src: '/assets/temple-roof-cutout-web.png',
+    webp: '/assets/temple-roof-cutout-web.webp',
+    nativeW: 901,
+    nativeH: 730,
+    centerY: 652,
+    sideY: 698,
+    eaveRatio: 0.84,
+    multiply: true,
+  },
+  {
+    id: 'enhanced',
+    label: 'Enhanced',
+    src: '/assets/temple-roof-enhanced-v2.png',
+    nativeW: 1632,
+    nativeH: 964,
+    centerY: 860,
+    sideY: 930,
+    eaveRatio: 0.82,
+    multiply: true,
+  },
+  {
+    id: 'crop',
+    label: 'Crop',
+    src: '/assets/temple-original-crop.png',
+    nativeW: 760,
+    nativeH: 450,
+    centerY: 390,
+    sideY: 430,
+    eaveRatio: 0.86,
+    multiply: true,
+  },
+  {
+    id: 'watercolor',
+    label: 'Watercolor',
+    src: '/assets/temple-watercolor.jpg',
+    nativeW: 714,
+    nativeH: 960,
+    centerY: 520,
+    sideY: 580,
+    eaveRatio: 0.78,
+    multiply: false,
+  },
+];
 
 type Point = {
   x: number;
@@ -27,60 +77,41 @@ type Point = {
   pinned: boolean;
   restLength: number;
   char: string;
-  alpha: number;
   dark: boolean;
-  col: number;
-  row: number;
 };
 
-type Physics = {
-  strength: number;
-  radius: number;
-  friction: number;
-  gravity: number;
-};
+const FALLBACK = '天坛祈年风调雨顺天地玄黄日月星辰礼乐文明北京春秋山川云海';
+const QR_PAYLOAD = 'https://www.terrerov.com';
 
-const FALLBACK_GLYPHS = '天坛祈年风调雨顺天地玄黄日月星辰礼乐文明北京春秋山川云海';
+export function initCurtain() {
+  const artboard = document.getElementById('artboard');
+  const canvas = document.getElementById('curtain') as HTMLCanvasElement | null;
+  const cursor = document.getElementById('cursor');
+  const temple = document.getElementById('temple');
+  const templeImg = document.getElementById('temple-img') as HTMLImageElement | null;
+  const templeWebp = document.getElementById('temple-webp') as HTMLSourceElement | null;
+  const configure = document.getElementById('configure');
+  const settings = document.getElementById('settings');
+  const reset = document.getElementById('reset');
+  const roofSelect = document.getElementById('roof') as HTMLSelectElement | null;
+  const modeSelect = document.getElementById('mode') as HTMLSelectElement | null;
 
-export function initCurtain(options: CurtainOptions) {
-  const root = options.root;
-  const canvas = root.querySelector<HTMLCanvasElement>('[data-curtain-canvas]');
-  const cursor = root.querySelector<HTMLElement>('[data-curtain-cursor]');
-  const temple = root.querySelector<HTMLElement>('[data-curtain-roof]');
-  const configure = root.querySelector<HTMLElement>('[data-curtain-configure]');
-  const settings = root.querySelector<HTMLElement>('[data-curtain-settings]');
-  const reset = root.querySelector<HTMLElement>('[data-curtain-reset]');
-  const meta = root.querySelector<HTMLElement>('[data-curtain-meta]');
-
-  if (!canvas || !temple) return () => {};
+  if (!artboard || !canvas || !cursor || !temple || !templeImg) return;
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) return () => {};
+  if (!ctx) return;
 
-  const roofNativeW = options.roofNativeW ?? 901;
-  const roofCenterY = options.roofCenterY ?? 652;
-  const roofSideY = options.roofSideY ?? 698;
-  const eaveWidthRatio = options.eaveWidthRatio ?? 0.84;
-  const enableSound = options.enableSound !== false;
-  const compact = Boolean(options.compact);
+  let roof = ROOFS[0];
+  let mode: 'qr' | 'classic' = 'qr';
 
-  const qr = encode(options.qrPayload, {
-    ecc: options.ecc ?? 'M',
-    border: 1,
-    boostEcc: true,
-  });
+  const qr = encode(QR_PAYLOAD, { ecc: 'M', border: 1, boostEcc: true });
   const qrSize = qr.size;
   const qrData = qr.data;
 
   const chains: Point[][] = [];
-  let glyphs = FALLBACK_GLYPHS;
+  let glyphs = FALLBACK;
   const mouse = { x: -999, y: -999, oldX: -999, oldY: -999, active: false };
-  const physics: Physics = {
-    strength: compact ? 0.55 : 0.72,
-    radius: compact ? 22 : 34,
-    friction: 0.965,
-    gravity: 0.18,
-  };
+  const physics = { strength: 0.72, radius: 34, friction: 0.965, gravity: 0.18 };
   const sound = {
     context: null as AudioContext | null,
     output: null as GainNode | null,
@@ -95,31 +126,23 @@ export function initCurtain(options: CurtainOptions) {
   let dpr = 1;
   let moduleW = 10;
   let moduleH = 10;
-  let running = true;
-  let visible = true;
-  let raf = 0;
 
   function unlockSound() {
-    if (!enableSound) return;
-    const AudioContextCtor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
     if (!sound.context) {
-      const context = new AudioContextCtor();
+      const context = new AC();
       const output = context.createGain();
       const compressor = context.createDynamicsCompressor();
       const delay = context.createDelay(0.3);
       const feedback = context.createGain();
       const wet = context.createGain();
-
-      output.gain.value = 0.5;
+      output.gain.value = 0.62;
       compressor.threshold.value = -18;
       compressor.ratio.value = 3;
       delay.delayTime.value = 0.11;
       feedback.gain.value = 0.14;
       wet.gain.value = 0.13;
-
       output.connect(compressor);
       output.connect(delay);
       delay.connect(feedback);
@@ -134,29 +157,22 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function strikeChain(columnIndex: number, impact: number, x: number) {
-    if (!enableSound) return;
     const context = sound.context;
     if (!context || !sound.output || context.state !== 'running' || impact < 1.1) return;
-
     const timestamp = performance.now();
     if (timestamp - (sound.lastStrike[columnIndex] || 0) < 95) return;
     if (timestamp - sound.lastGlobal < 28 || sound.voices >= 8) return;
-
     sound.lastStrike[columnIndex] = timestamp;
     sound.lastGlobal = timestamp;
     sound.voices += 1;
-
     const now = context.currentTime;
     const frequency = sound.scale[columnIndex % sound.scale.length];
-    const level = 0.022 + (Math.min(impact, 18) / 18) * 0.06;
+    const level = 0.028 + (Math.min(impact, 18) / 18) * 0.075;
     const duration = 0.72 + Math.random() * 0.32;
     const spatial = context.createStereoPanner ? context.createStereoPanner() : context.createGain();
     const pan = Math.max(-0.9, Math.min(0.9, (x / width) * 2 - 1));
-    if ('pan' in spatial) {
-      (spatial as StereoPannerNode).pan.setValueAtTime(pan, now);
-    }
+    if ('pan' in spatial) (spatial as StereoPannerNode).pan.setValueAtTime(pan, now);
     spatial.connect(sound.output);
-
     (
       [
         { ratio: 1, amount: 1, decay: 1 },
@@ -176,85 +192,133 @@ export function initCurtain(options: CurtainOptions) {
       oscillator.start(now);
       oscillator.stop(now + duration + 0.05);
     });
-
     window.setTimeout(() => {
       sound.voices = Math.max(0, sound.voices - 1);
       spatial.disconnect();
     }, (duration + 0.15) * 1000);
   }
 
+  function applyRoof(study: RoofStudy) {
+    roof = study;
+    templeImg.src = study.src;
+    templeImg.width = study.nativeW;
+    templeImg.height = study.nativeH;
+    if (templeWebp) {
+      if (study.webp) {
+        templeWebp.srcset = study.webp;
+        templeWebp.media = '';
+        templeWebp.type = 'image/webp';
+      } else {
+        templeWebp.removeAttribute('srcset');
+      }
+    }
+    templeImg.style.mixBlendMode = study.multiply ? 'multiply' : 'normal';
+    temple.style.aspectRatio = `${study.nativeW} / ${study.nativeH}`;
+    if (templeImg.complete) resize();
+    else templeImg.addEventListener('load', resize, { once: true });
+  }
+
   function build() {
     chains.length = 0;
     const narrow = width < 720;
     const templeRect = temple.getBoundingClientRect();
-    const artboardRect = root.getBoundingClientRect();
-
-    if (templeRect.width < 24 || templeRect.height < 24) return;
+    const artboardRect = artboard.getBoundingClientRect();
+    if (templeRect.width < 40) return;
 
     const buildingCenter = templeRect.left - artboardRect.left + templeRect.width * 0.5;
-    const roofScale = templeRect.width / roofNativeW;
+    const roofScale = templeRect.width / roof.nativeW;
     const templeTop = templeRect.top - artboardRect.top;
-
-    const eaveWidth = templeRect.width * (narrow ? Math.min(0.92, eaveWidthRatio + 0.04) : eaveWidthRatio);
+    const centerEdge = templeTop + roof.centerY * roofScale;
+    const sideEdge = templeTop + roof.sideY * roofScale;
+    const curtainBottom = height - (narrow ? 42 : 48);
+    const eaveWidth = templeRect.width * (narrow ? Math.min(0.92, roof.eaveRatio + 0.04) : roof.eaveRatio);
     const eaveLeft = buildingCenter - eaveWidth / 2;
-    const centerEdge = templeTop + roofCenterY * roofScale;
-    const sideEdge = templeTop + roofSideY * roofScale;
-    const bottomPad = compact ? 16 : narrow ? 52 : 56;
-    const curtainBottom = height - bottomPad;
-    const availableDrop = Math.max(compact ? 80 : 140, curtainBottom - sideEdge);
 
-    const span = Math.min(eaveWidth, availableDrop);
-    const columns = qrSize;
-    const rows = qrSize;
-    const pitch = columns > 1 ? span / (columns - 1) : span;
-    moduleW = pitch;
-    moduleH = pitch;
+    if (mode === 'qr') {
+      // Scannable square QR hanging from the eave (centered under the roof)
+      const availableDrop = Math.max(140, curtainBottom - sideEdge);
+      const span = Math.min(eaveWidth, availableDrop);
+      const columns = qrSize;
+      const rows = qrSize;
+      const pitch = columns > 1 ? span / (columns - 1) : span;
+      moduleW = pitch;
+      moduleH = pitch;
+      const left = buildingCenter - span / 2;
 
-    const left = buildingCenter - span / 2;
-
-    for (let column = 0; column < columns; column += 1) {
-      const x = left + column * pitch;
-      const eaveT = columns > 1 ? (x - eaveLeft) / eaveWidth : 0.5;
-      const normalizedX = Math.abs(Math.min(1, Math.max(0, eaveT)) * 2 - 1);
-      const top = centerEdge + (sideEdge - centerEdge) * Math.pow(normalizedX, 1.7) - 3;
-
-      const chain: Point[] = [];
-      for (let row = 0; row < rows; row += 1) {
-        const y = top + row * pitch;
-        const dark = Boolean(qrData[row]?.[column]);
-        const readingColumn = columns - 1 - column;
-        chain.push({
-          x,
-          y,
-          oldX: x,
-          oldY: y,
-          anchorX: x,
-          anchorY: y,
-          pinned: row === 0,
-          restLength: pitch,
-          char: glyphs[(readingColumn * rows + row) % glyphs.length],
-          alpha: dark ? 0.94 : 0.06,
-          dark,
-          col: column,
-          row,
-        });
+      for (let column = 0; column < columns; column += 1) {
+        const x = left + column * pitch;
+        const eaveT = columns > 1 ? (x - eaveLeft) / eaveWidth : 0.5;
+        const normalizedX = Math.abs(Math.min(1, Math.max(0, eaveT)) * 2 - 1);
+        const top = centerEdge + (sideEdge - centerEdge) * Math.pow(normalizedX, 1.7) - 3;
+        const chain: Point[] = [];
+        for (let row = 0; row < rows; row += 1) {
+          const y = top + row * pitch;
+          const dark = Boolean(qrData[row]?.[column]);
+          const readingColumn = columns - 1 - column;
+          chain.push({
+            x,
+            y,
+            oldX: x,
+            oldY: y,
+            anchorX: x,
+            anchorY: y,
+            pinned: row === 0,
+            restLength: pitch,
+            char: glyphs[(readingColumn * rows + row) % glyphs.length],
+            dark,
+          });
+        }
+        chain[0].anchorX = x;
+        chain[0].anchorY = top;
+        chain[0].x = x;
+        chain[0].y = top;
+        chain[0].oldX = x;
+        chain[0].oldY = top;
+        chains.push(chain);
       }
-      chain[0].anchorX = x;
-      chain[0].anchorY = top;
-      chain[0].x = x;
-      chain[0].y = top;
-      chain[0].oldX = x;
-      chain[0].oldY = top;
-      chains.push(chain);
-    }
+    } else {
+      // Classic temple-of-heaven-curtain character beads
+      const columns = narrow ? 16 : 26;
+      const availableHeight = Math.max(120, curtainBottom - sideEdge);
+      const rows = Math.max(18, Math.min(narrow ? 35 : 39, Math.floor(availableHeight / 9.4) + 1));
+      moduleW = eaveWidth / Math.max(1, columns - 1);
+      moduleH = availableHeight / Math.max(1, rows - 1);
 
-    if (meta) {
-      meta.textContent = `${qrSize}×${qrSize} · ${Math.round(span)}px · ${options.qrPayload}`;
+      for (let column = 0; column < columns; column += 1) {
+        const x = eaveLeft + (column * eaveWidth) / Math.max(1, columns - 1);
+        const normalizedX = Math.abs((column / Math.max(1, columns - 1)) * 2 - 1);
+        const top = centerEdge + (sideEdge - centerEdge) * Math.pow(normalizedX, 1.7) - 4;
+        const segmentLength = Math.max(6.4, (curtainBottom - top) / Math.max(1, rows - 1));
+        const readingColumn = columns - 1 - column;
+        const chain: Point[] = [];
+        for (let row = 0; row < rows; row += 1) {
+          const y = top + row * segmentLength;
+          chain.push({
+            x,
+            y,
+            oldX: x,
+            oldY: y,
+            anchorX: x,
+            anchorY: y,
+            pinned: row === 0,
+            restLength: segmentLength,
+            char: glyphs[(readingColumn * rows + row) % glyphs.length],
+            dark: true,
+          });
+        }
+        chain[0].anchorX = x;
+        chain[0].anchorY = top;
+        chain[0].x = x;
+        chain[0].y = top;
+        chain[0].oldX = x;
+        chain[0].oldY = top;
+        chains.push(chain);
+      }
     }
   }
 
   function resize() {
-    const rect = root.getBoundingClientRect();
+    const rect = artboard.getBoundingClientRect();
     width = rect.width;
     height = rect.height;
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -275,7 +339,7 @@ export function initCurtain(options: CurtainOptions) {
       let strongestImpact = 0;
       for (let index = 1; index < chain.length; index += 1) {
         const point = chain[index];
-        if (!point.dark) continue;
+        if (mode === 'qr' && !point.dark) continue;
         const distance = Math.hypot(point.x - mouse.oldX, point.y - mouse.oldY);
         if (distance >= physics.radius) continue;
         const falloff = 1 - distance / physics.radius;
@@ -302,7 +366,7 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function constrain() {
-    for (let pass = 0; pass < (compact ? 5 : 8); pass += 1) {
+    for (let pass = 0; pass < 8; pass += 1) {
       for (const chain of chains) {
         const anchor = chain[0];
         anchor.x = anchor.anchorX;
@@ -332,23 +396,38 @@ export function initCurtain(options: CurtainOptions) {
 
   function draw() {
     ctx.clearRect(0, 0, width, height);
-    const halfW = moduleW * 0.48;
-    const halfH = moduleH * 0.48;
-    const fontSize = Math.max(5, Math.min(moduleW, moduleH) * 0.7);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `500 ${fontSize}px ui-monospace, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif`;
-
-    for (const chain of chains) {
-      for (const point of chain) {
-        if (!point.dark) continue;
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#2e251f';
-        ctx.fillRect(point.x - halfW, point.y - halfH, halfW * 2, halfH * 2);
-        if (Math.min(moduleW, moduleH) >= 8) {
-          ctx.globalAlpha = 0.2;
-          ctx.fillStyle = '#e8dfca';
-          ctx.fillText(point.char, point.x, point.y + 0.3);
+    if (mode === 'qr') {
+      const halfW = moduleW * 0.48;
+      const halfH = moduleH * 0.48;
+      const fontSize = Math.max(6, Math.min(moduleW, moduleH) * 0.65);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `500 ${fontSize}px ui-monospace, "Noto Sans SC", sans-serif`;
+      for (const chain of chains) {
+        for (const point of chain) {
+          if (!point.dark) continue;
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = '#2e251f';
+          ctx.fillRect(point.x - halfW, point.y - halfH, halfW * 2, halfH * 2);
+          if (Math.min(moduleW, moduleH) >= 8) {
+            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = '#e8dfca';
+            ctx.fillText(point.char, point.x, point.y + 0.3);
+          }
+        }
+      }
+    } else {
+      // Original character curtain draw
+      ctx.fillStyle = '#2e251f';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '500 10px ui-monospace, SFMono-Regular, Menlo, monospace';
+      for (const chain of chains) {
+        for (let i = 0; i < chain.length; i += 1) {
+          const point = chain[i];
+          const alpha = 0.36 + ((point.x + i * 2) % 6) * 0.055;
+          ctx.globalAlpha = Math.min(0.95, alpha);
+          ctx.fillText(point.char, point.x, point.y);
         }
       }
     }
@@ -356,13 +435,10 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function frame() {
-    if (!running) return;
-    if (visible) {
-      integrate();
-      constrain();
-      draw();
-    }
-    raf = requestAnimationFrame(frame);
+    integrate();
+    constrain();
+    draw();
+    requestAnimationFrame(frame);
   }
 
   function enter(event: PointerEvent) {
@@ -370,11 +446,9 @@ export function initCurtain(options: CurtainOptions) {
     mouse.x = mouse.oldX = event.clientX - rect.left;
     mouse.y = mouse.oldY = event.clientY - rect.top;
     mouse.active = true;
-    if (cursor) {
-      cursor.style.left = `${mouse.x}px`;
-      cursor.style.top = `${mouse.y}px`;
-    }
-    root.classList.add('is-active');
+    cursor.style.left = `${mouse.x}px`;
+    cursor.style.top = `${mouse.y}px`;
+    artboard.classList.add('is-active');
   }
 
   function move(event: PointerEvent) {
@@ -385,24 +459,22 @@ export function initCurtain(options: CurtainOptions) {
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
     injectMouseDelta();
-    if (cursor) {
-      cursor.style.left = `${mouse.x}px`;
-      cursor.style.top = `${mouse.y}px`;
-    }
+    cursor.style.left = `${mouse.x}px`;
+    cursor.style.top = `${mouse.y}px`;
   }
 
   function leave() {
     mouse.active = false;
-    root.classList.remove('is-active');
+    artboard.classList.remove('is-active');
   }
 
-  function bindRange(id: string, update: (value: number) => void) {
-    const input = root.querySelector<HTMLInputElement>(`[data-curtain-${id}]`);
-    const output = root.querySelector<HTMLOutputElement>(`[data-curtain-${id}-value]`);
-    if (!input) return;
+  function bindRange(id: string, outputId: string, update: (v: number) => void) {
+    const input = document.getElementById(id) as HTMLInputElement | null;
+    const output = document.getElementById(outputId) as HTMLOutputElement | null;
+    if (!input || !output) return;
     input.addEventListener('input', () => {
       const value = Number(input.value);
-      if (output) output.value = String(value);
+      output.value = String(value);
       update(value);
     });
   }
@@ -412,12 +484,12 @@ export function initCurtain(options: CurtainOptions) {
       const response = await fetch('/assets/tiantan.txt');
       if (!response.ok) return;
       const characters = (await response.text()).match(/\p{Script=Han}/gu);
-      if (characters && characters.length) {
+      if (characters?.length) {
         glyphs = characters.join('');
         build();
       }
     } catch {
-      /* keep fallback glyphs */
+      /* keep fallback */
     }
   }
 
@@ -431,79 +503,42 @@ export function initCurtain(options: CurtainOptions) {
   }
   if (reset) reset.addEventListener('click', build);
 
-  bindRange('strength', (value) => {
-    physics.strength = value / 100;
+  if (roofSelect) {
+    roofSelect.innerHTML = ROOFS.map((r) => `<option value="${r.id}">${r.label}</option>`).join('');
+    roofSelect.addEventListener('change', () => {
+      const study = ROOFS.find((r) => r.id === roofSelect.value) || ROOFS[0];
+      applyRoof(study);
+    });
+  }
+
+  if (modeSelect) {
+    modeSelect.addEventListener('change', () => {
+      mode = modeSelect.value === 'classic' ? 'classic' : 'qr';
+      build();
+    });
+  }
+
+  bindRange('strength', 'strengthValue', (v) => {
+    physics.strength = v / 100;
   });
-  bindRange('reach', (value) => {
-    physics.radius = value;
+  bindRange('reach', 'reachValue', (v) => {
+    physics.radius = v;
   });
-  bindRange('inertia', (value) => {
-    physics.friction = value / 100;
+  bindRange('inertia', 'inertiaValue', (v) => {
+    physics.friction = v / 100;
   });
 
   canvas.addEventListener('pointerenter', enter);
   canvas.addEventListener('pointermove', move);
   canvas.addEventListener('pointerleave', leave);
-  if (enableSound) {
-    root.addEventListener('pointerdown', unlockSound, { passive: true });
-  }
+  window.addEventListener('pointerdown', unlockSound, { passive: true });
   window.addEventListener('resize', resize);
 
-  const layoutObserver = new ResizeObserver(() => resize());
-  layoutObserver.observe(root);
-  layoutObserver.observe(temple);
+  const ro = new ResizeObserver(() => resize());
+  ro.observe(artboard);
+  ro.observe(temple);
 
-  const visibilityObserver = new IntersectionObserver(
-    (entries) => {
-      visible = entries.some((e) => e.isIntersecting);
-    },
-    { threshold: 0.05 },
-  );
-  visibilityObserver.observe(root);
-
-  const templeImg = temple.querySelector('img');
-  if (templeImg) {
-    if (templeImg.complete) resize();
-    else templeImg.addEventListener('load', resize, { once: true });
-  }
-
-  requestAnimationFrame(() => {
-    resize();
-    requestAnimationFrame(resize);
-  });
-
+  applyRoof(ROOFS[0]);
   loadBodyText();
   frame();
-
-  return () => {
-    running = false;
-    cancelAnimationFrame(raf);
-    layoutObserver.disconnect();
-    visibilityObserver.disconnect();
-    window.removeEventListener('resize', resize);
-  };
-}
-
-/** Boot every `[data-curtain-root]` on the page */
-export function bootAllCurtains() {
-  const roots = document.querySelectorAll<HTMLElement>('[data-curtain-root]');
-  const cleanups: Array<() => void> = [];
-  roots.forEach((root) => {
-    const qrPayload = root.dataset.qrPayload || 'https://www.terrerov.com';
-    const ecc = (root.dataset.ecc || 'M') as 'L' | 'M' | 'Q' | 'H';
-    cleanups.push(
-      initCurtain({
-        root,
-        qrPayload,
-        ecc,
-        roofNativeW: Number(root.dataset.roofW || 901),
-        roofCenterY: Number(root.dataset.roofCenterY || 652),
-        roofSideY: Number(root.dataset.roofSideY || 698),
-        eaveWidthRatio: Number(root.dataset.eaveRatio || 0.84),
-        enableSound: root.dataset.sound !== '0',
-        compact: root.dataset.compact === '1',
-      }),
-    );
-  });
-  return () => cleanups.forEach((fn) => fn());
 }

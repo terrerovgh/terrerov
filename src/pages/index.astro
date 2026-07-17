@@ -1,427 +1,520 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import TempleCurtain from '../components/TempleCurtain.astro';
-import CurtainScene from '../components/CurtainScene.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
-import ChernarusMark from '../components/ChernarusMark.astro';
-import { galleryRoofs } from '../data/roofs';
-
-const works = [
-  {
-    name: 'Surviving Chernarus',
-    slug: 'surviving-chernarus',
-    kicker: 'AUTONOMY / RESILIENCE',
-    tag: 'SYSTEM · CONCEPT',
-    tileClass: 'tile-chernarus',
-    tileTitle: 'SURVIVING CHERNARUS_',
-    description:
-      'An autonomous digital-resilience system that runs real-world tasks — mission-control UI with a post-apocalyptic tone.',
-  },
-  {
-    name: 'Whale Fall',
-    slug: 'whale-fall',
-    kicker: 'DATA / DECISIONS',
-    tag: 'ANALYTICS PLATFORM',
-    tileClass: 'tile-whalefall',
-    tileTitle: 'Whale Fall',
-    description:
-      'Autonomous data collection, analytics, and decision-making — a deep-sea design language for a system that never sleeps.',
-  },
-  {
-    name: 'Cuba Tattoo Studio',
-    slug: 'cuba-tattoo-studio',
-    kicker: 'STUDIO / ALBUQUERQUE NM',
-    tag: 'TATTOO STUDIO',
-    tileClass: 'tile-cuba',
-    tileTitle: 'CUBA★TATTOO',
-    description:
-      'A bold one-page site for an Albuquerque tattoo studio — heritage typography, artist roster, and walk-in info.',
-  },
-  {
-    name: 'GoodNinaInk',
-    slug: 'goodninaink',
-    kicker: 'ARTIST / ALBUQUERQUE NM',
-    tag: 'TATTOO ARTIST',
-    tileClass: 'tile-nina',
-    tileTitle: 'GoodNinaInk',
-    description:
-      'A quiet, editorial portfolio for a fine-line tattoo artist in Albuquerque — gallery-first with direct booking.',
-  },
-];
-
-const services = [
-  {
-    n: '01',
-    title: 'Custom web design & development',
-    body: 'Sites designed and built from scratch around your business — never a template with your logo swapped in.',
-  },
-  {
-    n: '02',
-    title: 'Sites for tattoo studios & artists',
-    body: 'Powerful galleries that honor the work, plus booking that fills your calendar. A specialty of the studio.',
-  },
-  {
-    n: '03',
-    title: 'Local SEO',
-    body: 'Show up when Louisville searches for what you do — maps, reviews, and pages built to rank locally.',
-  },
-  {
-    n: '04',
-    title: 'Online booking integration',
-    body: 'Appointments, deposits, and reminders that run themselves — so the phone stops being a bottleneck.',
-  },
-  {
-    n: '05',
-    title: 'Care & monthly updates',
-    body: 'Hosting, security, content changes, and small improvements — your site stays fast and current.',
-  },
-  {
-    n: '06',
-    title: 'Redesign of existing sites',
-    body: "Keep what works, rebuild what doesn't — a considered refresh instead of starting over.",
-  },
-];
+const title = 'Terrerov — Louisville web design';
+const description =
+  'Independent web studio. Interactive Temple of Heaven curtain — a scannable QR to terrerov.com.';
 ---
 
-<Layout>
-  <a href="#main" class="skip-link">SKIP TO CONTENT</a>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href="https://www.terrerov.com/" />
+    <meta name="theme-color" content="#e8dfca" />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/assets/temple-roof-cutout-web.webp" as="image" type="image/webp" fetchpriority="high" />
 
-  <div id="top">
-    <TempleCurtain qrPayload="https://www.terrerov.com" />
-  </div>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Terrerov" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://www.terrerov.com/" />
+    <meta property="og:locale" content="en_US" />
 
-  <header class="site-header">
-    <a href="#top" class="logo" aria-label="Terrerov — back to top">Terrerov</a>
-    <div class="flex items-center gap-[clamp(16px,3vw,36px)]">
-      <nav aria-label="Main navigation">
-        <a href="#curtains">Curtains</a>
-        <a href="#works">Works</a>
-        <a href="#services">Services</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <ThemeToggle />
-    </div>
-  </header>
-
-  <div class="relative z-10">
-    <main id="main">
-      <!-- CURTAIN GALLERY -->
-      <section id="curtains" class="site-section">
-        <div class="site-rule-row">
-          <h2 class="site-section-title reveal">Roof &amp; curtain studies</h2>
-          <span class="t-kicker reveal">FIVE ROOFS · LIVE QR STRANDS</span>
-        </div>
-        <p class="reveal mb-[clamp(36px,5vh,56px)] mt-0 max-w-[54ch] text-[15px] leading-[1.7] text-(--muted)">
-          The same physics, different architecture. Each roof pins a scannable curtain — move the pointer to chime the
-          strands; leave them still to scan. Built for brand moments, storefronts, and editorial launches.
-        </p>
-
-        <div class="curtain-gallery-grid">
-          {galleryRoofs.map((roof) => (
-            <figure class="curtain-gallery-item reveal">
-              <div class="min-h-[400px]">
-                <CurtainScene roof={roof} mode="card" enableSound={true} />
-              </div>
-              <figcaption>
-                <p class="t-kicker mb-2">{roof.kicker}</p>
-                <h3>
-                  {roof.name}
-                  <span class="text-(--muted) font-normal"> · {roof.nameZh}</span>
-                </h3>
-                <p>{roof.description}</p>
-                <p class="mt-3 mb-0">
-                  <span class="site-link">{roof.qrPayload.replace('https://', '')}</span>
-                </p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      <!-- WORKS -->
-      <section id="works" class="site-section">
-        <div class="site-rule-row">
-          <h2 class="site-section-title reveal">Selected works</h2>
-          <span class="t-kicker reveal">DESIGN CONCEPTS · 2024 — 2026</span>
-        </div>
-
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-[clamp(28px,4vw,40px)]">
-          {works.map((work) => (
-            <article class="work-card reveal group">
-              <div class={`work-card-tile ${work.tileClass}`}>
-                <div class="relative z-10 text-center px-6" aria-hidden="true">
-                  {work.slug === 'surviving-chernarus' ? (
-                    <>
-                      <ChernarusMark size={80} withWordmark={false} />
-                      <div class="tile-kicker mt-3">{work.kicker}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div class="tile-kicker mb-2">{work.kicker}</div>
-                      <div class="tile-title">{work.tileTitle}</div>
-                    </>
-                  )}
-                </div>
-              </div>
-              <div class="work-card-body">
-                <div class="flex justify-between items-baseline gap-4">
-                  <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">
-                    <a href={`/works/${work.slug}/`} class="text-(--ink) after:absolute after:inset-0">
-                      {work.name}
-                    </a>
-                  </h3>
-                  <span class="t-kicker whitespace-nowrap !text-[10px]">{work.tag}</span>
-                </div>
-                <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">{work.description}</p>
-                <span class="site-link inline-block mt-4">View design →</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <!-- SERVICES -->
-      <section id="services" class="site-section">
-        <h2 class="site-section-title reveal mb-[clamp(40px,6vh,64px)]">Services</h2>
-        <div>
-          {services.map((s) => (
-            <div class="service-row reveal">
-              <span class="t-kicker pt-1">{s.n}</span>
-              <div>
-                <h3 class="m-0 text-[clamp(18px,2vw,22px)] font-medium tracking-[-0.015em]">{s.title}</h3>
-                <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">{s.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <!-- ABOUT -->
-      <section id="about" class="site-section">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
-          <h2 class="site-section-title reveal max-w-[16ch] text-balance">
-            A small studio for businesses that deserve better.
-          </h2>
-          <div class="reveal">
-            <p class="m-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
-              Terrerov is an independent web studio. I work with local businesses — many building their first real web
-              presence — and treat each site as a craft object: designed carefully, built fast, and made to bring in
-              actual customers, not just compliments.
-            </p>
-            <p class="mt-5 mb-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
-              No agencies, no account managers, no handoffs. You work directly with the person designing and building
-              your site — en inglés o en español.
-            </p>
-            <div class="flex gap-[clamp(28px,4vw,56px)] mt-[clamp(32px,5vh,48px)] flex-wrap">
-              <div>
-                <p class="t-kicker m-0">Based in</p>
-                <p class="mt-1.5 mb-0 text-[15px] font-medium">United States</p>
-              </div>
-              <div>
-                <p class="t-kicker m-0">Focus</p>
-                <p class="mt-1.5 mb-0 text-[15px] font-medium">Local business</p>
-              </div>
-              <div>
-                <p class="t-kicker m-0">Languages</p>
-                <p class="mt-1.5 mb-0 text-[15px] font-medium">English · Español</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PROCESS -->
-      <section class="site-section">
-        <h2 class="site-section-title reveal mb-[clamp(40px,6vh,64px)]">Process</h2>
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[clamp(28px,4vw,40px)]">
-          {[
-            { n: '01', t: 'Listen', d: 'A short conversation about your business, your customers, and what a win looks like.' },
-            { n: '02', t: 'Design', d: 'You see the design before anything is built. We refine it together until it feels right.' },
-            { n: '03', t: 'Build', d: 'Fast, accessible, search-ready. Most sites launch in two to four weeks.' },
-            { n: '04', t: 'Grow', d: 'Monthly care, measurement, and small improvements that compound over time.' },
-          ].map((step) => (
-            <div class="reveal border-t border-(--ink) pt-6">
-              <span class="t-kicker">{step.n}</span>
-              <h3 class="mt-[14px] mb-0 text-[19px] font-medium">{step.t}</h3>
-              <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">{step.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <!-- TESTIMONIALS -->
-      <section class="site-section" aria-label="Testimonials">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[clamp(36px,5vw,56px)]">
-          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
-            <blockquote class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
-              "The site looks like it cost five times what it did. Clients mention it before they mention the tattoos."
-            </blockquote>
-            <figcaption class="mt-5 t-kicker">— Studio owner, Louisville</figcaption>
-          </figure>
-          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
-            <blockquote class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
-              "We went from invisible on Google to booked out three weeks. That's the whole story."
-            </blockquote>
-            <figcaption class="mt-5 t-kicker">— Barbershop owner</figcaption>
-          </figure>
-          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
-            <blockquote lang="es" class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
-              "Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."
-            </blockquote>
-            <figcaption class="mt-5 t-kicker">— Restaurant owner</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <!-- CONTACT -->
-      <section id="contact" class="site-section pb-[clamp(80px,12vh,120px)]">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
-          <div class="reveal">
-            <h2 class="site-section-title max-w-[12ch] text-balance">Let's build yours.</h2>
-            <p class="mt-6 mb-0 text-[16px] leading-[1.7] text-(--muted) max-w-[44ch]">
-              Tell me a little about your business. I reply within one business day — in English or Spanish.
-            </p>
-            <div class="mt-[clamp(28px,4vh,40px)] flex flex-col gap-3">
-              <a href="mailto:hola@terrerov.com" class="site-link w-fit text-[13px] normal-case tracking-normal">
-                hola@terrerov.com
-              </a>
-              <span class="text-[14px] text-(--muted)">Louisville, Kentucky</span>
-            </div>
-          </div>
-
-          <form id="contact-form" class="reveal flex flex-col gap-2">
-            <label for="c-name" class="t-kicker mt-1">Name</label>
-            <input
-              id="c-name"
-              name="name"
-              type="text"
-              required
-              autocomplete="name"
-              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) rounded-none"
-            />
-
-            <label for="c-email" class="t-kicker mt-7">Email</label>
-            <input
-              id="c-email"
-              name="email"
-              type="email"
-              required
-              autocomplete="email"
-              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) rounded-none"
-            />
-
-            <label for="c-msg" class="t-kicker mt-7">About your business</label>
-            <textarea
-              id="c-msg"
-              name="message"
-              rows="4"
-              required
-              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) resize-y rounded-none"
-            ></textarea>
-
-            <button type="submit" class="site-btn mt-10 self-start">
-              Send inquiry<span>→</span>
-            </button>
-
-            <p id="success-msg" class="hidden mt-4 mb-0 text-[14px] text-(--muted)">
-              Gracias — your email app should open with the message ready to send.
-            </p>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <footer class="border-t border-(--line) px-[clamp(20px,5vw,64px)] py-[clamp(48px,7vh,72px)] bg-(--footer-bg)">
-      <div class="max-w-[1200px] mx-auto flex justify-between items-start gap-10 flex-wrap">
-        <div>
-          <p class="m-0 text-[15px] font-medium tracking-[0.04em]">Terrerov</p>
-          <p class="mt-3 mb-0 text-[13px] leading-[1.7] text-(--muted)">hola@terrerov.com</p>
-        </div>
-        <div class="flex gap-[clamp(20px,3vw,40px)]">
-          <a href="https://instagram.com/terrerov" target="_blank" rel="noopener" class="t-kicker hover:text-(--ink)"
-            >Instagram</a
-          >
-          <a
-            href="https://linkedin.com/company/terrerov"
-            target="_blank"
-            rel="noopener"
-            class="t-kicker hover:text-(--ink)">LinkedIn</a
-          >
-          <a href="mailto:hola@terrerov.com" class="t-kicker hover:text-(--ink)">Email</a>
-        </div>
-        <p class="m-0 text-[12px] text-(--faint)">© 2026 Terrerov Studio</p>
-      </div>
-    </footer>
-  </div>
-
-  <script>
-    import { bootAllCurtains } from '../scripts/curtain';
-
-    bootAllCurtains();
-
-    const form = document.getElementById('contact-form');
-    const success = document.getElementById('success-msg');
-
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const f = e.currentTarget as HTMLFormElement;
-        const name = (f.elements.namedItem('name') as HTMLInputElement).value.trim();
-        const email = (f.elements.namedItem('email') as HTMLInputElement).value.trim();
-        const msg = (f.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
-
-        const body = encodeURIComponent((msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : ''));
-
-        window.location.href =
-          'mailto:hola@terrerov.com?subject=' +
-          encodeURIComponent('Project inquiry — ' + (name || 'new project')) +
-          '&body=' +
-          body;
-
-        if (success) success.classList.remove('hidden');
-      });
-    }
-
-    function setupReveals() {
-      const els = document.querySelectorAll('.reveal');
-      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduced || !('IntersectionObserver' in window)) {
-        els.forEach((el) => {
-          (el as HTMLElement).style.opacity = '1';
-        });
-        return;
+    <style is:global>
+      :root {
+        --paper: #e8dfca;
+        --ink: #2e251f;
+        --muted: #70665b;
+        --hairline: rgba(46, 37, 31, 0.36);
+        --panel: rgba(232, 223, 202, 0.93);
       }
 
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const t = entry.target as HTMLElement;
-              t.style.transition =
-                'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
-              t.style.opacity = '1';
-              t.style.transform = 'none';
-              io.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.12 },
-      );
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
 
-      els.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const node = el as HTMLElement;
-        if (rect.top > window.innerHeight * 0.92) {
-          node.style.opacity = '0';
-          node.style.transform = 'translateY(22px)';
-          io.observe(el);
-        } else {
-          node.style.opacity = '1';
+      .artboard {
+        position: relative;
+        min-height: 100svh;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          repeating-linear-gradient(91deg, rgba(46, 37, 31, 0.022) 0 1px, transparent 1px 11px),
+          repeating-linear-gradient(2deg, rgba(46, 37, 31, 0.017) 0 1px, transparent 1px 14px),
+          radial-gradient(circle at 53% 16%, rgba(255, 255, 255, 0.26), transparent 34%),
+          var(--paper);
+      }
+
+      .artboard::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+        opacity: 0.14;
+        background-image:
+          radial-gradient(circle at 24% 31%, currentColor 0 0.5px, transparent 0.65px),
+          radial-gradient(circle at 71% 56%, currentColor 0 0.45px, transparent 0.6px);
+        background-size:
+          9px 11px,
+          13px 15px;
+        mix-blend-mode: multiply;
+      }
+
+      #curtain {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        cursor: none;
+        touch-action: none;
+      }
+
+      .masthead {
+        position: absolute;
+        z-index: 8;
+        top: 28px;
+        left: clamp(24px, 5vw, 94px);
+        right: clamp(24px, 5vw, 94px);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 28px;
+        font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--muted);
+      }
+
+      .brand {
+        color: var(--ink);
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 15px;
+        text-decoration: none;
+      }
+      .brand:hover {
+        color: var(--ink);
+      }
+
+      .nav {
+        display: flex;
+        gap: 28px;
+      }
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .nav a:hover {
+        color: var(--ink);
+      }
+
+      .masthead-actions {
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .mail-link {
+        padding: 7px 0 6px;
+        border-bottom: 1px solid transparent;
+        color: inherit;
+        text-decoration: none;
+      }
+      .mail-link:hover {
+        color: var(--ink);
+        border-bottom-color: currentColor;
+      }
+
+      .configure {
+        border: 0;
+        padding: 7px 13px 6px;
+        color: var(--paper);
+        background: var(--ink);
+        font-family: Georgia, 'Times New Roman', serif;
+        cursor: pointer;
+        clip-path: polygon(4% 6%, 96% 0, 100% 91%, 2% 100%);
+      }
+
+      .temple {
+        position: absolute;
+        z-index: 4;
+        top: clamp(48px, 6vh, 72px);
+        left: 50%;
+        width: min(560px, 56vw, calc(40vh * 901 / 730));
+        transform: translateX(-50%);
+        pointer-events: none;
+        line-height: 0;
+        aspect-ratio: 901 / 730;
+      }
+
+      .temple picture {
+        display: block;
+        width: 100%;
+      }
+
+      .temple img {
+        width: 100%;
+        height: auto;
+        display: block;
+        mix-blend-mode: multiply;
+        filter:
+          drop-shadow(34px 38px 18px rgba(46, 37, 31, 0.19))
+          drop-shadow(70px 64px 34px rgba(46, 37, 31, 0.1));
+      }
+
+      .destination {
+        position: absolute;
+        z-index: 6;
+        top: 29%;
+        width: 64px;
+        min-height: 68px;
+        display: grid;
+        place-content: center;
+        gap: 5px;
+        border: 1px solid var(--hairline);
+        background: transparent;
+        color: var(--ink);
+        font: 12px/1 Georgia, 'Times New Roman', serif;
+        text-decoration: none;
+        pointer-events: auto;
+      }
+      .destination::before {
+        content: '';
+        width: 26px;
+        height: 7px;
+        margin: auto;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+      }
+      .destination:hover {
+        background: rgba(46, 37, 31, 0.06);
+        color: var(--ink);
+      }
+      .destination.left {
+        left: clamp(24px, 6vw, 108px);
+      }
+      .destination.right {
+        right: clamp(24px, 6vw, 108px);
+      }
+
+      .headline {
+        position: absolute;
+        z-index: 6;
+        left: clamp(28px, 6vw, 112px);
+        bottom: clamp(38px, 8vh, 92px);
+        width: min(320px, 30vw);
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--muted);
+      }
+
+      h1 {
+        margin: 0;
+        font: 500 clamp(44px, 5.2vw, 78px) / 0.9 Georgia, 'Times New Roman', serif;
+        letter-spacing: 0;
+      }
+
+      .rule {
+        display: inline-block;
+        width: 76px;
+        margin-left: 15px;
+        border-top: 1px solid var(--ink);
+        transform: translateY(-0.35em);
+      }
+
+      .caption {
+        position: absolute;
+        z-index: 6;
+        right: clamp(28px, 8vw, 152px);
+        bottom: clamp(52px, 11vh, 126px);
+        width: min(230px, 21vw);
+        margin: 0;
+        color: var(--muted);
+        font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+        pointer-events: none;
+      }
+
+      .scan-hint {
+        position: absolute;
+        z-index: 6;
+        left: 50%;
+        bottom: 22px;
+        width: max-content;
+        transform: translateX(-50%);
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .progress {
+        width: 140px;
+        height: 2px;
+        margin: 0 auto 8px;
+        background: rgba(46, 37, 31, 0.18);
+      }
+      .progress::before {
+        content: '';
+        display: block;
+        width: 42%;
+        height: 100%;
+        background: rgba(46, 37, 31, 0.55);
+      }
+
+      .scan-hint p {
+        margin: 0;
+        font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .cursor {
+        position: absolute;
+        z-index: 12;
+        width: 12px;
+        height: 12px;
+        border: 1px solid rgba(46, 37, 31, 0.72);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .artboard.is-active .cursor {
+        opacity: 1;
+      }
+
+      .settings {
+        position: absolute;
+        z-index: 20;
+        top: 62px;
+        right: clamp(24px, 5vw, 94px);
+        width: 248px;
+        padding: 16px;
+        border: 1px solid var(--hairline);
+        background: var(--panel);
+        box-shadow: 16px 18px 32px rgba(46, 37, 31, 0.12);
+        backdrop-filter: blur(8px);
+      }
+      .settings[hidden] {
+        display: none;
+      }
+      .setting {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 13px;
+      }
+      .setting label {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .setting input[type='range'] {
+        width: 100%;
+        accent-color: var(--ink);
+      }
+      .setting select {
+        width: 100%;
+        border: 1px solid var(--hairline);
+        background: transparent;
+        color: var(--ink);
+        padding: 6px 8px;
+        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .reset {
+        width: 100%;
+        border: 1px solid var(--hairline);
+        padding: 7px 10px;
+        color: var(--ink);
+        background: transparent;
+        cursor: pointer;
+        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      .credit {
+        position: absolute;
+        z-index: 8;
+        left: clamp(24px, 5vw, 48px);
+        bottom: 22px;
+        font: 9px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--muted);
+        text-decoration: none;
+        opacity: 0.7;
+      }
+      .credit:hover {
+        color: var(--ink);
+        opacity: 1;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 720px) {
+        .masthead {
+          grid-template-columns: 1fr auto;
         }
-      });
-    }
+        .nav {
+          display: none;
+        }
+        .temple {
+          top: 58px;
+          width: min(400px, 88vw, calc(34vh * 901 / 730));
+        }
+        .destination {
+          top: 22%;
+          transform: scale(0.86);
+        }
+        .destination.left {
+          left: 16px;
+        }
+        .destination.right {
+          right: 16px;
+        }
+        .headline {
+          left: 24px;
+          bottom: 44px;
+          width: min(280px, 74vw);
+        }
+        h1 {
+          font-size: clamp(36px, 12vw, 56px);
+        }
+        .caption {
+          display: none;
+        }
+        .credit {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="artboard" id="artboard">
+      <canvas id="curtain" aria-label="Interactive character curtain that forms a scannable QR code"></canvas>
 
-    setupReveals();
-  </script>
-</Layout>
+      <header class="masthead">
+        <a class="brand" href="/">Terrerov</a>
+        <nav class="nav" aria-label="Primary">
+          <a href="mailto:hola@terrerov.com">Contact</a>
+          <a href="https://github.com/terrerovgh/terrerov" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+        <div class="masthead-actions">
+          <a class="mail-link" href="mailto:hola@terrerov.com">hola@terrerov.com</a>
+          <button class="configure" id="configure" type="button" aria-expanded="false" aria-controls="settings">
+            Configure
+          </button>
+        </div>
+      </header>
+
+      <div class="temple" id="temple">
+        <picture>
+          <source id="temple-webp" srcset="/assets/temple-roof-cutout-web.webp" type="image/webp" />
+          <img
+            id="temple-img"
+            src="/assets/temple-roof-cutout-web.png"
+            width="901"
+            height="730"
+            fetchpriority="high"
+            decoding="async"
+            alt="Temple of Heaven roof"
+          />
+        </picture>
+      </div>
+
+      <a class="destination left" href="mailto:hola@terrerov.com"><span>Studio</span></a>
+      <a class="destination right" href="mailto:hola@terrerov.com"><span>Hello</span></a>
+
+      <section class="headline" id="home">
+        <p class="eyebrow">Louisville, KY / English · Español</p>
+        <h1>Web design<br />that elevates<span class="rule"></span></h1>
+      </section>
+
+      <p class="caption" id="story">
+        Independent studio for local business. The curtain is a live QR to this site — leave it still to scan, move to
+        chime.
+      </p>
+
+      <div class="scan-hint" aria-hidden="true">
+        <div class="progress"></div>
+        <p>Scan when still · move to chime</p>
+      </div>
+
+      <a
+        class="credit"
+        href="https://github.com/CodeMaryy/temple-of-heaven-curtain"
+        target="_blank"
+        rel="noopener">After Temple of Heaven Curtain</a
+      >
+
+      <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+      <aside class="settings" id="settings" hidden>
+        <div class="setting">
+          <label for="roof">Roof study</label>
+          <select id="roof"></select>
+        </div>
+        <div class="setting">
+          <label for="mode">Curtain</label>
+          <select id="mode">
+            <option value="qr" selected>QR · terrerov.com</option>
+            <option value="classic">Classic characters</option>
+          </select>
+        </div>
+        <div class="setting">
+          <label for="strength">Strength <output id="strengthValue">72</output></label>
+          <input id="strength" type="range" min="20" max="110" value="72" />
+        </div>
+        <div class="setting">
+          <label for="reach">Reach <output id="reachValue">34</output></label>
+          <input id="reach" type="range" min="18" max="56" value="34" />
+        </div>
+        <div class="setting">
+          <label for="inertia">Inertia <output id="inertiaValue">97</output></label>
+          <input id="inertia" type="range" min="86" max="99" value="97" />
+        </div>
+        <button class="reset" id="reset" type="button">Reset curtain</button>
+      </aside>
+
+      <p class="sr-only">
+        Interactive single-page site. A curtain of Chinese characters hangs from a Temple of Heaven roof and forms a QR
+        code encoding https://www.terrerov.com. Contact: hola@terrerov.com.
+      </p>
+    </main>
+
+    <script>
+      import { initCurtain } from '../scripts/curtain';
+      initCurtain();
+    </script>
+  </body>
+</html>
