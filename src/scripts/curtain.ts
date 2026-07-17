@@ -1,10 +1,20 @@
 import { encode } from 'uqr';
 
 export type CurtainOptions = {
+  /** Root scene element (scoped queries) */
+  root: HTMLElement;
   /** URL (or text) encoded into the hanging QR curtain */
   qrPayload: string;
-  /** Error correction — higher survives more motion before a scan fails */
   ecc?: 'L' | 'M' | 'Q' | 'H';
+  /** Asset native width used for roofScale */
+  roofNativeW?: number;
+  roofCenterY?: number;
+  roofSideY?: number;
+  eaveWidthRatio?: number;
+  /** Disable chimes (gallery cards) */
+  enableSound?: boolean;
+  /** Compact layout (gallery card) */
+  compact?: boolean;
 };
 
 type Point = {
@@ -33,18 +43,26 @@ type Physics = {
 const FALLBACK_GLYPHS = '天坛祈年风调雨顺天地玄黄日月星辰礼乐文明北京春秋山川云海';
 
 export function initCurtain(options: CurtainOptions) {
-  const artboard = document.getElementById('artboard');
-  const canvas = document.getElementById('curtain') as HTMLCanvasElement | null;
-  const cursor = document.getElementById('cursor');
-  const temple = document.getElementById('temple');
-  const configure = document.getElementById('configure');
-  const settings = document.getElementById('settings');
-  const reset = document.getElementById('reset');
+  const root = options.root;
+  const canvas = root.querySelector<HTMLCanvasElement>('[data-curtain-canvas]');
+  const cursor = root.querySelector<HTMLElement>('[data-curtain-cursor]');
+  const temple = root.querySelector<HTMLElement>('[data-curtain-roof]');
+  const configure = root.querySelector<HTMLElement>('[data-curtain-configure]');
+  const settings = root.querySelector<HTMLElement>('[data-curtain-settings]');
+  const reset = root.querySelector<HTMLElement>('[data-curtain-reset]');
+  const meta = root.querySelector<HTMLElement>('[data-curtain-meta]');
 
-  if (!artboard || !canvas || !cursor || !temple) return;
+  if (!canvas || !temple) return () => {};
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) return () => {};
+
+  const roofNativeW = options.roofNativeW ?? 901;
+  const roofCenterY = options.roofCenterY ?? 652;
+  const roofSideY = options.roofSideY ?? 698;
+  const eaveWidthRatio = options.eaveWidthRatio ?? 0.84;
+  const enableSound = options.enableSound !== false;
+  const compact = Boolean(options.compact);
 
   const qr = encode(options.qrPayload, {
     ecc: options.ecc ?? 'M',
@@ -57,7 +75,12 @@ export function initCurtain(options: CurtainOptions) {
   const chains: Point[][] = [];
   let glyphs = FALLBACK_GLYPHS;
   const mouse = { x: -999, y: -999, oldX: -999, oldY: -999, active: false };
-  const physics: Physics = { strength: 0.72, radius: 34, friction: 0.965, gravity: 0.18 };
+  const physics: Physics = {
+    strength: compact ? 0.55 : 0.72,
+    radius: compact ? 22 : 34,
+    friction: 0.965,
+    gravity: 0.18,
+  };
   const sound = {
     context: null as AudioContext | null,
     output: null as GainNode | null,
@@ -70,13 +93,17 @@ export function initCurtain(options: CurtainOptions) {
   let width = 0;
   let height = 0;
   let dpr = 1;
-  /** Horizontal size of one QR module in CSS pixels */
   let moduleW = 10;
-  /** Vertical size of one QR module in CSS pixels */
   let moduleH = 10;
+  let running = true;
+  let visible = true;
+  let raf = 0;
 
   function unlockSound() {
-    const AudioContextCtor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!enableSound) return;
+    const AudioContextCtor =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextCtor) return;
     if (!sound.context) {
       const context = new AudioContextCtor();
@@ -86,7 +113,7 @@ export function initCurtain(options: CurtainOptions) {
       const feedback = context.createGain();
       const wet = context.createGain();
 
-      output.gain.value = 0.62;
+      output.gain.value = 0.5;
       compressor.threshold.value = -18;
       compressor.ratio.value = 3;
       delay.delayTime.value = 0.11;
@@ -107,6 +134,7 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function strikeChain(columnIndex: number, impact: number, x: number) {
+    if (!enableSound) return;
     const context = sound.context;
     if (!context || !sound.output || context.state !== 'running' || impact < 1.1) return;
 
@@ -120,7 +148,7 @@ export function initCurtain(options: CurtainOptions) {
 
     const now = context.currentTime;
     const frequency = sound.scale[columnIndex % sound.scale.length];
-    const level = 0.028 + (Math.min(impact, 18) / 18) * 0.075;
+    const level = 0.022 + (Math.min(impact, 18) / 18) * 0.06;
     const duration = 0.72 + Math.random() * 0.32;
     const spatial = context.createStereoPanner ? context.createStereoPanner() : context.createGain();
     const pan = Math.max(-0.9, Math.min(0.9, (x / width) * 2 - 1));
@@ -155,43 +183,26 @@ export function initCurtain(options: CurtainOptions) {
     }, (duration + 0.15) * 1000);
   }
 
-  /**
-   * Asset-native eave outline for temple-roof-cutout-web (901×730).
-   * Same geometry as the original Temple of Heaven curtain project.
-   */
-  const ROOF_NATIVE_W = 901;
-  // Sampled from PNG alpha edge (center higher, sides droop). A few px above
-  // the true edge so strand tops tuck under the roof layer (z-index 4).
-  const ROOF_CENTER_Y = 652;
-  const ROOF_SIDE_Y = 698;
-
   function build() {
     chains.length = 0;
     const narrow = width < 720;
     const templeRect = temple.getBoundingClientRect();
-    const artboardRect = artboard.getBoundingClientRect();
+    const artboardRect = root.getBoundingClientRect();
 
-    // Wait until the temple box has a real layout (aspect-ratio + image)
-    if (templeRect.width < 48 || templeRect.height < 48) return;
+    if (templeRect.width < 24 || templeRect.height < 24) return;
 
     const buildingCenter = templeRect.left - artboardRect.left + templeRect.width * 0.5;
-    const roofScale = templeRect.width / ROOF_NATIVE_W;
+    const roofScale = templeRect.width / roofNativeW;
     const templeTop = templeRect.top - artboardRect.top;
 
-    // Eave opening under the roof (where the original character curtain hangs)
-    const eaveWidth = templeRect.width * (narrow ? 0.9 : 0.84);
+    const eaveWidth = templeRect.width * (narrow ? Math.min(0.92, eaveWidthRatio + 0.04) : eaveWidthRatio);
     const eaveLeft = buildingCenter - eaveWidth / 2;
-    const centerEdge = templeTop + ROOF_CENTER_Y * roofScale;
-    const sideEdge = templeTop + ROOF_SIDE_Y * roofScale;
-    const bottomPad = narrow ? 52 : 56;
+    const centerEdge = templeTop + roofCenterY * roofScale;
+    const sideEdge = templeTop + roofSideY * roofScale;
+    const bottomPad = compact ? 16 : narrow ? 52 : 56;
     const curtainBottom = height - bottomPad;
-    const availableDrop = Math.max(140, curtainBottom - sideEdge);
+    const availableDrop = Math.max(compact ? 80 : 140, curtainBottom - sideEdge);
 
-    /*
-     * Scannable square QR that IS the curtain under the roof:
-     * as wide as the eave allows, as tall as the free space allows —
-     * take the smaller so modules stay square (phones need that).
-     */
     const span = Math.min(eaveWidth, availableDrop);
     const columns = qrSize;
     const rows = qrSize;
@@ -199,12 +210,10 @@ export function initCurtain(options: CurtainOptions) {
     moduleW = pitch;
     moduleH = pitch;
 
-    // Center the square under the roof
     const left = buildingCenter - span / 2;
 
     for (let column = 0; column < columns; column += 1) {
       const x = left + column * pitch;
-      // Map column into the full eave so the hang curve matches the roof
       const eaveT = columns > 1 ? (x - eaveLeft) / eaveWidth : 0.5;
       const normalizedX = Math.abs(Math.min(1, Math.max(0, eaveT)) * 2 - 1);
       const top = centerEdge + (sideEdge - centerEdge) * Math.pow(normalizedX, 1.7) - 3;
@@ -230,7 +239,6 @@ export function initCurtain(options: CurtainOptions) {
           row,
         });
       }
-      // Row 0 stays pinned to the eave curve
       chain[0].anchorX = x;
       chain[0].anchorY = top;
       chain[0].x = x;
@@ -240,14 +248,13 @@ export function initCurtain(options: CurtainOptions) {
       chains.push(chain);
     }
 
-    const meta = document.getElementById('qr-meta');
     if (meta) {
       meta.textContent = `${qrSize}×${qrSize} · ${Math.round(span)}px · ${options.qrPayload}`;
     }
   }
 
   function resize() {
-    const rect = artboard.getBoundingClientRect();
+    const rect = root.getBoundingClientRect();
     width = rect.width;
     height = rect.height;
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -295,7 +302,7 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function constrain() {
-    for (let pass = 0; pass < 8; pass += 1) {
+    for (let pass = 0; pass < (compact ? 5 : 8); pass += 1) {
       for (const chain of chains) {
         const anchor = chain[0];
         anchor.x = anchor.anchorX;
@@ -325,10 +332,9 @@ export function initCurtain(options: CurtainOptions) {
 
   function draw() {
     ctx.clearRect(0, 0, width, height);
-    // Near-full cell fill — tiny gap between modules so the grid still reads as QR
     const halfW = moduleW * 0.48;
     const halfH = moduleH * 0.48;
-    const fontSize = Math.max(7, Math.min(moduleW, moduleH) * 0.7);
+    const fontSize = Math.max(5, Math.min(moduleW, moduleH) * 0.7);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `500 ${fontSize}px ui-monospace, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif`;
@@ -336,13 +342,9 @@ export function initCurtain(options: CurtainOptions) {
     for (const chain of chains) {
       for (const point of chain) {
         if (!point.dark) continue;
-
-        // Solid module — phone cameras read these as QR cells
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#2e251f';
         ctx.fillRect(point.x - halfW, point.y - halfH, halfW * 2, halfH * 2);
-
-        // Soft glyph texture (curtain character feel without breaking contrast)
         if (Math.min(moduleW, moduleH) >= 8) {
           ctx.globalAlpha = 0.2;
           ctx.fillStyle = '#e8dfca';
@@ -354,10 +356,13 @@ export function initCurtain(options: CurtainOptions) {
   }
 
   function frame() {
-    integrate();
-    constrain();
-    draw();
-    requestAnimationFrame(frame);
+    if (!running) return;
+    if (visible) {
+      integrate();
+      constrain();
+      draw();
+    }
+    raf = requestAnimationFrame(frame);
   }
 
   function enter(event: PointerEvent) {
@@ -365,9 +370,11 @@ export function initCurtain(options: CurtainOptions) {
     mouse.x = mouse.oldX = event.clientX - rect.left;
     mouse.y = mouse.oldY = event.clientY - rect.top;
     mouse.active = true;
-    cursor.style.left = `${mouse.x}px`;
-    cursor.style.top = `${mouse.y}px`;
-    artboard.classList.add('is-active');
+    if (cursor) {
+      cursor.style.left = `${mouse.x}px`;
+      cursor.style.top = `${mouse.y}px`;
+    }
+    root.classList.add('is-active');
   }
 
   function move(event: PointerEvent) {
@@ -378,22 +385,24 @@ export function initCurtain(options: CurtainOptions) {
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
     injectMouseDelta();
-    cursor.style.left = `${mouse.x}px`;
-    cursor.style.top = `${mouse.y}px`;
+    if (cursor) {
+      cursor.style.left = `${mouse.x}px`;
+      cursor.style.top = `${mouse.y}px`;
+    }
   }
 
   function leave() {
     mouse.active = false;
-    artboard.classList.remove('is-active');
+    root.classList.remove('is-active');
   }
 
-  function bindRange(id: string, outputId: string, update: (value: number) => void) {
-    const input = document.getElementById(id) as HTMLInputElement | null;
-    const output = document.getElementById(outputId) as HTMLOutputElement | null;
-    if (!input || !output) return;
+  function bindRange(id: string, update: (value: number) => void) {
+    const input = root.querySelector<HTMLInputElement>(`[data-curtain-${id}]`);
+    const output = root.querySelector<HTMLOutputElement>(`[data-curtain-${id}-value]`);
+    if (!input) return;
     input.addEventListener('input', () => {
       const value = Number(input.value);
-      output.value = String(value);
+      if (output) output.value = String(value);
       update(value);
     });
   }
@@ -401,14 +410,14 @@ export function initCurtain(options: CurtainOptions) {
   async function loadBodyText() {
     try {
       const response = await fetch('/assets/tiantan.txt');
-      if (!response.ok) throw new Error(`Unable to load body text: ${response.status}`);
+      if (!response.ok) return;
       const characters = (await response.text()).match(/\p{Script=Han}/gu);
       if (characters && characters.length) {
         glyphs = characters.join('');
         build();
       }
-    } catch (error) {
-      console.warn(error);
+    } catch {
+      /* keep fallback glyphs */
     }
   }
 
@@ -422,39 +431,42 @@ export function initCurtain(options: CurtainOptions) {
   }
   if (reset) reset.addEventListener('click', build);
 
-  bindRange('strength', 'strengthValue', (value) => {
+  bindRange('strength', (value) => {
     physics.strength = value / 100;
   });
-  bindRange('reach', 'reachValue', (value) => {
+  bindRange('reach', (value) => {
     physics.radius = value;
   });
-  bindRange('inertia', 'inertiaValue', (value) => {
+  bindRange('inertia', (value) => {
     physics.friction = value / 100;
   });
 
   canvas.addEventListener('pointerenter', enter);
   canvas.addEventListener('pointermove', move);
   canvas.addEventListener('pointerleave', leave);
-  window.addEventListener('pointerdown', unlockSound, { passive: true });
+  if (enableSound) {
+    root.addEventListener('pointerdown', unlockSound, { passive: true });
+  }
   window.addEventListener('resize', resize);
 
-  // Keep eave math in sync with temple layout (mobile/desktop reflows)
-  const layoutObserver = new ResizeObserver(() => {
-    resize();
-  });
-  layoutObserver.observe(artboard);
+  const layoutObserver = new ResizeObserver(() => resize());
+  layoutObserver.observe(root);
   layoutObserver.observe(temple);
+
+  const visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      visible = entries.some((e) => e.isIntersecting);
+    },
+    { threshold: 0.05 },
+  );
+  visibilityObserver.observe(root);
 
   const templeImg = temple.querySelector('img');
   if (templeImg) {
-    if (templeImg.complete) {
-      resize();
-    } else {
-      templeImg.addEventListener('load', resize, { once: true });
-    }
+    if (templeImg.complete) resize();
+    else templeImg.addEventListener('load', resize, { once: true });
   }
 
-  // Second pass after fonts/paint settle (corrects first-frame misalignment)
   requestAnimationFrame(() => {
     resize();
     requestAnimationFrame(resize);
@@ -462,4 +474,36 @@ export function initCurtain(options: CurtainOptions) {
 
   loadBodyText();
   frame();
+
+  return () => {
+    running = false;
+    cancelAnimationFrame(raf);
+    layoutObserver.disconnect();
+    visibilityObserver.disconnect();
+    window.removeEventListener('resize', resize);
+  };
+}
+
+/** Boot every `[data-curtain-root]` on the page */
+export function bootAllCurtains() {
+  const roots = document.querySelectorAll<HTMLElement>('[data-curtain-root]');
+  const cleanups: Array<() => void> = [];
+  roots.forEach((root) => {
+    const qrPayload = root.dataset.qrPayload || 'https://www.terrerov.com';
+    const ecc = (root.dataset.ecc || 'M') as 'L' | 'M' | 'Q' | 'H';
+    cleanups.push(
+      initCurtain({
+        root,
+        qrPayload,
+        ecc,
+        roofNativeW: Number(root.dataset.roofW || 901),
+        roofCenterY: Number(root.dataset.roofCenterY || 652),
+        roofSideY: Number(root.dataset.roofSideY || 698),
+        eaveWidthRatio: Number(root.dataset.eaveRatio || 0.84),
+        enableSound: root.dataset.sound !== '0',
+        compact: root.dataset.compact === '1',
+      }),
+    );
+  });
+  return () => cleanups.forEach((fn) => fn());
 }

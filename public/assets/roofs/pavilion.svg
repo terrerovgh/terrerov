@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" fill="none" role="img" aria-label="Garden pavilion roof cutout">
+  <g stroke="#2e251f" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ridge ornament -->
+    <path d="M450 36 v40" stroke-width="2.5"/>
+    <circle cx="450" cy="32" r="6" fill="#2e251f" stroke="none"/>
+    <path d="M430 52 Q450 42 470 52" stroke-width="2" fill="none"/>
+
+    <!-- main hip roof -->
+    <path d="M90 220 L450 70 L810 220 L760 280 L140 280 Z" fill="#2e251f" fill-opacity="0.16" stroke-width="2.6"/>
+    <!-- secondary eave flap -->
+    <path d="M120 250 L450 120 L780 250 L740 300 L160 300 Z" fill="#2e251f" fill-opacity="0.1" stroke-width="1.8"/>
+
+    <!-- body under eave -->
+    <path d="M200 300 h500 v48 H200 Z" fill="#e8dfca" stroke-width="1.6"/>
+    <!-- columns suggestion -->
+    <path d="M240 348 v40 M360 348 v40 M540 348 v40 M660 348 v40" stroke-width="2.2" opacity="0.7"/>
+
+    <!-- hang line eave (center ~348, sides ~392) -->
+    <path d="M140 348 Q450 372 760 348" stroke-width="2.4" fill="none" opacity="0.5"/>
+    <path d="M110 360 Q450 400 790 360" stroke-width="2.8" fill="none"/>
+    <path d="M130 380 Q450 412 770 380" stroke-width="1.6" fill="none" opacity="0.4"/>
+  </g>
+</svg>

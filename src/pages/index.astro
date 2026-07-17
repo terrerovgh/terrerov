@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import TempleCurtain from '../components/TempleCurtain.astro';
+import CurtainScene from '../components/CurtainScene.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import ChernarusMark from '../components/ChernarusMark.astro';
+import { galleryRoofs } from '../data/roofs';
 
 const works = [
   {
@@ -46,25 +48,57 @@ const works = [
       'A quiet, editorial portfolio for a fine-line tattoo artist in Albuquerque — gallery-first with direct booking.',
   },
 ];
+
+const services = [
+  {
+    n: '01',
+    title: 'Custom web design & development',
+    body: 'Sites designed and built from scratch around your business — never a template with your logo swapped in.',
+  },
+  {
+    n: '02',
+    title: 'Sites for tattoo studios & artists',
+    body: 'Powerful galleries that honor the work, plus booking that fills your calendar. A specialty of the studio.',
+  },
+  {
+    n: '03',
+    title: 'Local SEO',
+    body: 'Show up when Louisville searches for what you do — maps, reviews, and pages built to rank locally.',
+  },
+  {
+    n: '04',
+    title: 'Online booking integration',
+    body: 'Appointments, deposits, and reminders that run themselves — so the phone stops being a bottleneck.',
+  },
+  {
+    n: '05',
+    title: 'Care & monthly updates',
+    body: 'Hosting, security, content changes, and small improvements — your site stays fast and current.',
+  },
+  {
+    n: '06',
+    title: 'Redesign of existing sites',
+    body: "Keep what works, rebuild what doesn't — a considered refresh instead of starting over.",
+  },
+];
 ---
 
 <Layout>
   <a href="#main" class="skip-link">SKIP TO CONTENT</a>
 
-  <!-- Full-viewport temple hero with QR curtain -->
   <div id="top">
-    <TempleCurtain qrPayload="https://www.terrerov.com" ecc="M" />
+    <TempleCurtain qrPayload="https://www.terrerov.com" />
   </div>
 
-  <!-- Site chrome for content sections -->
-  <header class="sticky top-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-(--header-bg) backdrop-blur-[14px] border-b border-(--header-line)">
-    <a href="#top" class="text-[13px] font-semibold tracking-[0.26em] text-(--ink)" aria-label="Terrerov — back to top">TERREROV</a>
+  <header class="site-header">
+    <a href="#top" class="logo" aria-label="Terrerov — back to top">Terrerov</a>
     <div class="flex items-center gap-[clamp(16px,3vw,36px)]">
-      <nav class="flex gap-[clamp(18px,3.4vw,44px)]" aria-label="Main navigation">
-        <a href="#works" class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">WORKS</a>
-        <a href="#services" class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">SERVICES</a>
-        <a href="#about" class="max-[520px]:hidden text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">ABOUT</a>
-        <a href="#contact" class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">CONTACT</a>
+      <nav aria-label="Main navigation">
+        <a href="#curtains">Curtains</a>
+        <a href="#works">Works</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
       </nav>
       <ThemeToggle />
     </div>
@@ -72,241 +106,249 @@ const works = [
 
   <div class="relative z-10">
     <main id="main">
-    <!-- WORKS -->
-    <section id="works" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
-      <div class="flex items-baseline justify-between gap-6 flex-wrap mb-[clamp(48px,7vh,80px)]">
-        <h2 class="m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Selected works</h2>
-        <span class="text-[11px] font-medium tracking-[0.22em] text-(--faint)">DESIGN CONCEPTS · 2024 — 2026</span>
-      </div>
+      <!-- CURTAIN GALLERY -->
+      <section id="curtains" class="site-section">
+        <div class="site-rule-row">
+          <h2 class="site-section-title reveal">Roof &amp; curtain studies</h2>
+          <span class="t-kicker reveal">FIVE ROOFS · LIVE QR STRANDS</span>
+        </div>
+        <p class="reveal mb-[clamp(36px,5vh,56px)] mt-0 max-w-[54ch] text-[15px] leading-[1.7] text-(--muted)">
+          The same physics, different architecture. Each roof pins a scannable curtain — move the pointer to chime the
+          strands; leave them still to scan. Built for brand moments, storefronts, and editorial launches.
+        </p>
 
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-[clamp(48px,6vh,72px)_48px]">
-        {works.map((work) => (
-          <article class="reveal group relative">
-            <div class={`work-tile ${work.tileClass} aspect-[4/3] overflow-hidden relative flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.015]`}>
-              <div class="tile-texture absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-40"></div>
-              <div class="relative z-10 text-center px-6" aria-hidden="true">
-                {work.slug === 'surviving-chernarus' ? (
-                  <>
-                    <ChernarusMark size={92} withWordmark={false} />
-                    <div class="tile-kicker text-xs tracking-[3px] mt-3">{work.kicker}</div>
-                  </>
-                ) : (
-                  <>
-                    <div class="tile-kicker text-xs tracking-[3px] mb-2">{work.kicker}</div>
-                    <div class="tile-title">{work.tileTitle}</div>
-                  </>
-                )}
+        <div class="curtain-gallery-grid">
+          {galleryRoofs.map((roof) => (
+            <figure class="curtain-gallery-item reveal">
+              <div class="min-h-[400px]">
+                <CurtainScene roof={roof} mode="card" enableSound={true} />
+              </div>
+              <figcaption>
+                <p class="t-kicker mb-2">{roof.kicker}</p>
+                <h3>
+                  {roof.name}
+                  <span class="text-(--muted) font-normal"> · {roof.nameZh}</span>
+                </h3>
+                <p>{roof.description}</p>
+                <p class="mt-3 mb-0">
+                  <span class="site-link">{roof.qrPayload.replace('https://', '')}</span>
+                </p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <!-- WORKS -->
+      <section id="works" class="site-section">
+        <div class="site-rule-row">
+          <h2 class="site-section-title reveal">Selected works</h2>
+          <span class="t-kicker reveal">DESIGN CONCEPTS · 2024 — 2026</span>
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-[clamp(28px,4vw,40px)]">
+          {works.map((work) => (
+            <article class="work-card reveal group">
+              <div class={`work-card-tile ${work.tileClass}`}>
+                <div class="relative z-10 text-center px-6" aria-hidden="true">
+                  {work.slug === 'surviving-chernarus' ? (
+                    <>
+                      <ChernarusMark size={80} withWordmark={false} />
+                      <div class="tile-kicker mt-3">{work.kicker}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div class="tile-kicker mb-2">{work.kicker}</div>
+                      <div class="tile-title">{work.tileTitle}</div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div class="work-card-body">
+                <div class="flex justify-between items-baseline gap-4">
+                  <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">
+                    <a href={`/works/${work.slug}/`} class="text-(--ink) after:absolute after:inset-0">
+                      {work.name}
+                    </a>
+                  </h3>
+                  <span class="t-kicker whitespace-nowrap !text-[10px]">{work.tag}</span>
+                </div>
+                <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">{work.description}</p>
+                <span class="site-link inline-block mt-4">View design →</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- SERVICES -->
+      <section id="services" class="site-section">
+        <h2 class="site-section-title reveal mb-[clamp(40px,6vh,64px)]">Services</h2>
+        <div>
+          {services.map((s) => (
+            <div class="service-row reveal">
+              <span class="t-kicker pt-1">{s.n}</span>
+              <div>
+                <h3 class="m-0 text-[clamp(18px,2vw,22px)] font-medium tracking-[-0.015em]">{s.title}</h3>
+                <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">{s.body}</p>
               </div>
             </div>
-            <div class="flex justify-between items-baseline gap-4 mt-5">
-              <h3 class="m-0 text-[18px] font-medium tracking-[-0.01em]">
-                <a href={`/works/${work.slug}/`} class="text-(--ink) after:absolute after:inset-0">{work.name}</a>
-              </h3>
-              <span class="text-[11px] tracking-[0.18em] text-(--faint) whitespace-nowrap">{work.tag}</span>
-            </div>
-            <p class="mt-2 mb-0 text-[14px] leading-[1.6] text-(--muted) max-w-[44ch]">
-              {work.description}
+          ))}
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="site-section">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
+          <h2 class="site-section-title reveal max-w-[16ch] text-balance">
+            A small studio for businesses that deserve better.
+          </h2>
+          <div class="reveal">
+            <p class="m-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
+              Terrerov is an independent web studio. I work with local businesses — many building their first real web
+              presence — and treat each site as a craft object: designed carefully, built fast, and made to bring in
+              actual customers, not just compliments.
             </p>
-            <span class="inline-block mt-3 text-[11px] font-medium tracking-[0.18em] text-(--ink) border-b border-(--line-soft) pb-[3px] transition-colors group-hover:border-(--ink)">
-              VIEW DESIGN →
-            </span>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <!-- SERVICES -->
-    <section id="services" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
-      <h2 class="reveal m-0 mb-[clamp(48px,7vh,80px)] text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Services</h2>
-      
-      <div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">01</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Custom web design &amp; development</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Sites designed and built from scratch around your business — never a template with your logo swapped in.</p>
-          </div>
-        </div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">02</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Sites for tattoo studios &amp; artists</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Powerful galleries that honor the work, plus booking that fills your calendar. A specialty of the studio.</p>
-          </div>
-        </div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">03</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Local SEO</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Show up when Louisville searches for what you do — maps, reviews, and pages built to rank locally.</p>
-          </div>
-        </div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">04</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Online booking integration</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Appointments, deposits, and reminders that run themselves — so the phone stops being a bottleneck.</p>
-          </div>
-        </div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">05</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Care &amp; monthly updates</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Hosting, security, content changes, and small improvements — your site stays fast and current.</p>
-          </div>
-        </div>
-        <div class="reveal grid grid-cols-[64px_1fr] gap-x-6 gap-y-2 py-8 border-t border-(--line) border-b border-(--line) transition-colors hover:bg-(--hover-tint)">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em] pt-[6px]">06</span>
-          <div>
-            <h3 class="m-0 text-[clamp(19px,2.2vw,24px)] font-normal tracking-[-0.015em]">Redesign of existing sites</h3>
-            <p class="mt-2.5 mb-0 text-[15px] leading-[1.65] text-(--muted) max-w-[58ch]">Keep what works, rebuild what doesn't — a considered refresh instead of starting over.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
-        <h2 class="reveal m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em] max-w-[16ch] text-balance">
-          A small studio for businesses that deserve better.
-        </h2>
-        <div class="reveal">
-          <p class="m-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
-            Terrerov is an independent web studio. I work with local businesses — many building their first real web presence — and treat each site as a craft object: designed carefully, built fast, and made to bring in actual customers, not just compliments.
-          </p>
-          <p class="mt-5 mb-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
-            No agencies, no account managers, no handoffs. You work directly with the person designing and building your site — en inglés o en español.
-          </p>
-          <div class="flex gap-[clamp(28px,4vw,56px)] mt-[clamp(32px,5vh,48px)] flex-wrap">
-            <div>
-              <p class="m-0 text-[11px] tracking-[0.2em] text-(--faint)">BASED IN</p>
-              <p class="mt-1.5 mb-0 text-[15px] font-medium">UNITED STATES</p>
-            </div>
-            <div>
-              <p class="m-0 text-[11px] tracking-[0.2em] text-(--faint)">FOCUS</p>
-              <p class="mt-1.5 mb-0 text-[15px] font-medium">Local business</p>
-            </div>
-            <div>
-              <p class="m-0 text-[11px] tracking-[0.2em] text-(--faint)">LANGUAGES</p>
-              <p class="mt-1.5 mb-0 text-[15px] font-medium">English · Español</p>
+            <p class="mt-5 mb-0 text-[clamp(15px,1.6vw,17px)] leading-[1.75] text-(--text-strong) max-w-[56ch]">
+              No agencies, no account managers, no handoffs. You work directly with the person designing and building
+              your site — en inglés o en español.
+            </p>
+            <div class="flex gap-[clamp(28px,4vw,56px)] mt-[clamp(32px,5vh,48px)] flex-wrap">
+              <div>
+                <p class="t-kicker m-0">Based in</p>
+                <p class="mt-1.5 mb-0 text-[15px] font-medium">United States</p>
+              </div>
+              <div>
+                <p class="t-kicker m-0">Focus</p>
+                <p class="mt-1.5 mb-0 text-[15px] font-medium">Local business</p>
+              </div>
+              <div>
+                <p class="t-kicker m-0">Languages</p>
+                <p class="mt-1.5 mb-0 text-[15px] font-medium">English · Español</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- PROCESS -->
-    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
-      <h2 class="reveal m-0 mb-[clamp(48px,7vh,80px)] text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em]">Process</h2>
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-[clamp(36px,5vw,56px)]">
-        <div class="reveal border-t border-(--ink) pt-6">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em]">01</span>
-          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Listen</h3>
-          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">A short conversation about your business, your customers, and what a win looks like.</p>
+      <!-- PROCESS -->
+      <section class="site-section">
+        <h2 class="site-section-title reveal mb-[clamp(40px,6vh,64px)]">Process</h2>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[clamp(28px,4vw,40px)]">
+          {[
+            { n: '01', t: 'Listen', d: 'A short conversation about your business, your customers, and what a win looks like.' },
+            { n: '02', t: 'Design', d: 'You see the design before anything is built. We refine it together until it feels right.' },
+            { n: '03', t: 'Build', d: 'Fast, accessible, search-ready. Most sites launch in two to four weeks.' },
+            { n: '04', t: 'Grow', d: 'Monthly care, measurement, and small improvements that compound over time.' },
+          ].map((step) => (
+            <div class="reveal border-t border-(--ink) pt-6">
+              <span class="t-kicker">{step.n}</span>
+              <h3 class="mt-[14px] mb-0 text-[19px] font-medium">{step.t}</h3>
+              <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">{step.d}</p>
+            </div>
+          ))}
         </div>
-        <div class="reveal border-t border-(--ink) pt-6">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em]">02</span>
-          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Design</h3>
-          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">You see the design before anything is built. We refine it together until it feels right.</p>
-        </div>
-        <div class="reveal border-t border-(--ink) pt-6">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em]">03</span>
-          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Build</h3>
-          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">Fast, accessible, search-ready. Most sites launch in two to four weeks.</p>
-        </div>
-        <div class="reveal border-t border-(--ink) pt-6">
-          <span class="text-[12px] text-(--faint) tracking-[0.1em]">04</span>
-          <h3 class="mt-[14px] mb-0 text-[19px] font-medium tracking-[-0.01em]">Grow</h3>
-          <p class="mt-2.5 mb-0 text-[14px] leading-[1.65] text-(--muted)">Monthly care, measurement, and small improvements that compound over time.</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- TESTIMONIALS -->
-    <section class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border" aria-label="Testimonials">
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-[clamp(40px,5vw,64px)]">
-        <figure class="reveal m-0">
-          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
-            "The site looks like it cost five times what it did. Clients mention it before they mention the tattoos."
-          </blockquote>
-          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-(--faint)">— STUDIO OWNER, LOUISVILLE <span class="text-(--line-soft)">· placeholder</span></figcaption>
-        </figure>
-        <figure class="reveal m-0">
-          <blockquote class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
-            "We went from invisible on Google to booked out three weeks. That's the whole story."
-          </blockquote>
-          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-(--faint)">— BARBERSHOP OWNER <span class="text-(--line-soft)">· placeholder</span></figcaption>
-        </figure>
-        <figure class="reveal m-0">
-          <blockquote lang="es" class="m-0 text-[clamp(17px,1.8vw,20px)] leading-[1.6] font-light tracking-[-0.01em]">
-            "Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."
-          </blockquote>
-          <figcaption class="mt-[22px] text-[12px] tracking-[0.18em] text-(--faint)">— RESTAURANT OWNER <span class="text-(--line-soft)">· placeholder</span></figcaption>
-        </figure>
-      </div>
-    </section>
+      <!-- TESTIMONIALS -->
+      <section class="site-section" aria-label="Testimonials">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[clamp(36px,5vw,56px)]">
+          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
+            <blockquote class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
+              "The site looks like it cost five times what it did. Clients mention it before they mention the tattoos."
+            </blockquote>
+            <figcaption class="mt-5 t-kicker">— Studio owner, Louisville</figcaption>
+          </figure>
+          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
+            <blockquote class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
+              "We went from invisible on Google to booked out three weeks. That's the whole story."
+            </blockquote>
+            <figcaption class="mt-5 t-kicker">— Barbershop owner</figcaption>
+          </figure>
+          <figure class="reveal m-0 border-l border-(--hairline) pl-5">
+            <blockquote lang="es" class="m-0 text-[clamp(16px,1.7vw,19px)] leading-[1.55] font-normal italic">
+              "Todo el proceso fue en español cuando lo necesitamos. Se sintió como trabajar con alguien del barrio."
+            </blockquote>
+            <figcaption class="mt-5 t-kicker">— Restaurant owner</figcaption>
+          </figure>
+        </div>
+      </section>
 
-    <!-- CONTACT -->
-    <section id="contact" class="px-[clamp(20px,5vw,64px)] pt-[clamp(80px,12vh,140px)] pb-[clamp(80px,10vh,120px)] max-w-[1280px] mx-auto box-border">
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
-        <div class="reveal">
-          <h2 class="m-0 text-[clamp(30px,4vw,48px)] font-light tracking-[-0.03em] max-w-[14ch] text-balance">Let's build yours.</h2>
-          <p class="mt-6 mb-0 text-[16px] leading-[1.7] text-(--muted) max-w-[44ch]">
-            Tell me a little about your business. I reply within one business day — in English or Spanish.
-          </p>
-          <div class="mt-[clamp(32px,5vh,48px)] flex flex-col gap-[14px]">
-            <a href="mailto:hola@terrerov.com" 
-               class="text-[16px] font-medium border-b border-(--line-soft) pb-[3px] w-fit transition-colors hover:border-(--ink)">
-              hola@terrerov.com
-            </a>
-            <span class="text-[14px] text-(--muted)">Louisville, Kentucky</span>
+      <!-- CONTACT -->
+      <section id="contact" class="site-section pb-[clamp(80px,12vh,120px)]">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-[clamp(40px,6vw,96px)]">
+          <div class="reveal">
+            <h2 class="site-section-title max-w-[12ch] text-balance">Let's build yours.</h2>
+            <p class="mt-6 mb-0 text-[16px] leading-[1.7] text-(--muted) max-w-[44ch]">
+              Tell me a little about your business. I reply within one business day — in English or Spanish.
+            </p>
+            <div class="mt-[clamp(28px,4vh,40px)] flex flex-col gap-3">
+              <a href="mailto:hola@terrerov.com" class="site-link w-fit text-[13px] normal-case tracking-normal">
+                hola@terrerov.com
+              </a>
+              <span class="text-[14px] text-(--muted)">Louisville, Kentucky</span>
+            </div>
           </div>
+
+          <form id="contact-form" class="reveal flex flex-col gap-2">
+            <label for="c-name" class="t-kicker mt-1">Name</label>
+            <input
+              id="c-name"
+              name="name"
+              type="text"
+              required
+              autocomplete="name"
+              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) rounded-none"
+            />
+
+            <label for="c-email" class="t-kicker mt-7">Email</label>
+            <input
+              id="c-email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) rounded-none"
+            />
+
+            <label for="c-msg" class="t-kicker mt-7">About your business</label>
+            <textarea
+              id="c-msg"
+              name="message"
+              rows="4"
+              required
+              class="border-0 border-b border-(--line-form) bg-transparent py-3 pb-3.5 text-[16px] text-(--ink) resize-y rounded-none"
+            ></textarea>
+
+            <button type="submit" class="site-btn mt-10 self-start">
+              Send inquiry<span>→</span>
+            </button>
+
+            <p id="success-msg" class="hidden mt-4 mb-0 text-[14px] text-(--muted)">
+              Gracias — your email app should open with the message ready to send.
+            </p>
+          </form>
         </div>
-
-        <form id="contact-form" class="reveal flex flex-col gap-2">
-          <label for="c-name" class="text-[11px] tracking-[0.2em] text-(--faint) mt-1">NAME</label>
-          <input id="c-name" name="name" type="text" required autocomplete="name"
-                 class="border-0 border-b border-(--line-form) bg-transparent py-[12px] pb-[14px] text-[16px] text-(--ink) rounded-none transition-colors focus:border-b-(--ink)" />
-
-          <label for="c-email" class="text-[11px] tracking-[0.2em] text-(--faint) mt-7">EMAIL</label>
-          <input id="c-email" name="email" type="email" required autocomplete="email"
-                 class="border-0 border-b border-(--line-form) bg-transparent py-[12px] pb-[14px] text-[16px] text-(--ink) rounded-none transition-colors focus:border-b-(--ink)" />
-
-          <label for="c-msg" class="text-[11px] tracking-[0.2em] text-(--faint) mt-7">ABOUT YOUR BUSINESS</label>
-          <textarea id="c-msg" name="message" rows="4" required
-                    class="border-0 border-b border-(--line-form) bg-transparent py-[12px] pb-[14px] text-[16px] text-(--ink) resize-y rounded-none transition-colors focus:border-b-(--ink)"></textarea>
-
-          <button type="submit"
-                  class="mt-10 self-start inline-flex items-center gap-3 px-[34px] py-[17px] bg-(--ink) !text-(--bg) text-[12px] font-medium tracking-[0.16em] rounded-[2px] border-0 cursor-pointer transition-all hover:bg-(--ink-hover) hover:!text-(--bg) hover:-translate-y-0.5">
-            SEND INQUIRY<span class="text-[14px]">→</span>
-          </button>
-
-          <p id="success-msg" class="hidden mt-[18px] mb-0 text-[14px] text-(--muted)">
-            Gracias — your email app should open with the message ready to send.
-          </p>
-        </form>
-      </div>
-    </section>
-
+      </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="border-t border-(--line) px-[clamp(20px,5vw,64px)] py-[clamp(48px,7vh,72px)] bg-(--footer-bg)">
-      <div class="max-w-[1280px] mx-auto flex justify-between items-start gap-10 flex-wrap">
+      <div class="max-w-[1200px] mx-auto flex justify-between items-start gap-10 flex-wrap">
         <div>
-          <p class="m-0 text-[13px] font-semibold tracking-[0.26em]">TERREROV</p>
-          <p class="mt-4 mb-0 text-[13px] leading-[1.7] text-(--muted)">
-            hola@terrerov.com
-          </p>
+          <p class="m-0 text-[15px] font-medium tracking-[0.04em]">Terrerov</p>
+          <p class="mt-3 mb-0 text-[13px] leading-[1.7] text-(--muted)">hola@terrerov.com</p>
         </div>
         <div class="flex gap-[clamp(20px,3vw,40px)]">
-          <a href="https://instagram.com/terrerov" target="_blank" rel="noopener" 
-             class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">INSTAGRAM</a>
-          <a href="https://linkedin.com/company/terrerov" target="_blank" rel="noopener" 
-             class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">LINKEDIN</a>
-          <a href="mailto:hola@terrerov.com" 
-             class="text-[10.5px] font-medium tracking-[0.2em] text-(--muted) transition-colors hover:text-(--ink)">EMAIL</a>
+          <a href="https://instagram.com/terrerov" target="_blank" rel="noopener" class="t-kicker hover:text-(--ink)"
+            >Instagram</a
+          >
+          <a
+            href="https://linkedin.com/company/terrerov"
+            target="_blank"
+            rel="noopener"
+            class="t-kicker hover:text-(--ink)">LinkedIn</a
+          >
+          <a href="mailto:hola@terrerov.com" class="t-kicker hover:text-(--ink)">Email</a>
         </div>
         <p class="m-0 text-[12px] text-(--faint)">© 2026 Terrerov Studio</p>
       </div>
@@ -314,7 +356,10 @@ const works = [
   </div>
 
   <script>
-    // Contact form mailto handler (matches the design prototype behavior)
+    import { bootAllCurtains } from '../scripts/curtain';
+
+    bootAllCurtains();
+
     const form = document.getElementById('contact-form');
     const success = document.getElementById('success-msg');
 
@@ -326,20 +371,18 @@ const works = [
         const email = (f.elements.namedItem('email') as HTMLInputElement).value.trim();
         const msg = (f.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
 
-        const body = encodeURIComponent(
-          (msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : '')
-        );
+        const body = encodeURIComponent((msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : ''));
 
         window.location.href =
           'mailto:hola@terrerov.com?subject=' +
           encodeURIComponent('Project inquiry — ' + (name || 'new project')) +
-          '&body=' + body;
+          '&body=' +
+          body;
 
         if (success) success.classList.remove('hidden');
       });
     }
 
-    // Reveal on scroll (IntersectionObserver, respects reduced motion)
     function setupReveals() {
       const els = document.querySelectorAll('.reveal');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -350,17 +393,21 @@ const works = [
         return;
       }
 
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const t = entry.target as HTMLElement;
-            t.style.transition = 'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
-            t.style.opacity = '1';
-            t.style.transform = 'none';
-            io.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12 });
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const t = entry.target as HTMLElement;
+              t.style.transition =
+                'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
+              t.style.opacity = '1';
+              t.style.transform = 'none';
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
 
       els.forEach((el) => {
         const rect = el.getBoundingClientRect();
@@ -375,8 +422,6 @@ const works = [
       });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      setupReveals();
-    });
+    setupReveals();
   </script>
 </Layout>

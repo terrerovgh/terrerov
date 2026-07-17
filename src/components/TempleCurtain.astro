@@ -1,115 +1,14 @@
 ---
-import '../styles/temple.css';
+import { getRoof } from '../data/roofs';
+import CurtainScene from './CurtainScene.astro';
 
 interface Props {
   qrPayload?: string;
-  ecc?: 'L' | 'M' | 'Q' | 'H';
 }
 
-const { qrPayload = 'https://www.terrerov.com', ecc = 'M' } = Astro.props;
+const roof = getRoof('heaven');
+const { qrPayload } = Astro.props;
+const heroRoof = qrPayload ? { ...roof, qrPayload } : roof;
 ---
 
-<section
-  class="temple-hero artboard"
-  id="artboard"
-  aria-label="Terrerov interactive temple curtain"
-  data-qr-payload={qrPayload}
-  data-ecc={ecc}
->
-  <canvas
-    id="curtain"
-    aria-label="Interactive curtain of Chinese characters that forms a scannable QR code linking to terrerov.com"
-  ></canvas>
-
-  <header class="masthead">
-    <a class="brand" href="#top">Terrerov</a>
-    <nav class="nav" aria-label="Primary">
-      <a href="#works">Works</a>
-      <a href="#services">Services</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <div class="masthead-actions">
-      <a class="action-link" href="mailto:hola@terrerov.com">hola@terrerov.com</a>
-      <button class="configure" id="configure" type="button" aria-expanded="false" aria-controls="settings">
-        Configure
-      </button>
-    </div>
-  </header>
-
-  <div class="temple" id="temple">
-    <picture>
-      <source srcset="/assets/temple-roof-cutout-web.webp" type="image/webp" />
-      <img
-        src="/assets/temple-roof-cutout-web.png"
-        width="901"
-        height="730"
-        fetchpriority="high"
-        decoding="async"
-        alt="Temple of Heaven roof cutout"
-      />
-    </picture>
-  </div>
-
-  <a class="destination left" href="#about">
-    <span>Studio</span>
-  </a>
-  <a class="destination right" href="#works">
-    <span>Work</span>
-  </a>
-
-  <div class="headline">
-    <p class="eyebrow">Louisville, KY / English · Español</p>
-    <h1>
-      Web design<br />that elevates<span class="rule"></span>
-    </h1>
-  </div>
-
-  <p class="caption">
-    Custom sites for local business — crafted carefully, built fast, made to bring in actual customers. The curtain
-    hanging below is a live QR to this studio.
-  </p>
-
-  <div class="scan-hint" aria-hidden="true">
-    <div class="progress"></div>
-    <p>Scan the still curtain · move to chime</p>
-  </div>
-
-  <a class="scroll-cue" href="#works">Scroll ↓</a>
-
-  <div class="cursor" id="cursor" aria-hidden="true"></div>
-
-  <aside class="settings" id="settings" hidden>
-    <div class="setting">
-      <label for="strength">Strength <output id="strengthValue">72</output></label>
-      <input id="strength" type="range" min="20" max="110" value="72" />
-    </div>
-    <div class="setting">
-      <label for="reach">Reach <output id="reachValue">34</output></label>
-      <input id="reach" type="range" min="18" max="56" value="34" />
-    </div>
-    <div class="setting">
-      <label for="inertia">Inertia <output id="inertiaValue">97</output></label>
-      <input id="inertia" type="range" min="86" max="99" value="97" />
-    </div>
-    <button class="reset" id="reset" type="button">Reset curtain</button>
-    <p class="qr-meta" id="qr-meta"></p>
-  </aside>
-
-  <p class="sr-only">
-    This page features an interactive Temple of Heaven scene. The hanging curtain is arranged as a QR code encoding
-    {qrPayload}. Leave the curtain still to scan it with a phone camera.
-  </p>
-</section>
-
-<script>
-  import { initCurtain } from '../scripts/curtain';
-
-  const root = document.getElementById('artboard');
-  const payload = root?.dataset.qrPayload || 'https://www.terrerov.com';
-  const ecc = (root?.dataset.ecc || 'M') as 'L' | 'M' | 'Q' | 'H';
-
-  initCurtain({
-    qrPayload: payload,
-    ecc,
-  });
-</script>
+<CurtainScene roof={heroRoof} mode="full" />

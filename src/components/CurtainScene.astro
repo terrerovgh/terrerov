@@ -1,0 +1,152 @@
+---
+import type { RoofConfig } from '../data/roofs';
+
+interface Props {
+  roof: RoofConfig;
+  /** full = homepage hero, card = gallery tile */
+  mode?: 'full' | 'card';
+  showMasthead?: boolean;
+  showCopy?: boolean;
+  showSettings?: boolean;
+  enableSound?: boolean;
+  class?: string;
+}
+
+const {
+  roof,
+  mode = 'full',
+  showMasthead = mode === 'full',
+  showCopy = mode === 'full',
+  showSettings = mode === 'full',
+  enableSound = mode === 'full',
+  class: className = '',
+} = Astro.props;
+
+const isCard = mode === 'card';
+const uid = `curtain-${roof.id}-${mode}`;
+const headlineLines = roof.headline.split('\n');
+---
+
+<section
+  class:list={['curtain-scene', isCard ? 'curtain-scene--card' : 'curtain-scene--full', className]}
+  id={mode === 'full' ? 'artboard' : uid}
+  data-curtain-root
+  data-qr-payload={roof.qrPayload}
+  data-ecc="M"
+  data-roof-w={roof.width}
+  data-roof-center-y={roof.centerY}
+  data-roof-side-y={roof.sideY}
+  data-eave-ratio={roof.eaveWidthRatio}
+  data-sound={enableSound ? '1' : '0'}
+  data-compact={isCard ? '1' : '0'}
+  aria-label={`${roof.name} curtain scene`}
+>
+  <canvas
+    data-curtain-canvas
+    class="curtain-canvas"
+    aria-label={`Interactive QR curtain for ${roof.name}`}
+  ></canvas>
+
+  {showMasthead && (
+    <header class="curtain-masthead">
+      <a class="curtain-brand" href="#top">Terrerov</a>
+      <nav class="curtain-nav" aria-label="Primary">
+        <a href="#curtains">Curtains</a>
+        <a href="#works">Works</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="curtain-masthead-actions">
+        <a class="curtain-action" href="mailto:hola@terrerov.com">hola@terrerov.com</a>
+        {showSettings && (
+          <button
+            class="curtain-configure"
+            data-curtain-configure
+            type="button"
+            aria-expanded="false"
+            aria-controls={`${uid}-settings`}
+          >
+            Configure
+          </button>
+        )}
+      </div>
+    </header>
+  )}
+
+  <div class="curtain-roof" data-curtain-roof>
+    <picture>
+      {roof.srcWebp && <source srcset={roof.srcWebp} type="image/webp" />}
+      <img
+        src={roof.src}
+        width={roof.width}
+        height={roof.height}
+        fetchpriority={mode === 'full' ? 'high' : 'auto'}
+        decoding="async"
+        alt={`${roof.name} (${roof.nameZh}) roof`}
+        draggable="false"
+      />
+    </picture>
+  </div>
+
+  {showCopy && (
+    <>
+      <a class="curtain-dest left" href="#about"><span>Studio</span></a>
+      <a class="curtain-dest right" href="#works"><span>Work</span></a>
+
+      <div class="curtain-headline">
+        <p class="curtain-eyebrow">{roof.eyebrow}</p>
+        <h1>
+          {headlineLines.map((line, i) => (
+            <>
+              {i > 0 && <br />}
+              {line}
+            </>
+          ))}
+          <span class="curtain-rule"></span>
+        </h1>
+      </div>
+
+      <p class="curtain-caption">{roof.caption}</p>
+
+      <div class="curtain-scan-hint" aria-hidden="true">
+        <div class="curtain-progress"></div>
+        <p>Scan the still curtain · move to chime</p>
+      </div>
+
+      <a class="curtain-scroll-cue" href="#curtains">Scroll ↓</a>
+    </>
+  )}
+
+  {isCard && (
+    <div class="curtain-card-meta">
+      <span class="curtain-card-zh">{roof.nameZh}</span>
+      <span class="curtain-card-name">{roof.name}</span>
+    </div>
+  )}
+
+  <div class="curtain-cursor" data-curtain-cursor aria-hidden="true"></div>
+
+  {showSettings && (
+    <aside class="curtain-settings" data-curtain-settings id={`${uid}-settings`} hidden>
+      <div class="curtain-setting">
+        <label>
+          Strength <output data-curtain-strength-value>72</output>
+        </label>
+        <input data-curtain-strength type="range" min="20" max="110" value="72" />
+      </div>
+      <div class="curtain-setting">
+        <label>
+          Reach <output data-curtain-reach-value>34</output>
+        </label>
+        <input data-curtain-reach type="range" min="18" max="56" value="34" />
+      </div>
+      <div class="curtain-setting">
+        <label>
+          Inertia <output data-curtain-inertia-value>97</output>
+        </label>
+        <input data-curtain-inertia type="range" min="86" max="99" value="97" />
+      </div>
+      <button class="curtain-reset" data-curtain-reset type="button">Reset curtain</button>
+      <p class="curtain-meta" data-curtain-meta></p>
+    </aside>
+  )}
+</section>

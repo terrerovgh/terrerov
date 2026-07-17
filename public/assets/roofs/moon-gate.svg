@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" fill="none" role="img" aria-label="Moon gate roof cutout">
+  <g stroke="#2e251f" stroke-linecap="round" stroke-linejoin="round">
+    <!-- wall mass -->
+    <path d="M60 200 H840 V540 H60 Z" fill="#2e251f" fill-opacity="0.06" stroke-width="1.5"/>
+
+    <!-- circular portal (inner open) -->
+    <circle cx="450" cy="340" r="188" fill="#e8dfca" stroke-width="3.2"/>
+    <circle cx="450" cy="340" r="188" fill="none" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="450" cy="340" r="168" fill="none" stroke-width="1" opacity="0.25" stroke-dasharray="4 6"/>
+
+    <!-- shallow cap roof above gate — hang ~ y 218–248 -->
+    <path d="M250 200 L450 90 L650 200 L620 230 L280 230 Z" fill="#2e251f" fill-opacity="0.18" stroke-width="2.4"/>
+    <path d="M270 230 h360 v22 H270 Z" fill="#e8dfca" stroke-width="1.6"/>
+    <path d="M280 252 Q450 268 620 252" stroke-width="2" fill="none" opacity="0.55"/>
+
+    <!-- ridge finial -->
+    <path d="M450 70 v28" stroke-width="2.5"/>
+    <circle cx="450" cy="66" r="5" fill="#2e251f" stroke="none"/>
+
+    <!-- wall edge marks -->
+    <path d="M60 200 v340 M840 200 v340" stroke-width="2" opacity="0.5"/>
+  </g>
+</svg>

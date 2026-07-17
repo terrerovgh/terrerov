@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" fill="none" role="img" aria-label="Torii gate cutout">
+  <g stroke="#2e251f" stroke-linecap="round" stroke-linejoin="round" fill="#2e251f">
+    <!-- top kasagi (curved lintel) -->
+    <path d="M80 90 Q450 40 820 90 L800 118 Q450 72 100 118 Z" fill-opacity="0.92" stroke="none"/>
+    <path d="M80 90 Q450 40 820 90" fill="none" stroke-width="2.2" stroke="#1a1511"/>
+
+    <!-- nuki / secondary beam — hang bar ~ y 268 -->
+    <rect x="130" y="248" width="640" height="28" rx="2" fill-opacity="0.88"/>
+    <path d="M130 262 h640" stroke="#e8dfca" stroke-width="1.2" opacity="0.35"/>
+
+    <!-- shimaki under top -->
+    <rect x="150" y="128" width="600" height="14" rx="1" fill-opacity="0.75"/>
+
+    <!-- pillars -->
+    <rect x="198" y="128" width="48" height="220" fill-opacity="0.9"/>
+    <rect x="654" y="128" width="48" height="220" fill-opacity="0.9"/>
+
+    <!-- pillar bases -->
+    <rect x="180" y="340" width="84" height="18" rx="2" fill-opacity="0.85"/>
+    <rect x="636" y="340" width="84" height="18" rx="2" fill-opacity="0.85"/>
+
+    <!-- gakuzuka center post under top beam -->
+    <rect x="436" y="128" width="28" height="120" fill-opacity="0.7"/>
+  </g>
+</svg>

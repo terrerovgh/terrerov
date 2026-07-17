@@ -69,7 +69,7 @@ const structuredData = {
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonicalURL} />
 		<meta name="robots" content="index, follow" />
-		<meta name="theme-color" content="#FBFBF9" />
+		<meta name="theme-color" content="#e8dfca" />
 		<meta name="author" content="Terrerov Studio" />
 		<meta name="geo.region" content="US-KY" />
 		<meta name="geo.placename" content="Louisville" />
@@ -99,8 +99,6 @@ const structuredData = {
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 
 		<script is:inline>
@@ -113,12 +111,12 @@ const structuredData = {
 				document.documentElement.classList.toggle('dark', dark);
 				if (dark) {
 					var meta = document.querySelector('meta[name="theme-color"]');
-					if (meta) meta.setAttribute('content', '#141312');
+					if (meta) meta.setAttribute('content', '#1c1814');
 				}
 			})();
 		</script>
 	</head>
-	<body class="bg-(--bg) text-(--ink) font-sans antialiased">
+	<body class="bg-(--bg) text-(--ink) antialiased">
 		<slot />
 	</body>
 </html>
