@@ -1,0 +1,38 @@
+---
+import { site } from '../data/site';
+---
+
+<section class="wrap" id="about">
+  <p class="kicker">Independent web studio</p>
+  <h2 class="section-title wide">Web design &amp; development for small businesses that need results.</h2>
+  <p class="lede">
+    <span class="lede-strong">{site.name}</span> is a one-person studio. I design and build websites for
+    local businesses and small companies that need a real online presence — not a brochure that looks
+    dated in six months, and not an agency process with account managers and markups.
+  </p>
+  <p class="lede" style="margin-top: -1.25rem">
+    You work directly with the person who designs, codes, and launches your site —
+    <em>en inglés o en español</em>. Based in Louisville, Kentucky; available remotely across the U.S.
+  </p>
+
+  <div class="stat-row">
+    <div class="stat">
+      <p class="label">Focus</p>
+      <p class="value">Small business &amp; SMBs</p>
+    </div>
+    <div class="stat">
+      <p class="label">Typical timeline</p>
+      <p class="value">2–4 weeks</p>
+    </div>
+    <div class="stat">
+      <p class="label">Languages</p>
+      <p class="value">English · Español</p>
+    </div>
+    <div class="stat">
+      <p class="label">Contact</p>
+      <p class="value">
+        <a class="link-line" href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </div>
+  </div>
+</section>

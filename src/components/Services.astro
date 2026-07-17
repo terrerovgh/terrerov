@@ -1,0 +1,27 @@
+---
+import { services } from '../data/site';
+---
+
+<section class="band" id="services">
+  <div class="wrap">
+    <p class="kicker">What I offer</p>
+    <h2 class="section-title">Services for businesses that need results online.</h2>
+    <p class="lede">
+      Everything is scoped to your goals: more appointments, clearer brand, better local search,
+      fewer phone calls that go nowhere.
+    </p>
+
+    <div class="grid-services">
+      {services.map((s) => (
+        <article class="service-row">
+          <span class="n">{s.n}</span>
+          <div>
+            <h3>{s.title}</h3>
+            <p class="es">{s.titleEs}</p>
+            <p>{s.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

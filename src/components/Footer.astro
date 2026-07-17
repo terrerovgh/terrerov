@@ -1,0 +1,42 @@
+---
+import { nav, site } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="inner">
+    <div>
+      <p class="brand-line">{site.name}</p>
+      <p class="muted">
+        Independent web design &amp; development for small businesses and growing companies.
+      </p>
+    </div>
+    <div>
+      <p class="col-title">Navigate</p>
+      <nav class="footer-nav" aria-label="Footer">
+        {nav.map((item) => (
+          <a href={item.href}>{item.label}</a>
+        ))}
+      </nav>
+    </div>
+    <div>
+      <p class="col-title">Contact</p>
+      <div class="meta">
+        <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+        <p style="margin-top: 0.55rem">{site.locationLine}</p>
+        <p style="margin-top: 0.55rem">English · Español</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© {year} {site.legalName}</p>
+    <p>
+      <a href={site.url}>{site.url.replace('https://', '')}</a>
+    </p>
+  </div>
+</footer>
+
+<p class="sr-only">
+  {site.name} is an independent web design and development studio for small businesses and companies.
+  Contact {site.email}.
+</p>

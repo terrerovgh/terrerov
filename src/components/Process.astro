@@ -1,0 +1,19 @@
+---
+import { process } from '../data/site';
+---
+
+<section class="band" id="process">
+  <div class="wrap">
+    <p class="kicker">How we work</p>
+    <h2 class="section-title">A clear process from first call to launch.</h2>
+    <div class="grid-4" style="margin-top: 2rem">
+      {process.map((step) => (
+        <article class="process-step">
+          <span class="n">{step.n}</span>
+          <h3>{step.title}</h3>
+          <p>{step.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
