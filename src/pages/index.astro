@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import BackgroundCanvas from '../components/BackgroundCanvas.astro';
+import TempleCurtain from '../components/TempleCurtain.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import ChernarusMark from '../components/ChernarusMark.astro';
 
@@ -51,8 +51,13 @@ const works = [
 <Layout>
   <a href="#main" class="skip-link">SKIP TO CONTENT</a>
 
-  <!-- Fixed header -->
-  <header class="fixed top-0 left-0 right-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-(--header-bg) backdrop-blur-[14px] border-b border-(--header-line)">
+  <!-- Full-viewport temple hero with QR curtain -->
+  <div id="top">
+    <TempleCurtain qrPayload="https://www.terrerov.com" ecc="M" />
+  </div>
+
+  <!-- Site chrome for content sections -->
+  <header class="sticky top-0 z-20 flex justify-between items-center px-[clamp(20px,5vw,64px)] py-5 bg-(--header-bg) backdrop-blur-[14px] border-b border-(--header-line)">
     <a href="#top" class="text-[13px] font-semibold tracking-[0.26em] text-(--ink)" aria-label="Terrerov — back to top">TERREROV</a>
     <div class="flex items-center gap-[clamp(16px,3vw,36px)]">
       <nav class="flex gap-[clamp(18px,3.4vw,44px)]" aria-label="Main navigation">
@@ -65,32 +70,8 @@ const works = [
     </div>
   </header>
 
-  <!-- Canvas background -->
-  <BackgroundCanvas />
-
   <div class="relative z-10">
     <main id="main">
-    <!-- HERO -->
-    <section id="top" class="min-h-[100svh] flex flex-col justify-center px-[clamp(20px,5vw,64px)] pt-[120px] pb-20 max-w-[1280px] mx-auto box-border">
-      <p class="mb-[clamp(28px,4vh,48px)] text-[11px] font-medium tracking-[0.24em] text-(--faint)">CUSTOM WEB DESIGN — LOUISVILLE, KY</p>
-      <h1 class="m-0 text-[clamp(44px,8.5vw,118px)] leading-[1.02] font-light tracking-[-0.035em] max-w-[14ch] text-balance">
-        Web design that elevates local business.
-      </h1>
-      <p lang="es" class="mt-[clamp(24px,3.5vh,40px)] mb-0 text-[clamp(15px,1.6vw,19px)] font-normal text-(--muted) tracking-[0.01em] italic">
-        Diseño web que eleva negocios locales.
-      </p>
-      <div class="flex items-center gap-9 mt-[clamp(40px,6vh,72px)] flex-wrap">
-        <a href="#contact" 
-           class="inline-flex items-center gap-3 px-[34px] py-[17px] bg-(--ink) !text-(--bg) text-[12px] font-medium tracking-[0.16em] rounded-[2px] transition-all hover:bg-(--ink-hover) hover:!text-(--bg) hover:-translate-y-0.5">
-          START A PROJECT<span class="text-[14px]">→</span>
-        </a>
-        <a href="#works" 
-           class="text-[12px] font-medium tracking-[0.16em] text-(--ink) border-b border-(--line-soft) pb-[5px] transition-colors hover:border-(--ink)">
-          VIEW WORKS
-        </a>
-      </div>
-    </section>
-
     <!-- WORKS -->
     <section id="works" class="px-[clamp(20px,5vw,64px)] py-[clamp(80px,12vh,140px)] max-w-[1280px] mx-auto box-border">
       <div class="flex items-baseline justify-between gap-6 flex-wrap mb-[clamp(48px,7vh,80px)]">
@@ -340,10 +321,10 @@ const works = [
     if (form) {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const f = e.currentTarget;
-        const name = f.name.value.trim();
-        const email = f.email.value.trim();
-        const msg = f.message.value.trim();
+        const f = e.currentTarget as HTMLFormElement;
+        const name = (f.elements.namedItem('name') as HTMLInputElement).value.trim();
+        const email = (f.elements.namedItem('email') as HTMLInputElement).value.trim();
+        const msg = (f.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
 
         const body = encodeURIComponent(
           (msg || '') + '\n\n— ' + (name || '') + (email ? ' · ' + email : '')
@@ -363,16 +344,19 @@ const works = [
       const els = document.querySelectorAll('.reveal');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduced || !('IntersectionObserver' in window)) {
-        els.forEach(el => el.style.opacity = '1');
+        els.forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+        });
         return;
       }
 
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.style.transition = 'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'none';
+            const t = entry.target as HTMLElement;
+            t.style.transition = 'opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1)';
+            t.style.opacity = '1';
+            t.style.transform = 'none';
             io.unobserve(entry.target);
           }
         });
@@ -380,17 +364,17 @@ const works = [
 
       els.forEach((el) => {
         const rect = el.getBoundingClientRect();
+        const node = el as HTMLElement;
         if (rect.top > window.innerHeight * 0.92) {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(22px)';
+          node.style.opacity = '0';
+          node.style.transform = 'translateY(22px)';
           io.observe(el);
         } else {
-          el.style.opacity = '1';
+          node.style.opacity = '1';
         }
       });
     }
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       setupReveals();
     });
