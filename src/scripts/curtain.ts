@@ -434,11 +434,27 @@ export function initCurtain() {
     ctx.globalAlpha = 1;
   }
 
+  let raf = 0;
+  let visible = true;
+  const prefersReduced =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   function frame() {
-    integrate();
-    constrain();
+    if (!visible) {
+      raf = 0;
+      return;
+    }
+    if (!prefersReduced) {
+      integrate();
+      constrain();
+    }
     draw();
-    requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function ensureLoop() {
+    if (!raf && visible) raf = requestAnimationFrame(frame);
   }
 
   function enter(event: PointerEvent) {
@@ -531,6 +547,14 @@ export function initCurtain() {
   canvas.addEventListener('pointerenter', enter);
   canvas.addEventListener('pointermove', move);
   canvas.addEventListener('pointerleave', leave);
+  // Touch: allow one-finger scroll; still interact on move
+  canvas.addEventListener(
+    'touchstart',
+    () => {
+      unlockSound();
+    },
+    { passive: true },
+  );
   window.addEventListener('pointerdown', unlockSound, { passive: true });
   window.addEventListener('resize', resize);
 
@@ -538,7 +562,18 @@ export function initCurtain() {
   ro.observe(artboard);
   ro.observe(temple);
 
+  if (typeof IntersectionObserver !== 'undefined') {
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) ensureLoop();
+      },
+      { threshold: 0.05 },
+    );
+    io.observe(artboard);
+  }
+
   applyRoof(ROOFS[0]);
   loadBodyText();
-  frame();
+  ensureLoop();
 }

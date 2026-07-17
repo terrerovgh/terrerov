@@ -1,0 +1,14 @@
+---
+import { nav, site } from '../data/site';
+---
+
+<header class="site-nav">
+  <a class="logo" href="#artboard">{site.name}</a>
+  <nav aria-label="Site sections">
+    {nav.map((item) => (
+      <a href={item.href} class={item.href === '#contact' ? 'nav-cta' : undefined}>
+        {item.label}
+      </a>
+    ))}
+  </nav>
+</header>
