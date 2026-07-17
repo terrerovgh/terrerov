@@ -110,11 +110,12 @@ function initMobileApp(reduced: boolean): AppApi {
       else tab.removeAttribute('aria-current');
     });
 
-    // Hide floating CTA on contact (form already there)
+    // Hide floating CTA on home (hero has its own CTAs) and contact (form)
     const fab = document.querySelector('.m-fab');
-    const hideFab = id === 'contact';
+    const hideFab = id === 'contact' || id === 'hero' || id === 'about';
     fab?.classList.toggle('is-hidden', hideFab);
-    document.body.classList.toggle('is-on-contact', hideFab);
+    document.body.classList.toggle('is-on-contact', id === 'contact');
+    document.body.classList.toggle('is-fab-hidden', hideFab);
   }
 
   function scrollToPanel(id: string) {
