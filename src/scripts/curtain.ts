@@ -96,7 +96,7 @@ export function initCurtain() {
   const roofSelect = document.getElementById('roof') as HTMLSelectElement | null;
   const modeSelect = document.getElementById('mode') as HTMLSelectElement | null;
 
-  if (!artboard || !canvas || !cursor || !temple || !templeImg) return;
+  if (!artboard || !canvas || !temple || !templeImg) return;
 
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
@@ -462,8 +462,10 @@ export function initCurtain() {
     mouse.x = mouse.oldX = event.clientX - rect.left;
     mouse.y = mouse.oldY = event.clientY - rect.top;
     mouse.active = true;
-    cursor.style.left = `${mouse.x}px`;
-    cursor.style.top = `${mouse.y}px`;
+    if (cursor) {
+      cursor.style.left = `${mouse.x}px`;
+      cursor.style.top = `${mouse.y}px`;
+    }
     artboard.classList.add('is-active');
   }
 
@@ -475,13 +477,36 @@ export function initCurtain() {
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
     injectMouseDelta();
-    cursor.style.left = `${mouse.x}px`;
-    cursor.style.top = `${mouse.y}px`;
+    if (cursor) {
+      cursor.style.left = `${mouse.x}px`;
+      cursor.style.top = `${mouse.y}px`;
+    }
   }
 
   function leave() {
     mouse.active = false;
     artboard.classList.remove('is-active');
+  }
+
+  function pointerDown(event: PointerEvent) {
+    try {
+      canvas.setPointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+    unlockSound();
+    enter(event);
+  }
+
+  function pointerUp(event: PointerEvent) {
+    try {
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      /* ignore */
+    }
+    leave();
   }
 
   function bindRange(id: string, outputId: string, update: (v: number) => void) {
@@ -544,17 +569,12 @@ export function initCurtain() {
     physics.friction = v / 100;
   });
 
-  canvas.addEventListener('pointerenter', enter);
+  canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', move);
+  canvas.addEventListener('pointerup', pointerUp);
+  canvas.addEventListener('pointercancel', pointerUp);
   canvas.addEventListener('pointerleave', leave);
-  // Touch: allow one-finger scroll; still interact on move
-  canvas.addEventListener(
-    'touchstart',
-    () => {
-      unlockSound();
-    },
-    { passive: true },
-  );
+  canvas.addEventListener('pointerenter', enter);
   window.addEventListener('pointerdown', unlockSound, { passive: true });
   window.addEventListener('resize', resize);
 
