@@ -2,13 +2,37 @@
 import { nav, site } from '../data/site';
 ---
 
-<header class="site-nav">
-  <a class="logo" href="#artboard">{site.name}</a>
-  <nav aria-label="Site sections">
-    {nav.map((item) => (
-      <a href={item.href} class={item.href === '#contact' ? 'nav-cta' : undefined}>
-        {item.label}
-      </a>
-    ))}
-  </nav>
-</header>
+<div class="chrome" aria-hidden="false">
+  <div class="progress-rail" aria-hidden="true">
+    <div class="progress-rail__fill" id="progress-fill"></div>
+  </div>
+
+  <header class="site-nav">
+    <a class="logo" href="#hero" data-panel-link>{site.name}</a>
+    <nav aria-label="Site sections">
+      {nav.map((item) => {
+        const id = item.href.replace('#', '');
+        const isContact = id === 'contact';
+        return (
+          <a
+            href={item.href}
+            data-panel-link
+            class={isContact ? 'nav-cta' : undefined}
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </nav>
+  </header>
+</div>
+
+<div class="scroll-hint" id="scroll-hint" aria-hidden="true">
+  <span class="scroll-hint__line"></span>
+  <span>Scroll</span>
+</div>
+
+<div class="chrome-meta" aria-hidden="true">
+  <span class="chrome-meta__index"><span id="panel-index">01</span> / 07</span>
+  <span id="panel-label">Intro</span>
+</div>

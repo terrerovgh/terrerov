@@ -2,24 +2,22 @@
 import { services } from '../data/site';
 ---
 
-<section class="band" id="services">
-  <div class="wrap">
-    <p class="kicker">What I offer</p>
-    <h2 class="section-title">Services for businesses that need results online.</h2>
-    <p class="lede">
+<section class="panel panel--deep panel--wide" id="services" data-panel="services" data-label="Services">
+  <div class="panel-inner">
+    <p class="kicker" data-reveal>What I offer</p>
+    <h2 class="section-title" data-reveal>Services for businesses that need results online.</h2>
+    <p class="lede" data-reveal>
       Everything is scoped to your goals: more appointments, clearer brand, better local search,
       fewer phone calls that go nowhere.
     </p>
 
-    <div class="grid-services">
+    <div class="services-grid">
       {services.map((s) => (
-        <article class="service-row">
+        <article class="service-card" data-reveal>
           <span class="n">{s.n}</span>
-          <div>
-            <h3>{s.title}</h3>
-            <p class="es">{s.titleEs}</p>
-            <p>{s.body}</p>
-          </div>
+          <h3>{s.title}</h3>
+          <p class="es">{s.titleEs}</p>
+          <p>{s.body}</p>
         </article>
       ))}
     </div>

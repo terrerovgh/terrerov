@@ -1,58 +1,81 @@
 ---
 import { site } from '../data/site';
+const year = new Date().getFullYear();
 ---
 
-<section class="wrap" id="contact">
-  <div class="grid-2">
-    <div>
-      <p class="kicker">Start a project</p>
-      <h2 class="section-title">Tell me about your business.</h2>
-      <p class="lede">
-        I reply within one business day. Brief notes are fine — what you do, where you are, and what
-        you need the site to achieve.
-      </p>
-      <p class="contact-meta">
-        <a class="link-line" href={`mailto:${site.email}`}>{site.email}</a>
-      </p>
-      <p class="contact-loc">{site.locationLine}</p>
+<section class="panel panel--deep" id="contact" data-panel="contact" data-label="Contact">
+  <div class="panel-inner">
+    <div class="split-2">
+      <div>
+        <p class="kicker" data-reveal>Start a project</p>
+        <h2 class="section-title" data-reveal>Tell me about your business.</h2>
+        <p class="lede" data-reveal>
+          I reply within one business day. Brief notes are fine — what you do, where you are, and what
+          you need the site to achieve.
+        </p>
+        <p class="contact-meta" data-reveal>
+          <a class="link-line" href={`mailto:${site.email}`}>{site.email}</a>
+        </p>
+        <p class="contact-loc" data-reveal>{site.locationLine}</p>
+        <div data-reveal style="display:flex;flex-wrap:wrap;gap:0.75rem">
+          <a class="btn" href={`mailto:${site.email}`}>Email me →</a>
+          <button class="btn btn-ghost" type="button" data-go="hero">Back to intro</button>
+        </div>
+      </div>
+
+      <form
+        class="contact-form"
+        id="contact-form"
+        action={`https://formsubmit.co/${site.email}`}
+        method="POST"
+        data-reveal
+      >
+        <input type="hidden" name="_subject" value="Project inquiry — terrerov.com" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_next" value={`${site.url}/#contact`} />
+        <input
+          type="text"
+          name="_honey"
+          class="form-honeypot"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
+
+        <label for="c-name">Name</label>
+        <input id="c-name" name="name" type="text" required autocomplete="name" />
+
+        <label for="c-email">Email</label>
+        <input id="c-email" name="email" type="email" required autocomplete="email" />
+
+        <label for="c-biz">Business / company</label>
+        <input id="c-biz" name="business" type="text" autocomplete="organization" />
+
+        <label for="c-msg">What do you need?</label>
+        <textarea
+          id="c-msg"
+          name="message"
+          rows="3"
+          required
+          placeholder="Website, redesign, booking, SEO…"></textarea>
+
+        <div class="form-actions">
+          <button class="btn" type="submit">Send inquiry →</button>
+        </div>
+        <p class="form-note" id="success-msg" role="status" aria-live="polite">
+          Thanks — your message is on its way. If nothing happens, email {site.email} directly.
+        </p>
+      </form>
     </div>
 
-    <form
-      class="contact-form"
-      id="contact-form"
-      action={`https://formsubmit.co/${site.email}`}
-      method="POST"
-    >
-      <input type="hidden" name="_subject" value="Project inquiry — terrerov.com" />
-      <input type="hidden" name="_template" value="table" />
-      <input type="hidden" name="_captcha" value="false" />
-      <input type="hidden" name="_next" value={`${site.url}/#contact`} />
-      <input type="text" name="_honey" class="form-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-      <label for="c-name">Name</label>
-      <input id="c-name" name="name" type="text" required autocomplete="name" />
-
-      <label for="c-email">Email</label>
-      <input id="c-email" name="email" type="email" required autocomplete="email" />
-
-      <label for="c-biz">Business / company</label>
-      <input id="c-biz" name="business" type="text" autocomplete="organization" />
-
-      <label for="c-msg">What do you need?</label>
-      <textarea
-        id="c-msg"
-        name="message"
-        rows="4"
-        required
-        placeholder="Website, redesign, booking, SEO…"></textarea>
-
-      <div class="form-actions">
-        <button class="btn" type="submit">Send inquiry →</button>
-      </div>
-      <p class="form-note" id="success-msg" role="status" aria-live="polite">
-        Thanks — your message is on its way. If nothing happens, email {site.email} directly.
+    <div class="panel-footer" data-reveal>
+      <p>© {year} {site.legalName}</p>
+      <p>
+        <a href={site.url}>{site.url.replace('https://', '')}</a>
+        · English · Español
       </p>
-    </form>
+    </div>
   </div>
 </section>
 
@@ -62,14 +85,12 @@ import { site } from '../data/site';
   const emailTo = 'hola@terrerov.com';
 
   form?.addEventListener('submit', (e) => {
-    // Progressive enhancement: try FormSubmit; on failure use mailto
     const fd = new FormData(form);
     const name = String(fd.get('name') || '').trim();
     const email = String(fd.get('email') || '').trim();
     const business = String(fd.get('business') || '').trim();
     const message = String(fd.get('message') || '').trim();
 
-    // Always allow native FormSubmit POST. Also stash mailto as backup if offline.
     if (!navigator.onLine) {
       e.preventDefault();
       const body = encodeURIComponent(
@@ -82,10 +103,7 @@ import { site } from '../data/site';
         encodeURIComponent('Project inquiry — ' + (business || name || 'new project')) +
         '&body=' +
         body;
-      success?.classList.add('show');
-      return;
     }
-
     success?.classList.add('show');
   });
 </script>
