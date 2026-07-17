@@ -4,15 +4,191 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-type HorizontalApi = {
+type AppApi = {
   scrollToPanel: (id: string) => void;
   refresh: () => void;
   destroy: () => void;
 };
 
+const DESKTOP_MQ = '(min-width: 901px)';
 const PANEL_ORDER = ['hero', 'about', 'services', 'clients', 'process', 'faq', 'contact'] as const;
 
-export function initHorizontal(): HorizontalApi | null {
+let activeApi: AppApi | null = null;
+let mode: 'desktop' | 'mobile' | null = null;
+
+export function initHorizontal(): AppApi | null {
+  const isDesktop = window.matchMedia(DESKTOP_MQ).matches;
+  const reduced =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Tear down previous mode on resize switch
+  if (activeApi) {
+    activeApi.destroy();
+    activeApi = null;
+  }
+
+  if (!isDesktop || reduced) {
+    mode = 'mobile';
+    activeApi = initMobileApp(reduced);
+  } else {
+    mode = 'desktop';
+    activeApi = initDesktopHorizontal();
+  }
+
+  // Re-init when crossing breakpoint
+  const mql = window.matchMedia(DESKTOP_MQ);
+  const onChange = () => {
+    // Avoid thrashing: only re-boot when mode actually flips
+    const next = mql.matches ? 'desktop' : 'mobile';
+    if (next !== mode) {
+      initHorizontal();
+    }
+  };
+  // modern + legacy listeners
+  if (typeof mql.addEventListener === 'function') mql.addEventListener('change', onChange);
+  else mql.addListener(onChange);
+
+  return activeApi;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE APP MODE — vertical, tabbed, tappable
+   ═══════════════════════════════════════════ */
+function initMobileApp(reduced: boolean): AppApi {
+  document.body.classList.add('is-mobile-app', 'is-vertical');
+  document.body.classList.remove('is-desktop-h');
+
+  const tabs = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-mobile-nav]'));
+  const sections = PANEL_ORDER.map((id) => document.getElementById(id)).filter(
+    (el): el is HTMLElement => !!el,
+  );
+
+  // Ensure all content is visible (no GSAP hide leftovers)
+  gsap.set('[data-reveal], .hero-fade, .chrome--desktop, .m-hero, .m-top, .m-tabbar, .m-fab', {
+    clearProps: 'all',
+  });
+  gsap.set(['.m-top', '.m-tabbar', '.m-fab'], { autoAlpha: 1, y: 0 });
+
+  // Soft entrance for mobile hero
+  if (!reduced) {
+    gsap.from('.m-hero > *', {
+      y: 18,
+      opacity: 0,
+      duration: 0.55,
+      stagger: 0.05,
+      ease: 'power2.out',
+      delay: 0.05,
+    });
+  }
+
+  // Light scroll reveals
+  if (!reduced) {
+    gsap.utils.toArray<HTMLElement>('.panel:not(#hero) [data-reveal]').forEach((el) => {
+      gsap.from(el, {
+        y: 22,
+        opacity: 0,
+        duration: 0.55,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 92%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+    });
+  }
+
+  function setActiveTab(id: string) {
+    document.querySelectorAll<HTMLElement>('.m-tab').forEach((tab) => {
+      let match = tab.dataset.tab === id;
+      // Map intermediate sections onto nearest primary tab
+      if (id === 'about') match = tab.dataset.tab === 'hero';
+      if (id === 'clients') match = tab.dataset.tab === 'services';
+      tab.classList.toggle('is-active', match);
+      if (match) tab.setAttribute('aria-current', 'page');
+      else tab.removeAttribute('aria-current');
+    });
+
+    // Hide floating CTA on contact (form already there)
+    const fab = document.querySelector('.m-fab');
+    const hideFab = id === 'contact';
+    fab?.classList.toggle('is-hidden', hideFab);
+    document.body.classList.toggle('is-on-contact', hideFab);
+  }
+
+  function scrollToPanel(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const topBar = document.getElementById('m-top');
+    const offset = (topBar?.offsetHeight || 56) + 8;
+    const y = el.getBoundingClientRect().top + window.scrollY - offset;
+    if (reduced) {
+      window.scrollTo(0, y);
+    } else {
+      gsap.to(window, {
+        duration: 0.7,
+        scrollTo: { y, autoKill: true },
+        ease: 'power3.out',
+      });
+    }
+    setActiveTab(id);
+  }
+
+  tabs.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (!href?.startsWith('#')) return;
+      e.preventDefault();
+      scrollToPanel(href.slice(1));
+    });
+  });
+
+  // Also wire data-go buttons
+  document.querySelectorAll<HTMLElement>('[data-go]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = el.getAttribute('data-go');
+      if (id) scrollToPanel(id);
+    });
+  });
+
+  // IntersectionObserver for active tab while scrolling
+  const io = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target?.id) setActiveTab(visible.target.id);
+    },
+    {
+      rootMargin: '-40% 0px -45% 0px',
+      threshold: [0.1, 0.25, 0.5],
+    },
+  );
+  sections.forEach((s) => io.observe(s));
+  setActiveTab('hero');
+
+  document.body.classList.add('is-ready');
+
+  return {
+    scrollToPanel,
+    refresh: () => ScrollTrigger.refresh(),
+    destroy: () => {
+      io.disconnect();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+      document.body.classList.remove('is-mobile-app', 'is-vertical');
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP — horizontal GSAP experience
+   ═══════════════════════════════════════════ */
+function initDesktopHorizontal(): AppApi | null {
+  document.body.classList.add('is-desktop-h');
+  document.body.classList.remove('is-mobile-app', 'is-vertical');
+
   const track = document.getElementById('h-track');
   const scroller = document.getElementById('h-scroll');
   const progressFill = document.getElementById('progress-fill');
@@ -27,47 +203,26 @@ export function initHorizontal(): HorizontalApi | null {
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const narrow =
-    typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 720px)').matches;
-
-  // Vertical fallback for reduced motion or very small screens if preferred
-  if (reduced) {
-    document.body.classList.add('is-vertical');
-    initVerticalReveals();
-    bindNavVertical(navLinks);
-    return {
-      scrollToPanel: (id) => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-      },
-      refresh: () => ScrollTrigger.refresh(),
-      destroy: () => ScrollTrigger.getAll().forEach((t) => t.kill()),
-    };
-  }
-
-  document.body.classList.remove('is-vertical');
-
   const panels = gsap.utils.toArray<HTMLElement>('.panel');
   const getScrollLength = () => Math.max(0, track.scrollWidth - window.innerWidth);
 
-  // Intro: soft fade of chrome + first panel content
-  gsap.set(['.chrome', '.scroll-hint', '.chrome-meta'], { autoAlpha: 0, y: -8 });
+  gsap.set(['.chrome--desktop', '.scroll-hint', '.chrome-meta'], { autoAlpha: 0, y: -8 });
   gsap.set('.hero-fade', { autoAlpha: 0, y: 24 });
   gsap
     .timeline({ defaults: { ease: 'power3.out' } })
-    .to('.chrome', { autoAlpha: 1, y: 0, duration: 0.7, delay: 0.05 })
+    .to('.chrome--desktop', { autoAlpha: 1, y: 0, duration: 0.7, delay: 0.05 })
     .to('.hero-fade', { autoAlpha: 1, y: 0, duration: 0.85, stagger: 0.06 }, '-=0.35')
     .to(['.scroll-hint', '.chrome-meta'], { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.45');
 
-  // Horizontal pin + scrub
   const tween = gsap.to(track, {
     x: () => -getScrollLength(),
     ease: 'none',
     scrollTrigger: {
       trigger: scroller,
       start: 'top top',
-      end: () => `+=${getScrollLength() * (narrow ? 0.95 : 1.15)}`,
+      end: () => `+=${getScrollLength() * 1.15}`,
       pin: true,
-      scrub: narrow ? 0.6 : 1.1,
+      scrub: 1.1,
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
@@ -75,7 +230,6 @@ export function initHorizontal(): HorizontalApi | null {
         if (progressFill) gsap.set(progressFill, { scaleX: p });
         if (hint) hint.classList.toggle('is-hidden', p > 0.04);
 
-        // Active panel from actual horizontal position
         const x = Math.abs(Number(gsap.getProperty(track, 'x')) || 0);
         let idx = 0;
         let best = Infinity;
@@ -110,16 +264,11 @@ export function initHorizontal(): HorizontalApi | null {
 
   setActive(0);
 
-  // Panel entrance animations driven by horizontal container animation
-  // Skip hero — it has its own intro timeline
   panels.forEach((panel) => {
     if (panel.dataset.panel === 'hero') return;
-
     const reveals = panel.querySelectorAll<HTMLElement>('[data-reveal]');
     if (!reveals.length) return;
-
     gsap.set(reveals, { y: 36, opacity: 0 });
-
     gsap.to(reveals, {
       y: 0,
       opacity: 1,
@@ -134,40 +283,18 @@ export function initHorizontal(): HorizontalApi | null {
         toggleActions: 'play none none reverse',
       },
     });
-
-    // Subtle parallax for decorative layers
-    const parallax = panel.querySelectorAll<HTMLElement>('[data-parallax]');
-    parallax.forEach((el) => {
-      const depth = Number(el.dataset.parallax || 0.15);
-      gsap.to(el, {
-        x: () => depth * 80,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: panel,
-          containerAnimation: tween,
-          start: 'left right',
-          end: 'right left',
-          scrub: true,
-        },
-      });
-    });
   });
 
-  // Service / process cards hover micro-interaction already CSS; add magnetic buttons
   initMagnetic(document.querySelectorAll<HTMLElement>('.btn, .nav-cta, .destination, .configure'));
-
-  // Custom cursor (fine pointer only)
   initCursor();
 
   function scrollToPanel(id: string) {
     const panel = document.getElementById(id);
     if (!panel || !st) return;
-
     const maxX = getScrollLength();
     const targetX = Math.min(maxX, Math.max(0, panel.offsetLeft));
     const progress = maxX === 0 ? 0 : targetX / maxX;
     const scrollY = st.start + (st.end - st.start) * progress;
-
     gsap.to(window, {
       duration: reduced ? 0.01 : 1.05,
       scrollTo: { y: scrollY, autoKill: true },
@@ -184,7 +311,6 @@ export function initHorizontal(): HorizontalApi | null {
     });
   });
 
-  // Destination buttons inside hero
   document.querySelectorAll<HTMLElement>('[data-go]').forEach((el) => {
     el.addEventListener('click', (e) => {
       e.preventDefault();
@@ -193,8 +319,7 @@ export function initHorizontal(): HorizontalApi | null {
     });
   });
 
-  // Keyboard: arrows move between panels
-  window.addEventListener('keydown', (e) => {
+  const onKey = (e: KeyboardEvent) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
     if ((e.target as HTMLElement)?.matches('input, textarea, select')) return;
     const p = st.progress;
@@ -205,16 +330,11 @@ export function initHorizontal(): HorizontalApi | null {
       scrollTo: { y: st.start + (st.end - st.start) * next },
       ease: 'power3.inOut',
     });
-  });
-
-  // Resize handling
-  const onResize = () => {
-    ScrollTrigger.refresh();
   };
-  window.addEventListener('resize', onResize);
+  window.addEventListener('keydown', onKey);
 
-  // Wheel on panels with overflow: if panel can scroll vertically, let it when at edges
-  // Default horizontal scrub via vertical scroll is handled by pin.
+  const onResize = () => ScrollTrigger.refresh();
+  window.addEventListener('resize', onResize);
 
   document.body.classList.add('is-ready');
 
@@ -223,43 +343,16 @@ export function initHorizontal(): HorizontalApi | null {
     refresh: () => ScrollTrigger.refresh(),
     destroy: () => {
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('keydown', onKey);
       ScrollTrigger.getAll().forEach((t) => t.kill());
       tween.kill();
+      document.body.classList.remove('is-desktop-h');
     },
   };
 }
 
-function bindNavVertical(navLinks: HTMLAnchorElement[]) {
-  navLinks.forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (!href?.startsWith('#')) return;
-      e.preventDefault();
-      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-}
-
-function initVerticalReveals() {
-  gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
-    gsap.from(el, {
-      y: 28,
-      opacity: 0,
-      duration: 0.7,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 88%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-  });
-  document.body.classList.add('is-ready');
-}
-
 function initMagnetic(nodes: NodeListOf<HTMLElement>) {
   if (window.matchMedia('(hover: none)').matches) return;
-
   nodes.forEach((el) => {
     const strength = 12;
     el.addEventListener('pointermove', (e) => {
@@ -281,27 +374,22 @@ function initMagnetic(nodes: NodeListOf<HTMLElement>) {
 
 function initCursor() {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-
   const cursor = document.createElement('div');
   cursor.className = 'g-cursor';
   document.body.appendChild(cursor);
-
   const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   const mouse = { x: pos.x, y: pos.y };
-
   window.addEventListener('pointermove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
     cursor.classList.add('is-on');
   });
-
   gsap.ticker.add(() => {
     pos.x += (mouse.x - pos.x) * 0.18;
     pos.y += (mouse.y - pos.y) * 0.18;
     cursor.style.left = `${pos.x}px`;
     cursor.style.top = `${pos.y}px`;
   });
-
   document.querySelectorAll('a, button, .service-card, .card, summary, input, textarea').forEach((el) => {
     el.addEventListener('pointerenter', () => cursor.classList.add('is-hover'));
     el.addEventListener('pointerleave', () => cursor.classList.remove('is-hover'));

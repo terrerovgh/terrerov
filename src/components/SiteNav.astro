@@ -1,8 +1,17 @@
 ---
-import { nav, site } from '../data/site';
+import { site } from '../data/site';
+
+const mobileTabs = [
+  { id: 'hero', label: 'Home', icon: 'home' },
+  { id: 'services', label: 'Services', icon: 'grid' },
+  { id: 'process', label: 'Process', icon: 'steps' },
+  { id: 'faq', label: 'FAQ', icon: 'help' },
+  { id: 'contact', label: 'Contact', icon: 'mail' },
+] as const;
 ---
 
-<div class="chrome" aria-hidden="false">
+{/* ── Desktop chrome ── */}
+<div class="chrome chrome--desktop" aria-hidden="false">
   <div class="progress-rail" aria-hidden="true">
     <div class="progress-rail__fill" id="progress-fill"></div>
   </div>
@@ -10,29 +19,48 @@ import { nav, site } from '../data/site';
   <header class="site-nav">
     <a class="logo" href="#hero" data-panel-link>{site.name}</a>
     <nav aria-label="Site sections">
-      {nav.map((item) => {
-        const id = item.href.replace('#', '');
-        const isContact = id === 'contact';
-        return (
-          <a
-            href={item.href}
-            data-panel-link
-            class={isContact ? 'nav-cta' : undefined}
-          >
-            {item.label}
-          </a>
-        );
-      })}
+      <a href="#about" data-panel-link>About</a>
+      <a href="#services" data-panel-link>Services</a>
+      <a href="#clients" data-panel-link>Audience</a>
+      <a href="#process" data-panel-link>Process</a>
+      <a href="#faq" data-panel-link>FAQ</a>
+      <a href="#contact" data-panel-link class="nav-cta">Contact</a>
     </nav>
   </header>
 </div>
 
-<div class="scroll-hint" id="scroll-hint" aria-hidden="true">
+<div class="scroll-hint chrome--desktop" id="scroll-hint" aria-hidden="true">
   <span class="scroll-hint__line"></span>
   <span>Scroll</span>
 </div>
 
-<div class="chrome-meta" aria-hidden="true">
+<div class="chrome-meta chrome--desktop" aria-hidden="true">
   <span class="chrome-meta__index"><span id="panel-index">01</span> / 07</span>
   <span id="panel-label">Intro</span>
 </div>
+
+{/* ── Mobile app shell ── */}
+<header class="m-top" id="m-top">
+  <a class="m-top__brand" href="#hero" data-mobile-nav>{site.name}</a>
+  <a class="m-top__cta" href={`mailto:${site.email}`}>Email</a>
+</header>
+
+<nav class="m-tabbar" id="m-tabbar" aria-label="App navigation">
+  {
+    mobileTabs.map((tab) => (
+      <a
+        class="m-tab"
+        href={`#${tab.id}`}
+        data-mobile-nav
+        data-tab={tab.id}
+      >
+        <span class={`m-tab__icon m-tab__icon--${tab.icon}`} aria-hidden="true"></span>
+        <span class="m-tab__label">{tab.label}</span>
+      </a>
+    ))
+  }
+</nav>
+
+<a class="m-fab" href="#contact" data-mobile-nav>
+  Start a project
+</a>

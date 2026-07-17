@@ -17,9 +17,9 @@ const year = new Date().getFullYear();
           <a class="link-line" href={`mailto:${site.email}`}>{site.email}</a>
         </p>
         <p class="contact-loc" data-reveal>{site.locationLine}</p>
-        <div data-reveal style="display:flex;flex-wrap:wrap;gap:0.75rem">
+        <div data-reveal class="contact-actions">
           <a class="btn" href={`mailto:${site.email}`}>Email me →</a>
-          <button class="btn btn-ghost" type="button" data-go="hero">Back to intro</button>
+          <button class="btn btn-ghost contact-back" type="button" data-go="hero">Back to intro</button>
         </div>
       </div>
 
