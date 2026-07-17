@@ -1,7 +1,72 @@
 ---
-const title = 'Terrerov — Louisville web design';
+const title = 'Terrerov — Web design for small businesses | Louisville, KY';
 const description =
-  'Independent web studio. Interactive Temple of Heaven curtain — a scannable QR to terrerov.com.';
+  'Independent web developer for small businesses and companies. Custom websites, local SEO, online booking, and ongoing care. English & Español. Based in Louisville, Kentucky.';
+const email = 'hola@terrerov.com';
+
+const services = [
+  {
+    n: '01',
+    title: 'Custom website design & development',
+    titleEs: 'Diseño y desarrollo web a medida',
+    body: 'Sites built from scratch around your business — structure, copy, design, and code. No templates with a logo swap. Fast, accessible, and ready for Google.',
+  },
+  {
+    n: '02',
+    title: 'Websites that bring in customers',
+    titleEs: 'Webs que generan clientes',
+    body: 'Clear offers, strong calls to action, mobile-first layouts, and pages written for how people actually search and buy in your area.',
+  },
+  {
+    n: '03',
+    title: 'Local SEO & Google presence',
+    titleEs: 'SEO local y presencia en Google',
+    body: 'Business profiles, location pages, and technical basics so neighbors find you when they search — maps, reviews, and rankings that matter locally.',
+  },
+  {
+    n: '04',
+    title: 'Online booking & lead capture',
+    titleEs: 'Reservas online y captación de leads',
+    body: 'Appointment systems, contact forms, deposits, and calendar integrations that reduce phone tag and fill your schedule automatically.',
+  },
+  {
+    n: '05',
+    title: 'E-commerce for small catalogs',
+    titleEs: 'Tienda online para catálogos pequeños',
+    body: 'Sell products or services online with clean checkout, inventory that stays manageable, and a storefront that matches your brand.',
+  },
+  {
+    n: '06',
+    title: 'Care plans & monthly updates',
+    titleEs: 'Mantenimiento y actualizaciones',
+    body: 'Hosting guidance, security, content changes, and small improvements after launch — so your site does not go stale the week it goes live.',
+  },
+];
+
+const clients = [
+  { title: 'Local shops & studios', body: 'Tattoo studios, salons, barbershops, boutiques — visual work that needs a gallery and easy booking.' },
+  { title: 'Restaurants & hospitality', body: 'Menus, hours, reservations, and a presence that matches the experience in the room.' },
+  { title: 'Professional services', body: 'Clinics, contractors, consultants, and firms that need trust, clarity, and qualified inquiries.' },
+  { title: 'Growing companies', body: 'Teams that outgrew a DIY site or template and need something faster, clearer, and easier to maintain.' },
+];
+
+const process = [
+  { n: '01', title: 'Listen', body: 'A short call about your business, customers, competition, and what a successful site must do in the first 90 days.' },
+  { n: '02', title: 'Plan & design', body: 'Sitemap, structure, and visual direction you approve before development. No surprises at launch.' },
+  { n: '03', title: 'Build', body: 'Clean code, mobile performance, SEO foundations, forms, and integrations. Most projects launch in 2–4 weeks.' },
+  { n: '04', title: 'Launch & grow', body: 'Training, analytics, and optional monthly care so the site keeps earning after day one.' },
+];
+
+const deliverables = [
+  'Custom design (not a theme reskin)',
+  'Mobile-first, fast loading pages',
+  'SEO-ready structure & metadata',
+  'Contact / booking forms that work',
+  'English and/or Spanish content',
+  'Training so you can update basics',
+  'Analytics setup (traffic & leads)',
+  'Optional hosting & care plan',
+];
 ---
 
 <!doctype html>
@@ -14,6 +79,9 @@ const description =
     <link rel="canonical" href="https://www.terrerov.com/" />
     <meta name="theme-color" content="#e8dfca" />
     <meta name="robots" content="index, follow" />
+    <meta name="author" content="Terrerov Studio" />
+    <meta name="geo.region" content="US-KY" />
+    <meta name="geo.placename" content="Louisville" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/assets/temple-roof-cutout-web.webp" as="image" type="image/webp" fetchpriority="high" />
 
@@ -23,6 +91,35 @@ const description =
     <meta property="og:description" content={description} />
     <meta property="og:url" content="https://www.terrerov.com/" />
     <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'ProfessionalService',
+      name: 'Terrerov Studio',
+      description,
+      url: 'https://www.terrerov.com/',
+      email,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Louisville',
+        addressRegion: 'KY',
+        addressCountry: 'US',
+      },
+      areaServed: ['Louisville', 'Kentucky', 'United States'],
+      knowsLanguage: ['en', 'es'],
+      serviceType: [
+        'Web design',
+        'Web development',
+        'Local SEO',
+        'Online booking integration',
+        'Website maintenance',
+      ],
+    }).replace(/</g, '\\u003c')} />
 
     <style is:global>
       :root {
@@ -31,28 +128,27 @@ const description =
         --muted: #70665b;
         --hairline: rgba(46, 37, 31, 0.36);
         --panel: rgba(232, 223, 202, 0.93);
+        --line: rgba(46, 37, 31, 0.16);
+        --font-serif: Georgia, 'Times New Roman', serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
       }
 
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      html, body { margin: 0; min-height: 100%; }
       body {
         background: var(--paper);
         color: var(--ink);
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: var(--font-serif);
         -webkit-font-smoothing: antialiased;
       }
-      button,
-      input,
-      select {
-        font: inherit;
-      }
+      button, input, select, textarea { font: inherit; }
+      a { color: var(--ink); text-decoration: none; }
+      a:hover { color: var(--muted); }
+      ::selection { background: var(--ink); color: var(--paper); }
+      section[id] { scroll-margin-top: 72px; }
 
+      /* ── Hero artboard ── */
       .artboard {
         position: relative;
         min-height: 100svh;
@@ -64,7 +160,6 @@ const description =
           radial-gradient(circle at 53% 16%, rgba(255, 255, 255, 0.26), transparent 34%),
           var(--paper);
       }
-
       .artboard::after {
         content: '';
         position: absolute;
@@ -75,9 +170,7 @@ const description =
         background-image:
           radial-gradient(circle at 24% 31%, currentColor 0 0.5px, transparent 0.65px),
           radial-gradient(circle at 71% 56%, currentColor 0 0.45px, transparent 0.6px);
-        background-size:
-          9px 11px,
-          13px 15px;
+        background-size: 9px 11px, 13px 15px;
         mix-blend-mode: multiply;
       }
 
@@ -101,56 +194,39 @@ const description =
         grid-template-columns: 1fr auto 1fr;
         align-items: center;
         gap: 28px;
-        font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 12px/1 var(--font-mono);
         color: var(--muted);
       }
-
       .brand {
         color: var(--ink);
-        font-family: Georgia, 'Times New Roman', serif;
+        font-family: var(--font-serif);
         font-size: 15px;
-        text-decoration: none;
       }
-      .brand:hover {
-        color: var(--ink);
-      }
-
-      .nav {
-        display: flex;
-        gap: 28px;
-      }
-      .nav a {
-        color: inherit;
-        text-decoration: none;
-      }
-      .nav a:hover {
-        color: var(--ink);
-      }
-
+      .brand:hover { color: var(--ink); }
+      .nav { display: flex; gap: 28px; }
+      .nav a { color: inherit; }
+      .nav a:hover { color: var(--ink); }
       .masthead-actions {
         justify-self: end;
         display: flex;
         align-items: center;
         gap: 18px;
       }
-
       .mail-link {
         padding: 7px 0 6px;
         border-bottom: 1px solid transparent;
         color: inherit;
-        text-decoration: none;
       }
       .mail-link:hover {
         color: var(--ink);
         border-bottom-color: currentColor;
       }
-
       .configure {
         border: 0;
         padding: 7px 13px 6px;
         color: var(--paper);
         background: var(--ink);
-        font-family: Georgia, 'Times New Roman', serif;
+        font-family: var(--font-serif);
         cursor: pointer;
         clip-path: polygon(4% 6%, 96% 0, 100% 91%, 2% 100%);
       }
@@ -166,12 +242,7 @@ const description =
         line-height: 0;
         aspect-ratio: 901 / 730;
       }
-
-      .temple picture {
-        display: block;
-        width: 100%;
-      }
-
+      .temple picture { display: block; width: 100%; }
       .temple img {
         width: 100%;
         height: auto;
@@ -186,17 +257,14 @@ const description =
         position: absolute;
         z-index: 6;
         top: 29%;
-        width: 64px;
+        width: 72px;
         min-height: 68px;
         display: grid;
         place-content: center;
         gap: 5px;
         border: 1px solid var(--hairline);
-        background: transparent;
         color: var(--ink);
-        font: 12px/1 Georgia, 'Times New Roman', serif;
-        text-decoration: none;
-        pointer-events: auto;
+        font: 12px/1 var(--font-serif);
       }
       .destination::before {
         content: '';
@@ -210,34 +278,26 @@ const description =
         background: rgba(46, 37, 31, 0.06);
         color: var(--ink);
       }
-      .destination.left {
-        left: clamp(24px, 6vw, 108px);
-      }
-      .destination.right {
-        right: clamp(24px, 6vw, 108px);
-      }
+      .destination.left { left: clamp(24px, 6vw, 108px); }
+      .destination.right { right: clamp(24px, 6vw, 108px); }
 
       .headline {
         position: absolute;
         z-index: 6;
         left: clamp(28px, 6vw, 112px);
         bottom: clamp(38px, 8vh, 92px);
-        width: min(320px, 30vw);
+        width: min(340px, 32vw);
         pointer-events: none;
       }
-
       .eyebrow {
         margin: 0 0 16px;
-        font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 12px/1.3 var(--font-mono);
         color: var(--muted);
       }
-
-      h1 {
+      .headline h1 {
         margin: 0;
-        font: 500 clamp(44px, 5.2vw, 78px) / 0.9 Georgia, 'Times New Roman', serif;
-        letter-spacing: 0;
+        font: 500 clamp(42px, 5vw, 74px) / 0.9 var(--font-serif);
       }
-
       .rule {
         display: inline-block;
         width: 76px;
@@ -245,30 +305,26 @@ const description =
         border-top: 1px solid var(--ink);
         transform: translateY(-0.35em);
       }
-
       .caption {
         position: absolute;
         z-index: 6;
         right: clamp(28px, 8vw, 152px);
         bottom: clamp(52px, 11vh, 126px);
-        width: min(230px, 21vw);
+        width: min(240px, 22vw);
         margin: 0;
         color: var(--muted);
-        font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 11px/1.45 var(--font-mono);
         pointer-events: none;
       }
-
       .scan-hint {
         position: absolute;
         z-index: 6;
         left: 50%;
         bottom: 22px;
-        width: max-content;
         transform: translateX(-50%);
         text-align: center;
         pointer-events: none;
       }
-
       .progress {
         width: 140px;
         height: 2px;
@@ -282,14 +338,24 @@ const description =
         height: 100%;
         background: rgba(46, 37, 31, 0.55);
       }
-
       .scan-hint p {
         margin: 0;
-        font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 10px/1.3 var(--font-mono);
         color: var(--muted);
         letter-spacing: 0.05em;
         text-transform: uppercase;
       }
+      .scroll-cue {
+        position: absolute;
+        z-index: 8;
+        right: clamp(24px, 5vw, 48px);
+        bottom: 28px;
+        font: 10px/1 var(--font-mono);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .scroll-cue:hover { color: var(--ink); }
 
       .cursor {
         position: absolute;
@@ -302,9 +368,7 @@ const description =
         opacity: 0;
         pointer-events: none;
       }
-      .artboard.is-active .cursor {
-        opacity: 1;
-      }
+      .artboard.is-active .cursor { opacity: 1; }
 
       .settings {
         position: absolute;
@@ -318,31 +382,22 @@ const description =
         box-shadow: 16px 18px 32px rgba(46, 37, 31, 0.12);
         backdrop-filter: blur(8px);
       }
-      .settings[hidden] {
-        display: none;
-      }
-      .setting {
-        display: grid;
-        gap: 6px;
-        margin-bottom: 13px;
-      }
+      .settings[hidden] { display: none; }
+      .setting { display: grid; gap: 6px; margin-bottom: 13px; }
       .setting label {
         display: flex;
         justify-content: space-between;
         color: var(--muted);
-        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 11px/1 var(--font-mono);
       }
-      .setting input[type='range'] {
-        width: 100%;
-        accent-color: var(--ink);
-      }
+      .setting input[type='range'] { width: 100%; accent-color: var(--ink); }
       .setting select {
         width: 100%;
         border: 1px solid var(--hairline);
         background: transparent;
         color: var(--ink);
         padding: 6px 8px;
-        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 11px/1 var(--font-mono);
       }
       .reset {
         width: 100%;
@@ -351,22 +406,286 @@ const description =
         color: var(--ink);
         background: transparent;
         cursor: pointer;
-        font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font: 11px/1 var(--font-mono);
       }
 
-      .credit {
-        position: absolute;
-        z-index: 8;
-        left: clamp(24px, 5vw, 48px);
-        bottom: 22px;
-        font: 9px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
-        color: var(--muted);
-        text-decoration: none;
-        opacity: 0.7;
+      /* ── Content site ── */
+      .site-nav {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem clamp(20px, 5vw, 64px);
+        background: rgba(232, 223, 202, 0.9);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--line);
       }
-      .credit:hover {
+      .site-nav .logo {
+        font-family: var(--font-serif);
+        font-size: 15px;
+        letter-spacing: 0.03em;
+      }
+      .site-nav nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: clamp(14px, 2.5vw, 28px);
+        justify-content: flex-end;
+      }
+      .site-nav nav a {
+        font: 11px/1 var(--font-mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .site-nav nav a:hover { color: var(--ink); }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: clamp(72px, 11vh, 120px) clamp(20px, 5vw, 64px);
+      }
+
+      .kicker {
+        margin: 0 0 1rem;
+        font: 11px/1.3 var(--font-mono);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .section-title {
+        margin: 0 0 1.25rem;
+        font: 500 clamp(30px, 4vw, 46px) / 1.08 var(--font-serif);
+        letter-spacing: -0.02em;
+        max-width: 18ch;
+      }
+      .lede {
+        margin: 0 0 2.5rem;
+        font-size: clamp(16px, 1.5vw, 18px);
+        line-height: 1.65;
+        color: var(--muted);
+        max-width: 52ch;
+      }
+      .lede-strong {
         color: var(--ink);
-        opacity: 1;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+        gap: clamp(28px, 4vw, 48px);
+      }
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+        gap: clamp(20px, 3vw, 28px);
+      }
+
+      .service-row {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 0.4rem 1.25rem;
+        padding: 1.6rem 0;
+        border-top: 1px solid var(--line);
+      }
+      .service-row:last-child { border-bottom: 1px solid var(--line); }
+      .service-row .n {
+        font: 11px/1 var(--font-mono);
+        color: var(--muted);
+        padding-top: 0.35rem;
+      }
+      .service-row h3 {
+        margin: 0;
+        font: 500 clamp(18px, 2vw, 22px) / 1.25 var(--font-serif);
+      }
+      .service-row .es {
+        margin: 0.35rem 0 0;
+        font: 12px/1.3 var(--font-mono);
+        color: var(--muted);
+      }
+      .service-row p {
+        margin: 0.65rem 0 0;
+        font-size: 15px;
+        line-height: 1.65;
+        color: var(--muted);
+        max-width: 58ch;
+      }
+
+      .card {
+        border: 1px solid var(--hairline);
+        padding: 1.35rem 1.4rem 1.5rem;
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .card h3 {
+        margin: 0 0 0.55rem;
+        font: 500 17px/1.25 var(--font-serif);
+      }
+      .card p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .process-step {
+        border-top: 1px solid var(--ink);
+        padding-top: 1.15rem;
+      }
+      .process-step .n {
+        font: 11px/1 var(--font-mono);
+        color: var(--muted);
+      }
+      .process-step h3 {
+        margin: 0.7rem 0 0;
+        font: 500 18px/1.2 var(--font-serif);
+      }
+      .process-step p {
+        margin: 0.55rem 0 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .checklist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.65rem;
+      }
+      .checklist li {
+        display: grid;
+        grid-template-columns: 1.1rem 1fr;
+        gap: 0.65rem;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .checklist li::before {
+        content: '—';
+        color: var(--muted);
+        font-family: var(--font-mono);
+      }
+
+      .stat-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--line);
+      }
+      .stat .label {
+        margin: 0;
+        font: 10px/1 var(--font-mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .stat .value {
+        margin: 0.45rem 0 0;
+        font: 500 18px/1.2 var(--font-serif);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55em;
+        border: 0;
+        padding: 0.9em 1.45em;
+        background: var(--ink);
+        color: var(--paper) !important;
+        font-family: var(--font-serif);
+        font-size: 14px;
+        cursor: pointer;
+        clip-path: polygon(3% 6%, 97% 0, 100% 92%, 2% 100%);
+      }
+      .btn:hover {
+        background: #1a1511;
+        color: var(--paper) !important;
+      }
+      .link-line {
+        font: 12px/1 var(--font-mono);
+        letter-spacing: 0.08em;
+        border-bottom: 1px solid var(--hairline);
+        padding-bottom: 3px;
+      }
+      .link-line:hover {
+        border-bottom-color: var(--ink);
+        color: var(--ink);
+      }
+
+      .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .contact-form label {
+        margin-top: 1.1rem;
+        font: 11px/1 var(--font-mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .contact-form label:first-child { margin-top: 0; }
+      .contact-form input,
+      .contact-form textarea {
+        border: 0;
+        border-bottom: 1px solid var(--hairline);
+        background: transparent;
+        color: var(--ink);
+        padding: 0.7rem 0;
+        border-radius: 0;
+        resize: vertical;
+      }
+      .contact-form input:focus,
+      .contact-form textarea:focus {
+        outline: none;
+        border-bottom-color: var(--ink);
+      }
+      .form-actions {
+        margin-top: 1.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+      }
+      .form-note {
+        margin: 1rem 0 0;
+        font-size: 13px;
+        color: var(--muted);
+        display: none;
+      }
+      .form-note.show { display: block; }
+
+      .site-footer {
+        border-top: 1px solid var(--line);
+        padding: clamp(40px, 6vh, 64px) clamp(20px, 5vw, 64px);
+      }
+      .site-footer .inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1.5rem 2rem;
+      }
+      .site-footer p { margin: 0; }
+      .site-footer .muted {
+        margin-top: 0.5rem;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .site-footer .meta {
+        font: 11px/1.4 var(--font-mono);
+        color: var(--muted);
+      }
+
+      .band {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background: rgba(46, 37, 31, 0.03);
       }
 
       .sr-only {
@@ -382,55 +701,41 @@ const description =
       }
 
       @media (max-width: 720px) {
-        .masthead {
-          grid-template-columns: 1fr auto;
-        }
-        .nav {
-          display: none;
-        }
+        .masthead { grid-template-columns: 1fr auto; }
+        .nav { display: none; }
         .temple {
           top: 58px;
           width: min(400px, 88vw, calc(34vh * 901 / 730));
         }
-        .destination {
-          top: 22%;
-          transform: scale(0.86);
-        }
-        .destination.left {
-          left: 16px;
-        }
-        .destination.right {
-          right: 16px;
-        }
+        .destination { top: 22%; transform: scale(0.86); }
+        .destination.left { left: 16px; }
+        .destination.right { right: 16px; }
         .headline {
           left: 24px;
-          bottom: 44px;
-          width: min(280px, 74vw);
+          bottom: 48px;
+          width: min(290px, 76vw);
         }
-        h1 {
-          font-size: clamp(36px, 12vw, 56px);
-        }
-        .caption {
-          display: none;
-        }
-        .credit {
-          display: none;
-        }
+        .headline h1 { font-size: clamp(34px, 11vw, 52px); }
+        .caption { display: none; }
+        .scroll-cue { display: none; }
+        .site-nav nav a:nth-child(n + 4) { display: none; }
       }
     </style>
   </head>
   <body>
-    <main class="artboard" id="artboard">
-      <canvas id="curtain" aria-label="Interactive character curtain that forms a scannable QR code"></canvas>
+    <!-- ═══════════ HERO: curtain ═══════════ -->
+    <section class="artboard" id="artboard" aria-label="Interactive hero">
+      <canvas id="curtain" aria-label="Interactive curtain that forms a scannable QR code to terrerov.com"></canvas>
 
       <header class="masthead">
         <a class="brand" href="/">Terrerov</a>
         <nav class="nav" aria-label="Primary">
-          <a href="mailto:hola@terrerov.com">Contact</a>
-          <a href="https://github.com/terrerovgh/terrerov" target="_blank" rel="noopener">GitHub</a>
+          <a href="#services">Services</a>
+          <a href="#process">Process</a>
+          <a href="#contact">Contact</a>
         </nav>
         <div class="masthead-actions">
-          <a class="mail-link" href="mailto:hola@terrerov.com">hola@terrerov.com</a>
+          <a class="mail-link" href={`mailto:${email}`}>{email}</a>
           <button class="configure" id="configure" type="button" aria-expanded="false" aria-controls="settings">
             Configure
           </button>
@@ -452,31 +757,25 @@ const description =
         </picture>
       </div>
 
-      <a class="destination left" href="mailto:hola@terrerov.com"><span>Studio</span></a>
-      <a class="destination right" href="mailto:hola@terrerov.com"><span>Hello</span></a>
+      <a class="destination left" href="#services"><span>Services</span></a>
+      <a class="destination right" href="#contact"><span>Contact</span></a>
 
-      <section class="headline" id="home">
-        <p class="eyebrow">Louisville, KY / English · Español</p>
-        <h1>Web design<br />that elevates<span class="rule"></span></h1>
-      </section>
+      <div class="headline">
+        <p class="eyebrow">Web developer · Louisville, KY · EN / ES</p>
+        <h1>Sites that<br />grow business<span class="rule"></span></h1>
+      </div>
 
-      <p class="caption" id="story">
-        Independent studio for local business. The curtain is a live QR to this site — leave it still to scan, move to
-        chime.
+      <p class="caption">
+        Custom websites for small businesses and companies — designed carefully, built fast, made to bring in customers.
+        The curtain is a live QR to this studio.
       </p>
 
       <div class="scan-hint" aria-hidden="true">
         <div class="progress"></div>
-        <p>Scan when still · move to chime</p>
+        <p>Scan when still · scroll for services</p>
       </div>
 
-      <a
-        class="credit"
-        href="https://github.com/CodeMaryy/temple-of-heaven-curtain"
-        target="_blank"
-        rel="noopener">After Temple of Heaven Curtain</a
-      >
-
+      <a class="scroll-cue" href="#about">Scroll ↓</a>
       <div class="cursor" id="cursor" aria-hidden="true"></div>
 
       <aside class="settings" id="settings" hidden>
@@ -505,16 +804,216 @@ const description =
         </div>
         <button class="reset" id="reset" type="button">Reset curtain</button>
       </aside>
+    </section>
 
-      <p class="sr-only">
-        Interactive single-page site. A curtain of Chinese characters hangs from a Temple of Heaven roof and forms a QR
-        code encoding https://www.terrerov.com. Contact: hola@terrerov.com.
-      </p>
+    <!-- ═══════════ STICKY NAV ═══════════ -->
+    <header class="site-nav">
+      <a class="logo" href="#artboard">Terrerov</a>
+      <nav aria-label="Site sections">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#clients">Who I help</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ABOUT -->
+      <section class="wrap" id="about">
+        <p class="kicker">Independent web studio</p>
+        <h2 class="section-title">Web development for small businesses and growing companies.</h2>
+        <p class="lede">
+          <span class="lede-strong">Terrerov</span> is a one-person studio. I design and build websites for local
+          businesses and small companies that need a real online presence — not a brochure that looks dated in six
+          months, and not an agency process with account managers and markups.
+        </p>
+        <p class="lede" style="margin-top: -1.25rem">
+          You work directly with the person who designs, codes, and launches your site —
+          <em>en inglés o en español</em>. Based in Louisville, Kentucky; available remotely across the U.S.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat">
+            <p class="label">Focus</p>
+            <p class="value">Small business &amp; SMBs</p>
+          </div>
+          <div class="stat">
+            <p class="label">Typical timeline</p>
+            <p class="value">2–4 weeks</p>
+          </div>
+          <div class="stat">
+            <p class="label">Languages</p>
+            <p class="value">English · Español</p>
+          </div>
+          <div class="stat">
+            <p class="label">Contact</p>
+            <p class="value"><a class="link-line" href={`mailto:${email}`}>{email}</a></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SERVICES -->
+      <section class="band" id="services">
+        <div class="wrap">
+          <p class="kicker">What I offer</p>
+          <h2 class="section-title">Services for businesses that need results online.</h2>
+          <p class="lede">
+            Everything is scoped to your goals: more appointments, clearer brand, better local search, fewer phone
+            calls that go nowhere.
+          </p>
+
+          <div>
+            {services.map((s) => (
+              <article class="service-row">
+                <span class="n">{s.n}</span>
+                <div>
+                  <h3>{s.title}</h3>
+                  <p class="es">{s.titleEs}</p>
+                  <p>{s.body}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- DELIVERABLES + CLIENTS -->
+      <section class="wrap" id="clients">
+        <div class="grid-2">
+          <div>
+            <p class="kicker">What you get</p>
+            <h2 class="section-title">A complete handoff, not half a site.</h2>
+            <ul class="checklist">
+              {deliverables.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p class="kicker">Who it’s for</p>
+            <h2 class="section-title">Built for operators, not enterprises.</h2>
+            <div class="grid-4" style="grid-template-columns: 1fr; gap: 1rem;">
+              {clients.map((c) => (
+                <article class="card">
+                  <h3>{c.title}</h3>
+                  <p>{c.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROCESS -->
+      <section class="band" id="process">
+        <div class="wrap">
+          <p class="kicker">How we work</p>
+          <h2 class="section-title">A clear process from first call to launch.</h2>
+          <div class="grid-4" style="margin-top: 2rem;">
+            {process.map((step) => (
+              <article class="process-step">
+                <span class="n">{step.n}</span>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section class="wrap" id="contact">
+        <div class="grid-2">
+          <div>
+            <p class="kicker">Start a project</p>
+            <h2 class="section-title">Tell me about your business.</h2>
+            <p class="lede">
+              I reply within one business day. Brief notes are fine — what you do, where you are, and what you need the
+              site to achieve.
+            </p>
+            <p style="margin: 0 0 0.75rem; font-size: 16px;">
+              <a class="link-line" href={`mailto:${email}`}>{email}</a>
+            </p>
+            <p style="margin: 0; font-size: 14px; color: var(--muted);">Louisville, Kentucky · Remote-friendly</p>
+          </div>
+
+          <form class="contact-form" id="contact-form">
+            <label for="c-name">Name</label>
+            <input id="c-name" name="name" type="text" required autocomplete="name" />
+
+            <label for="c-email">Email</label>
+            <input id="c-email" name="email" type="email" required autocomplete="email" />
+
+            <label for="c-biz">Business / company</label>
+            <input id="c-biz" name="business" type="text" autocomplete="organization" />
+
+            <label for="c-msg">What do you need?</label>
+            <textarea id="c-msg" name="message" rows="4" required placeholder="Website, redesign, booking, SEO…"></textarea>
+
+            <div class="form-actions">
+              <button class="btn" type="submit">Send inquiry →</button>
+            </div>
+            <p class="form-note" id="success-msg">
+              Gracias — your email app should open with the message ready to send.
+            </p>
+          </form>
+        </div>
+      </section>
     </main>
+
+    <footer class="site-footer">
+      <div class="inner">
+        <div>
+          <p style="font-size: 15px; font-weight: 500;">Terrerov</p>
+          <p class="muted">Web design &amp; development for small business</p>
+        </div>
+        <div class="meta">
+          <p><a href={`mailto:${email}`}>{email}</a></p>
+          <p style="margin-top: 0.4rem;">© {new Date().getFullYear()} Terrerov Studio</p>
+        </div>
+      </div>
+    </footer>
+
+    <p class="sr-only">
+      Terrerov is an independent web design and development studio for small businesses and companies. Contact
+      {email}.
+    </p>
 
     <script>
       import { initCurtain } from '../scripts/curtain';
       initCurtain();
+
+      const form = document.getElementById('contact-form') as HTMLFormElement | null;
+      const success = document.getElementById('success-msg');
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const name = String(fd.get('name') || '').trim();
+        const email = String(fd.get('email') || '').trim();
+        const business = String(fd.get('business') || '').trim();
+        const message = String(fd.get('message') || '').trim();
+
+        const body = encodeURIComponent(
+          [
+            message,
+            '',
+            business ? `Business: ${business}` : '',
+            `— ${name}${email ? ` · ${email}` : ''}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        );
+
+        window.location.href =
+          'mailto:hola@terrerov.com?subject=' +
+          encodeURIComponent('Project inquiry — ' + (business || name || 'new project')) +
+          '&body=' +
+          body;
+
+        success?.classList.add('show');
+      });
     </script>
   </body>
 </html>
