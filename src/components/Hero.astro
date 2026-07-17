@@ -10,6 +10,7 @@ import { site } from '../data/site';
   aria-label="Interactive hero"
 >
   <div class="panel-inner">
+    {/* Desktop interactive artboard */}
     <div class="artboard" id="artboard">
       <canvas
         id="curtain"
@@ -102,10 +103,44 @@ import { site } from '../data/site';
         <button class="reset" id="reset" type="button">Reset curtain</button>
       </aside>
     </div>
+
+    {/* Mobile app hero — stacked, tappable, conversion-first */}
+    <div class="m-hero" id="m-hero">
+      <div class="m-hero__visual">
+        <img
+          src="/assets/temple-roof-cutout-web.webp"
+          width="901"
+          height="730"
+          alt=""
+          decoding="async"
+          class="m-hero__temple"
+        />
+      </div>
+      <p class="m-hero__eyebrow">Web studio · Louisville · EN / ES</p>
+      <h1 class="m-hero__title">Sites that grow business</h1>
+      <p class="m-hero__copy">
+        Custom websites for small businesses and companies — designed carefully, built fast, made to
+        bring in customers.
+      </p>
+      <div class="m-hero__actions">
+        <a class="btn m-hero__primary" href="#contact" data-mobile-nav>Start a project</a>
+        <a class="btn btn-ghost m-hero__secondary" href="#services" data-mobile-nav>See services</a>
+      </div>
+      <div class="m-hero__chips">
+        <span>2–4 weeks</span>
+        <span>English · Español</span>
+        <span>Small business</span>
+      </div>
+    </div>
   </div>
 </section>
 
 <script>
   import { initCurtain } from '../scripts/curtain';
-  initCurtain();
+
+  // Curtain is desktop-first; skip heavy physics on very small screens
+  const mobile = window.matchMedia('(max-width: 900px)').matches;
+  if (!mobile) {
+    initCurtain();
+  }
 </script>
