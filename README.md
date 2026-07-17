@@ -1,25 +1,20 @@
 # Terrerov
 
-Premium horizontal studio site for **Terrerov** — independent web design for small businesses.
+Single-view studio site — interactive Temple QR curtain is the whole experience.
 
 Live: [www.terrerov.com](https://www.terrerov.com)
 
 ## Experience
 
-- **Horizontal scroll** powered by GSAP ScrollTrigger (vertical wheel → horizontal panels)
-- **Mobile app shell** (tabs + FAB) under ~900px
-- Interactive Temple of Heaven curtain (QR to terrerov.com)
-- Featured personal project: **Surviving Chernarus** (life OS / Beacon lab)
-- Premium motion: scrubbed track, staggered reveals, magnetic buttons
-- Fixed chrome: progress rail, section index, active nav
-- Keyboard: ← → between panels
-- Reduced-motion / fallback: vertical layout with soft reveals
+- Full-viewport Temple of Heaven curtain (live QR → terrerov.com)
+- One fixed frame: **no page scroll**
+- Condensed studio info overlaid (services, process, contact)
+- Play panel for curtain physics / roof study
 
 ## Stack
 
-- Astro 7 (static) + Cloudflare Pages
-- GSAP 3 + ScrollTrigger + ScrollToPlugin
-- Vanilla CSS (paper / ink system)
+- Astro 7 static + Cloudflare Pages (`dist/client`)
+- Vanilla CSS (paper / ink)
 - `uqr` for the live QR curtain
 
 ## Develop
@@ -36,18 +31,16 @@ npm run build
 npm run preview
 ```
 
-Output: `dist/client`
-
 ## Structure
 
 ```
 src/
-  components/   # Full-viewport panels
-  data/site.ts  # Copy
-  layouts/      # Document shell
-  pages/        # Routes
-  scripts/      # curtain.ts + horizontal.ts (GSAP)
-  styles/       # Design system
+  data/site.ts     # copy
+  layouts/         # document shell + SEO
+  pages/index.astro
+  scripts/curtain.ts
+  styles/global.css
+public/assets/     # temple + OG
 ```
 
 ## Credits
