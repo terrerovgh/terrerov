@@ -28,14 +28,17 @@ import {
   TRACK_SCREENS,
   STAGE_COUNT,
   progressForStage,
+  ARRIVE,
 } from "./journey.js";
 
 const canvas = document.getElementById("world");
 const ctx = canvas.getContext("2d");
 
+const searchParams = new URLSearchParams(location.search);
 const journeyOpts = {
-  legacy: new URLSearchParams(location.search).get("legacyJourney") === "1",
+  legacy: searchParams.get("legacyJourney") === "1",
 };
+const forceGait = searchParams.get("gait") === "1";
 
 const state = {
   progress: 0,
@@ -53,6 +56,9 @@ const state = {
   ink: null,
   inkCtx: null,
   reduced: false,
+  figScratch: null,
+  figBuiltThisFrame: false,
+  dadBuiltThisFrame: false,
 };
 
 /** Where the walker stands on screen, and where the ground line sits. */
@@ -244,13 +250,24 @@ function textBundle(i) {
 
 /* -------------------------------------------------------------- walker --- */
 
+function figureTileMetrics() {
+  const pad = 155 * state.charScale;
+  const top = 235 * state.charScale;
+  return { pad, top, w: pad * 2, h: top + 40 * state.charScale };
+}
+
+function figKey(costume, phase, walking, idleBucket) {
+  return `fig:${costume}:${phase.toFixed(3)}:${walking}:${idleBucket}:${state.charScale.toFixed(2)}`;
+}
+
 function figureTile(costume, phase, walking, idleBucket) {
-  const key = `fig:${costume}:${phase.toFixed(3)}:${walking}:${idleBucket}:${state.charScale.toFixed(2)}`;
+  const key = figKey(costume, phase, walking, idleBucket);
   return figureCache.get(key, () => {
+    state.figBuiltThisFrame = true;
+    if (costume === "dad") state.dadBuiltThisFrame = true;
     // headroom for the tallest hat (the chef's) plus a thrown graduation cap
-    const pad = 155 * state.charScale;
-    const top = 235 * state.charScale;
-    const c = makeTile(pad * 2, top + 40 * state.charScale);
+    const { pad, top, w, h } = figureTileMetrics();
+    const c = makeTile(w, h);
     const g = c.getContext("2d");
     const sheet = figureSheet({
       phase,
@@ -271,20 +288,107 @@ function figureTile(costume, phase, walking, idleBucket) {
 }
 
 /**
- * Build one not-yet-cached stride pose per frame, at most. Called only while he
- * is standing still, so the work lands in frames with nothing else to do.
+ * Up to two figure tiles, source-over on a scratch, then one multiply onto
+ * the board. Two multiply draws would go black where they overlap.
  */
-let warmAt = 0;
+function blitWalker(ig, tiles) {
+  const s = state.figScratch;
+  const g = s.getContext("2d");
+  g.clearRect(0, 0, s.width, s.height);
+  g.globalCompositeOperation = "source-over";
+  for (const { tile, alpha } of tiles) {
+    g.globalAlpha = alpha;
+    g.drawImage(tile.canvas, 0, 0);
+  }
+  g.globalAlpha = 1;
+  ig.drawImage(
+    s,
+    Math.round(state.screenX - tiles[0].tile.ox),
+    Math.round(state.groundY - tiles[0].tile.oy),
+  );
+}
 
-function warmPoses(costume) {
+function snapCostume(c) {
+  return c === "dad" || c === "grad";
+}
+
+function poseTile(costume, gaitSnap, phase, idleBucket) {
+  return figureTile(costume, gaitSnap ? phase : 0, gaitSnap, idleBucket);
+}
+
+function gaitSmear(costume, phase, gaitAmount, idleBucket) {
+  if (gaitAmount >= 1 - ARRIVE) {
+    return [{ tile: figureTile(costume, phase, true, 0), alpha: 1 }];
+  }
+  if (gaitAmount <= ARRIVE) {
+    return [{ tile: figureTile(costume, 0, false, idleBucket), alpha: 1 }];
+  }
+  return [
+    { tile: figureTile(costume, phase, true, 0), alpha: gaitAmount },
+    { tile: figureTile(costume, 0, false, idleBucket), alpha: 1 - gaitAmount },
+  ];
+}
+
+function walkerTiles(from, to, mix, phase, gaitAmount, idleBucket) {
+  // child and mortarboard cannot double-expose
+  if (snapCostume(from) || snapCostume(to)) {
+    const gaitSnap = gaitAmount >= 0.5;
+    const costSnap = mix >= 0.5 ? to : from;
+    return [{ tile: poseTile(costSnap, gaitSnap, phase, idleBucket), alpha: 1 }];
+  }
+  if (mix > 0.5) {
+    return gaitSmear(to, phase, gaitAmount, idleBucket);
+  }
+  if (mix > ARRIVE) {
+    const gaitSnap = gaitAmount >= 0.5;
+    return [
+      { tile: poseTile(from, gaitSnap, phase, idleBucket), alpha: 1 - mix },
+      { tile: poseTile(to, gaitSnap, phase, idleBucket), alpha: mix },
+    ];
+  }
+  return gaitSmear(from, phase, gaitAmount, idleBucket);
+}
+
+function neighborPhase(phase, delta) {
+  const k = Math.round((phase / (Math.PI * 2)) * PHASE_STEPS) % PHASE_STEPS;
+  const n = (k + delta + PHASE_STEPS) % PHASE_STEPS;
+  return (n / PHASE_STEPS) * Math.PI * 2;
+}
+
+/**
+ * Ahead-of-need figure builds, every frame. Silent if this frame already
+ * missed a tile; never two dad sheets in the same frame.
+ */
+function warmWork(j, phase) {
+  const budget = state.figBuiltThisFrame ? 0 : 2;
+  if (budget === 0) return;
+
+  const next = STAGES[j.nextStage].costume;
+  const cur = STAGES[j.stage].costume;
+  const queue = [
+    { costume: next, phase, walking: true, idle: 0 },
+    { costume: next, phase: neighborPhase(phase, +1), walking: true, idle: 0 },
+    { costume: next, phase: neighborPhase(phase, -1), walking: true, idle: 0 },
+  ];
+  const curK = Math.round((phase / (Math.PI * 2)) * PHASE_STEPS) % PHASE_STEPS;
   for (let n = 0; n < PHASE_STEPS; n++) {
-    const k = (warmAt + n) % PHASE_STEPS;
-    const phase = (k / PHASE_STEPS) * Math.PI * 2;
-    const key = `fig:${costume}:${phase.toFixed(3)}:true:0:${state.charScale.toFixed(2)}`;
-    if (figureCache.map.has(key)) continue;
-    figureTile(costume, phase, true, 0);
-    warmAt = k + 1;
-    return;
+    const p = (((curK + n) % PHASE_STEPS) / PHASE_STEPS) * Math.PI * 2;
+    queue.push({ costume: cur, phase: p, walking: true, idle: 0 });
+  }
+  queue.push(
+    { costume: cur, phase: 0, walking: false, idle: 0 },
+    { costume: cur, phase: 0, walking: false, idle: 1 },
+  );
+
+  let built = 0;
+  let dadThisPass = state.dadBuiltThisFrame;
+  for (const item of queue) {
+    if (built >= budget) break;
+    if (figureCache.map.has(figKey(item.costume, item.phase, item.walking, item.idle))) continue;
+    if (item.costume === "dad" && dadThisPass) continue;
+    figureTile(item.costume, item.phase, item.walking, item.idle);
+    built += 1;
+    if (item.costume === "dad") dadThisPass = true;
   }
 }
 
@@ -351,6 +455,9 @@ function coverSheet() {
 /* ---------------------------------------------------------------- frame --- */
 
 function frame() {
+  state.figBuiltThisFrame = false;
+  state.dadBuiltThisFrame = false;
+  const now = performance.now();
   const { w, h } = state;
   const span = state.span;
   const j = journeyAt(state.progress, span, journeyOpts);
@@ -419,16 +526,13 @@ function frame() {
   }
 
   // the walker
+  const frozen = queryProgress() !== null;
+  // ?gait=1 on a freeze: passing pose, not the idle the sample would hold
+  const gaitAmount = frozen && forceGait ? 1 : j.gaitAmount;
   const phase = quantizePhase((j.worldX / cycleLength(state.charScale)) * Math.PI * 2);
-  const idleBucket = j.walking ? 0 : Math.floor(j.dwellT * 6);
-  const costume = j.costumeFrom;
-  const fig = figureTile(costume, phase, j.walking, idleBucket);
-  ig.drawImage(fig.canvas, Math.round(state.screenX - fig.ox), Math.round(state.groundY - fig.oy));
-
-  // While he stands there, quietly draw the poses he is about to need. Building
-  // one costs about as long as a frame, so meeting them for the first time
-  // mid-stride is exactly where the animation would hitch.
-  if (!j.walking) warmPoses(costume);
+  const idleBucket = frozen || gaitAmount >= ARRIVE ? 0 : Math.floor(now / 500) % 6;
+  blitWalker(ig, walkerTiles(j.costumeFrom, j.costumeTo, j.costumeMix, phase, gaitAmount, idleBucket));
+  warmWork(j, phase);
 
   // the cover, gone before the first stage starts writing itself
   if (state.progress < 0.022) {
@@ -465,6 +569,8 @@ function resize() {
   groundCache.clear();
   textCache.clear();
   figureCache.clear();
+  const fig = figureTileMetrics();
+  state.figScratch = makeTile(fig.w, fig.h);
 
   sizeTrack();
 }
