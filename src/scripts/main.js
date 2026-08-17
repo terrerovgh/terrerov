@@ -18,16 +18,14 @@
 
 import { STAGES } from "./stages.js";
 import { Sheet, renderSheet, makePaper, punchTooth } from "./charcoal.js";
-import { writeText, underline, tag, wrapLines, textWidth } from "./lettering.js";
+import { writeText, textHeight, underline, tag } from "./lettering.js";
 import { figureSheet, cycleLength, quantizePhase, PHASE_STEPS } from "./character.js";
 import { sceneSheets } from "./scenery.js";
 import {
   journeyAt,
   sceneAlpha,
-  smoothstep,
   spanFor,
   TRACK_SCREENS,
-  SLOT_PROGRESS,
   STAGE_COUNT,
   progressForStage,
 } from "./journey.js";
@@ -35,36 +33,9 @@ import {
 const canvas = document.getElementById("world");
 const ctx = canvas.getContext("2d");
 
-/**
- * How long a block of writing takes to write itself on, in seconds, once he has
- * arrived. The scroll gates it too, but the scroll can arrive all at once — a
- * flicked wheel, a snap, a keyboard jump — and text that appears all at once has
- * not been read. Whichever of the two is further behind wins, so scrubbing back
- * up still rewinds the hand.
- */
-const WRITE_SECONDS = 1.7;
-
-/** Seconds for the drawing to settle onto the scroll position at the end of a move. */
-const FOLLOW_TAU = 0.18;
-
-/**
- * The slowest the drawing is allowed to be dragged along: one stage's slot per
- * this many seconds, whatever the scroll does.
- *
- * This is what stops a snap from turning into a sprint. The browser moves the
- * scrollbar a whole stage in a few hundred milliseconds; without a cap the
- * walker has to cross the same ground in that time, which is the lurch the walk
- * was supposed to replace. Capped, a flicked wheel means: he sets off, walks the
- * leg at his own pace, arrives, and then stands there while the writing catches
- * up. About 2.5s of that slot is the leg itself, the rest is standing.
- */
-const SLOT_SECONDS = 4.6;
-
 const state = {
   progress: 0,
   target: 0,
-  writeStage: -1,
-  writeClock: 0,
   w: 0,
   h: 0,
   dpr: 1,
@@ -78,34 +49,11 @@ const state = {
   reduced: false,
 };
 
-/**
- * Where the walker stands on screen, where the ground line sits, and how much
- * board the writing gets.
- *
- * The writing is the point of each stop, so it is laid out first and the walker
- * is placed clear of it — he used to stand at a third of the width and the
- * paragraphs ran straight through his head. On a phone there is no room for two
- * columns, so the text takes the full width above him instead.
- */
+/** Where the walker stands on screen, and where the ground line sits. */
 function layout() {
   state.groundY = Math.round(state.h * 0.76);
+  state.screenX = Math.round(state.w * 0.34);
   state.charScale = Math.max(0.95, Math.min(state.w, state.h) / 520);
-
-  // Type is sized off the smaller dimension too: a wide, short window has no
-  // room for the big setting a wide, tall one can carry.
-  state.typeUnit = Math.min(state.w, state.h * 1.5);
-  state.narrow = state.w < 760;
-  if (state.narrow) {
-    state.textX = Math.round(state.w * 0.06);
-    state.textW = Math.round(state.w - state.textX * 2);
-    state.screenX = Math.round(state.w * 0.5);
-  } else {
-    state.textX = Math.round(Math.max(24, state.w * 0.035));
-    state.textW = Math.round(Math.min(560, state.w * 0.4));
-    state.screenX = Math.round(
-      Math.min(state.w * 0.56, Math.max(state.w * 0.34, state.textX + state.textW + state.w * 0.05)),
-    );
-  }
   // Props were drawn against a 1.45 figure, but at that ratio they huddle by
   // his feet and leave half the sheet blank. Pushing them up spreads the
   // vignette across the frame and lets the big things read as big.
@@ -150,7 +98,6 @@ class TileCache {
 const sceneCache = new TileCache(4);
 const groundCache = new TileCache(5);
 const textCache = new TileCache(4);
-const washCache = new TileCache(3);
 // 18 stride poses plus idle poses, with room for the costume he is leaving
 const figureCache = new TileCache(52);
 
@@ -162,10 +109,7 @@ function sizeKey() {
 
 function sceneTile(i) {
   return sceneCache.get(`scene:${i}:${sizeKey()}`, () => {
-    // Wide enough for the scene's own hills and scrub whatever the span is,
-    // otherwise a short span clips them off mid-screen while they are still
-    // visible on the way past.
-    const half = Math.max(state.span * 1.15, state.w * 0.72);
+    const half = state.span * 1.15;
     const c = makeTile(half * 2, state.h);
     const g = c.getContext("2d");
     const { back, front } = sceneSheets(STAGES[i].id, i + 1);
@@ -189,25 +133,18 @@ function groundTile(i) {
   return groundCache.get(`ground:${i}:${sizeKey()}`, () => {
     const half = state.span / 2;
     const pad = 30;
-    // The two ends run a screen further than their span, so the horizon leaves
-    // the frame instead of stopping in the middle of it.
-    const runOut = state.w;
-    const extL = i === 0 ? runOut : 0;
-    const extR = i === STAGE_COUNT - 1 ? runOut : 0;
-    const left = -half - extL;
-    const length = state.span + extL + extR;
     const bandTop = state.groundY - 26;
-    const c = makeTile(length + pad * 2, 70);
+    const c = makeTile(half * 2 + pad * 2, 70);
     const g = c.getContext("2d");
     const sheet = new Sheet(700 + i);
     const baseY = state.groundY - bandTop;
     const pts = [];
-    const n = Math.max(10, Math.round(length / 22));
+    const n = Math.max(10, Math.round(state.span / 22));
     for (let k = 0; k <= n; k++) {
       const t = k / n;
       // a drawn horizon is never level: it drifts a couple of pixels
       const drift = Math.sin((i * 2.3 + t) * 1.9) * 2.2 + Math.sin((i + t) * 7.3) * 0.9;
-      pts.push({ x: left + length * t, y: baseY + drift });
+      pts.push({ x: -half + state.span * t, y: baseY + drift });
     }
     // the smear of graphite the side of the hand leaves along a long line
     sheet.smudge(0, baseY + 3, state.span * 0.52, 5, 0, { alpha: 0.1 });
@@ -222,11 +159,11 @@ function groundTile(i) {
       smooth: false,
     });
     g.save();
-    g.translate(half + extL + pad, 0);
+    g.translate(half + pad, 0);
     renderSheet(g, sheet);
     g.restore();
     punchTooth(g, c.width, c.height);
-    return { canvas: c, offset: half + extL + pad, top: bandTop };
+    return { canvas: c, offset: half + pad, top: bandTop };
   });
 }
 
@@ -235,67 +172,39 @@ function groundTile(i) {
 function buildTextSheet(i) {
   const s = STAGES[i];
   const sheet = new Sheet(900 + i * 7);
-  // Bigger than a caption, and wider, because this is the only place the words
-  // exist for a sighted reader. The hand wanders, so the lines are set further
-  // apart than a font would need: ascenders and descenders have to pass each
-  // other without touching.
-  const maxW = state.textW;
-  const big = Math.min(54, Math.max(28, state.typeUnit * 0.037));
-  const body = Math.min(30, Math.max(19, state.typeUnit * 0.021));
-  const gap = body * 0.34;
+  const maxW = Math.min(460, state.w * 0.42);
+  const big = Math.min(46, Math.max(28, state.w * 0.031));
+  const body = Math.min(25, Math.max(17, state.w * 0.0165));
   // the whole block leans a little, the way a page of notes does
   const tilt = ((i % 3) - 1) * 0.012;
   let y = 0;
 
-  // How wide the block actually ends up, so the wash under it fits the words
-  // rather than the column they were wrapped in. Nominal advances measure a
-  // little short of what the hand draws, hence the margin.
-  let widest = 0;
-  const measure = (text, size, hand) => {
-    for (const line of wrapLines(text, { size, hand, maxWidth: maxW })) {
-      widest = Math.max(widest, textWidth(line, { size, hand }) * 1.08);
-    }
-  };
-  measure(s.place, body * 0.82, "small");
-  measure(s.title, big, "display");
-  measure(s.body, body, "note");
-  if (s.email) measure(s.email, big * 0.7, "display");
-
   y += writeText(sheet, s.place, 0, y, {
-    size: body * 0.82,
+    size: body * 0.86,
     hand: "small",
     seed: 10 + i,
     tilt,
     maxWidth: maxW,
-    lineGap: gap * 0.5,
   });
-  y += body * 0.62;
+  y += body * 0.5;
   y += writeText(sheet, s.title, 0, y, {
     size: big,
     hand: "display",
     seed: 40 + i,
     tilt,
     maxWidth: maxW,
-    lineGap: gap,
   });
-  // under the last line of the title, and only as far as that line runs
-  const titleLines = wrapLines(s.title, { size: big, hand: "display", maxWidth: maxW });
-  const lastLine = titleLines[titleLines.length - 1];
-  underline(
-    sheet,
-    0,
-    y - big * 0.16 - gap,
-    Math.min(maxW, textWidth(lastLine, { size: big, hand: "display" }) * 1.04),
-    { seed: 60 + i, alpha: 0.34 },
-  );
-  y += body * 0.85;
+  underline(sheet, 0, y - big * 0.16, Math.min(maxW, s.title.length * big * 0.34), {
+    seed: 60 + i,
+    alpha: 0.34,
+  });
+  y += body * 0.7;
   y += writeText(sheet, s.body, 0, y, {
     size: body,
     hand: "note",
     seed: 80 + i,
     tilt,
     maxWidth: maxW,
-    lineGap: gap,
   });
 
   if (s.chips) {
@@ -304,7 +213,6 @@ function buildTextSheet(i) {
     for (const c of s.chips) {
       const w = tag(sheet, c, tx, y, { size: body * 0.74, seed: 120 + i + tx, alpha: 0.66 });
       tx += w;
-      widest = Math.max(widest, tx);
       if (tx > maxW - 60) {
         tx = 0;
         y += body * 1.5;
@@ -318,47 +226,13 @@ function buildTextSheet(i) {
     writeText(sheet, s.email, 0, y, { size: big * 0.7, hand: "display", seed: 160 + i, tilt });
   }
 
-  return { sheet, height: y, width: Math.min(maxW, Math.max(widest, maxW * 0.4)) };
+  return { sheet, height: y, width: maxW };
 }
 
 function textBundle(i) {
   return textCache.get(`text:${i}:${sizeKey()}`, () => {
     const built = buildTextSheet(i);
     return { ...built, baked: null };
-  });
-}
-
-/**
- * A patch of light rubbed into the board under the writing.
- *
- * The words are charcoal on kraft, and so is everything behind them; where a
- * scene's lines run through a paragraph the paragraph stops being readable.
- * Lifting the board a little under the block pulls the contrast back without
- * putting a card on the page — the edges are soft and the grain is punched back
- * through it, so it reads as paper, not as UI.
- */
-function washTile(w, h) {
-  return washCache.get(`wash:${Math.round(w)}x${Math.round(h)}`, () => {
-    const c = makeTile(w, h);
-    const g = c.getContext("2d");
-    const feather = Math.max(26, Math.min(w, h) * 0.16);
-    const r = feather * 1.4;
-    const x0 = feather;
-    const y0 = feather;
-    const bw = c.width - feather * 2;
-    const bh = c.height - feather * 2;
-    // A blurred shape rather than a gradient: the edge has to die out on all
-    // four sides at once, and an ellipse leaves the corners of a paragraph out
-    // in the scenery.
-    g.filter = `blur(${feather * 0.52}px)`;
-    g.fillStyle = "rgba(239,224,194,0.95)";
-    g.beginPath();
-    if (g.roundRect) g.roundRect(x0, y0, bw, bh, r);
-    else g.rect(x0, y0, bw, bh);
-    g.fill();
-    g.filter = "none";
-    punchTooth(g, c.width, c.height, 0.22);
-    return c;
   });
 }
 
@@ -488,14 +362,12 @@ function frame() {
   // ground: only the stages whose span is on screen
   for (let i = 0; i < STAGE_COUNT; i++) {
     const sx = i * span - camX;
-    // the end tiles carry a screen of run-out, so they stay on screen longer
-    const reach = span * 1.2 + (i === 0 || i === STAGE_COUNT - 1 ? w : 0);
-    if (sx < -reach || sx > w + reach) continue;
+    if (sx < -span * 1.2 || sx > w + span * 1.2) continue;
     const t = groundTile(i);
     ig.drawImage(t.canvas, Math.round(sx - t.offset), t.top);
   }
 
-  // scenery
+  // scenery and writing
   for (let i = 0; i < STAGE_COUNT; i++) {
     const a = sceneAlpha(j.worldX, i, span);
     if (a <= 0.005) continue;
@@ -503,45 +375,37 @@ function frame() {
     const tile = sceneTile(i);
     ig.globalAlpha = a;
     ig.drawImage(tile.canvas, Math.round(sx - tile.offset), 0);
-    ig.globalAlpha = 1;
-  }
 
-  // The writing: only ever the stop he is standing at, on top of every scene.
-  // Two blocks on the board at once is the thing that made this hard to read.
-  const reveal = Math.min(j.writeT, state.writeClock / WRITE_SECONDS);
-  if (j.textA > 0.004 && reveal > 0.002) {
-    const bundle = textBundle(j.stage);
-    const tx = state.textX;
-    // High enough to clear the ground line even when the block runs long. On a
-    // phone the block sits over him, so it starts at the top of the sheet.
-    const ty = state.narrow
-      ? Math.round(h * 0.06)
-      : Math.round(Math.max(h * 0.06, Math.min(h * 0.15, state.groundY - 46 - bundle.height)));
-
-    const padX = Math.max(52, bundle.width * 0.1);
-    const padY = Math.max(58, bundle.height * 0.08);
-    const wash = washTile(bundle.width + padX * 2, bundle.height + padY * 2);
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 0.66 * j.textA * smoothstep(Math.min(1, reveal * 2.4));
-    // the block's first baseline is at ty, so its ink starts a line above that
-    ctx.drawImage(wash, tx - padX, ty - padY - Math.round(bundle.height * 0.04) - 30);
-    ctx.globalCompositeOperation = "multiply";
-
-    ig.globalAlpha = j.textA;
-    if (reveal >= 1) {
-      if (!bundle.baked) {
-        // the first baseline sits at sheet y=0, so ascenders live at negative
-        // y — the tile needs real headroom or the top line loses its heads
-        const pad = 70;
-        const c = makeTile(bundle.width + pad * 2, bundle.height + pad * 2);
-        const g = c.getContext("2d");
-        renderSheet(g, bundle.sheet, { x: pad, y: pad });
-        bundle.baked = c;
-        bundle.pad = pad;
+    // The writing sits up and to the left of the stop and leaves with its
+    // scene — but it has to be gone before it slides off the edge, so it fades
+    // on its own, much faster than the scenery does.
+    const bundle = textBundle(i);
+    const away = Math.abs(j.worldX - i * span);
+    const textA = Math.max(0, 1 - away / (span * 0.2));
+    if (textA <= 0.004) {
+      ig.globalAlpha = 1;
+      continue;
+    }
+    const tx = Math.max(22, Math.round(sx - state.w * 0.3));
+    const ty = Math.round(h * 0.1);
+    const reveal = i === j.stage ? j.writeT : i < j.stage ? 1 : 0;
+    if (reveal > 0.002) {
+      ig.globalAlpha = a * textA;
+      if (reveal >= 1) {
+        if (!bundle.baked) {
+          // the first baseline sits at sheet y=0, so ascenders live at negative
+          // y — the tile needs real headroom or the top line loses its heads
+          const pad = 70;
+          const c = makeTile(bundle.width + pad * 2, bundle.height + pad * 2);
+          const g = c.getContext("2d");
+          renderSheet(g, bundle.sheet, { x: pad, y: pad });
+          bundle.baked = c;
+          bundle.pad = pad;
+        }
+        ig.drawImage(bundle.baked, tx - bundle.pad, ty - bundle.pad);
+      } else {
+        renderSheet(ig, bundle.sheet, { x: tx, y: ty, reveal });
       }
-      ig.drawImage(bundle.baked, tx - bundle.pad, ty - bundle.pad);
-    } else {
-      renderSheet(ig, bundle.sheet, { x: tx, y: ty, reveal });
     }
     ig.globalAlpha = 1;
   }
@@ -559,9 +423,8 @@ function frame() {
   if (!j.walking) warmPoses(costume);
 
   // the cover, gone before the first stage starts writing itself
-  const coverEnd = progressForStage(0) * 0.55;
-  if (state.progress < coverEnd) {
-    const a = 1 - smoothstep(state.progress / coverEnd);
+  if (state.progress < 0.022) {
+    const a = Math.max(0, 1 - state.progress / 0.019);
     ig.globalAlpha = a;
     renderSheet(ig, coverSheet().sheet);
     ig.globalAlpha = 1;
@@ -593,47 +456,18 @@ function resize() {
   sceneCache.clear();
   groundCache.clear();
   textCache.clear();
-  washCache.clear();
   figureCache.clear();
 
   sizeTrack();
 }
 
-/**
- * The scroll track, and one snap point per stop.
- *
- * The snap points are what make a scroll gesture mean a stage: the scroll comes
- * to rest at a stop's reading position — walker parked, text finished — and
- * never halfway through a stride. A wheel notch moves to the neighbouring point,
- * so you cannot skip a stage without meaning to, and you cannot stall between
- * two of them.
- *
- * The top of the page is a snap point too, otherwise a mandatory snap would
- * drag the reader off the cover the moment they touched the wheel.
- */
 function sizeTrack() {
   const track = document.querySelector(".track");
-  if (!track) return;
-  const vh = window.innerHeight;
-  track.style.height = `${Math.round(vh * TRACK_SCREENS)}px`;
-
-  const scroll = maxScroll();
-  let html = '<div class="stop" style="top:0"></div>';
-  for (let i = 0; i < STAGE_COUNT; i++) {
-    const top = Math.round(progressForStage(i) * scroll);
-    html += `<div class="stop" style="top:${top}px"></div>`;
-  }
-  track.innerHTML = html;
+  if (track) track.style.height = `${Math.round(window.innerHeight * TRACK_SCREENS)}px`;
 }
 
-/**
- * The scroll the trip is mapped onto. Taken from the track rather than from the
- * document, so it agrees with the snap points to the pixel even if something
- * else on the page (the readable CV, when a keyboard reaches it) makes the
- * document taller.
- */
 function maxScroll() {
-  return Math.max(1, Math.round(window.innerHeight * (TRACK_SCREENS - 1)));
+  return Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 }
 
 function queryProgress() {
@@ -643,34 +477,12 @@ function queryProgress() {
   return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : null;
 }
 
-/**
- * Keys move by stops, not by pixels. "The next one" is the next stop the reader
- * has not reached yet, which is not `current + 1` when he is mid-stride between
- * two of them.
- */
-function stopAfter(p, dir) {
-  const eps = 0.004;
-  if (dir > 0) {
-    for (let i = 0; i < STAGE_COUNT; i++) {
-      if (progressForStage(i) > p + eps) return i;
-    }
-    return STAGE_COUNT - 1;
-  }
-  for (let i = STAGE_COUNT - 1; i >= 0; i--) {
-    if (progressForStage(i) < p - eps) return i;
-  }
-  return 0;
-}
-
 function setupKeys() {
   window.addEventListener("keydown", (e) => {
-    // Once a keyboard has reached the readable CV, the arrows belong to it.
-    if (state.reduced || document.querySelector(".readable:focus-within")) return;
+    const cur = Math.round(state.target * STAGE_COUNT - 0.25);
     let next = null;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ")
-      next = stopAfter(state.target, 1);
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp")
-      next = stopAfter(state.target, -1);
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") next = cur + 1;
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") next = cur - 1;
     else if (e.key === "Home") next = 0;
     else if (e.key === "End") next = STAGE_COUNT - 1;
     if (next === null) return;
@@ -687,56 +499,15 @@ function start() {
   if (debug !== null) {
     state.progress = debug;
     state.target = debug;
-    state.writeStage = -1;
-    state.writeClock = WRITE_SECONDS;
     frame();
     return;
   }
 
-  state.progress = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
-  state.target = state.progress;
-
-  let last = performance.now();
-  const loop = (now) => {
-    // Frame-rate independent, so the walk has the same weight on a 60Hz laptop
-    // and a 144Hz monitor. Clamped because a backgrounded tab hands back one
-    // enormous dt, and that lands as a lurch.
-    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
-    last = now;
-
+  const loop = () => {
     state.target = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
-    if (state.reduced) {
-      state.progress = state.target;
-    } else {
-      const gap = state.target - state.progress;
-      const behind = Math.abs(gap) / SLOT_PROGRESS;
-      if (behind > 3.5) {
-        // A scrollbar drag can move the target by half the trip. There is no
-        // pace at which walking that reads as walking, so cut, and let him
-        // arrive already on his feet.
-        state.progress = state.target;
-      } else {
-        // Constant pace across the leg, exponential for the last few percent so
-        // he settles onto the mark instead of stopping dead on it. Falling
-        // further behind speeds him up in proportion, so a reader spinning the
-        // wheel gets a fast-forward rather than a queue.
-        const ease = gap * (1 - Math.exp(-dt / FOLLOW_TAU));
-        const cap = (SLOT_PROGRESS / SLOT_SECONDS) * Math.max(1, behind) * dt;
-        state.progress += Math.max(-cap, Math.min(cap, ease));
-      }
-    }
-
-    // The writing clock: reset on arrival at a new stop, then run only while
-    // the scroll has asked for writing at all — so it does not quietly expire
-    // behind the cover.
-    const j = journeyAt(state.progress, state.span);
-    if (j.stage !== state.writeStage) {
-      state.writeStage = j.stage;
-      state.writeClock = 0;
-    } else if (j.writeT > 0) {
-      state.writeClock = Math.min(WRITE_SECONDS * 1.5, state.writeClock + dt);
-    }
-
+    // ease toward the scroll position: the walk should have some weight
+    if (state.reduced) state.progress = state.target;
+    else state.progress += (state.target - state.progress) * 0.14;
     frame();
     requestAnimationFrame(loop);
   };
