@@ -369,6 +369,9 @@ function warmWork(j, phase) {
     { costume: next, phase, walking: true, idle: 0 },
     { costume: next, phase: neighborPhase(phase, +1), walking: true, idle: 0 },
     { costume: next, phase: neighborPhase(phase, -1), walking: true, idle: 0 },
+    // dest idle: gaitSmear(to) on a costume-change settle will ask for this
+    { costume: next, phase: 0, walking: false, idle: 0 },
+    { costume: next, phase: 0, walking: false, idle: 1 },
   ];
   const curK = Math.round((phase / (Math.PI * 2)) * PHASE_STEPS) % PHASE_STEPS;
   for (let n = 0; n < PHASE_STEPS; n++) {
