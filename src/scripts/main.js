@@ -40,6 +40,8 @@ const journeyOpts = {
 const state = {
   progress: 0,
   target: 0,
+  vel: 0,
+  lastNow: 0,
   w: 0,
   h: 0,
   dpr: 1,
@@ -498,6 +500,29 @@ function setupKeys() {
   });
 }
 
+const OMEGA = 18;     // rad/s
+const ZETA = 1.0;     // critically damped
+const DT_MAX = 0.048;
+
+function stepSpring(now) {
+  const raw = (now - state.lastNow) / 1000;
+  const dt = state.lastNow === 0 ? 1 / 60 : Math.min(DT_MAX, Math.max(0, raw));
+  state.lastNow = now;
+
+  const err = state.progress - state.target;
+  if (Math.abs(state.target - state.progress) > 1 / STAGE_COUNT) {
+    // Home/End or a trackpad leap of a full stage: snap, don't interpolate
+    state.progress = state.target;
+    state.vel = 0;
+    return;
+  }
+
+  // v then x — explicit Euler can invert vel after a long background tab
+  const acc = -2 * ZETA * OMEGA * state.vel - OMEGA * OMEGA * err;
+  state.vel += acc * dt;
+  state.progress += state.vel * dt;
+}
+
 function start() {
   const debug = queryProgress();
   state.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -509,11 +534,14 @@ function start() {
     return;
   }
 
-  const loop = () => {
+  const loop = (now) => {
     state.target = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
-    // ease toward the scroll position: the walk should have some weight
-    if (state.reduced) state.progress = state.target;
-    else state.progress += (state.target - state.progress) * 0.14;
+    if (state.reduced) {
+      state.progress = state.target;
+      state.vel = 0;
+    } else {
+      stepSpring(now);
+    }
     frame();
     requestAnimationFrame(loop);
   };
