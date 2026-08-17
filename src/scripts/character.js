@@ -62,10 +62,12 @@ function wrap01(phase, offset) {
 }
 
 function footTarget(t, step, lift, dir) {
-  const stance = 0.56;
+  const stance = 0.58;
   if (t < stance) {
     const u = t / stance;
-    return { x: lerp(step, -step, u) * dir, y: 0, planted: true, roll: u };
+    // a hair below the line so the plant reads, then flush
+    const y = u < 0.08 ? 1.2 : 0;
+    return { x: lerp(step, -step, u) * dir, y, planted: true, roll: u };
   }
   const u = (t - stance) / (1 - stance);
   const e = smooth(u);
@@ -106,7 +108,11 @@ function ikKnee(hip, foot, thigh, shin, dir) {
  * Build the pose. `idleT` drives the standing-still behaviour: a slow breath
  * and a shift of weight from one leg to the other.
  */
-export function skeleton(ground, phase, walking, dir, scale, idleT = 0) {
+export function skeleton(ground, phase, walking, dir, scale, idleT = 0, extras = {}) {
+  const loadLean = extras.loadLean ?? 0;
+  const armCarry = extras.armCarry ?? false;
+  const stepScale = extras.stepScale ?? 1;
+
   const thigh = 35 * scale;
   const shin = 32 * scale;
   const torso = 50 * scale;
@@ -114,8 +120,8 @@ export function skeleton(ground, phase, walking, dir, scale, idleT = 0) {
   const headR = 17.5 * scale;
   const arm = 27 * scale;
   const forearm = 25 * scale;
-  const step = STEP * scale;
-  const lift = 18 * scale;
+  const step = STEP * scale * stepScale;
+  const lift = 21 * scale;
 
   const ph = walking ? phase : 0.12;
 
@@ -123,20 +129,23 @@ export function skeleton(ground, phase, walking, dir, scale, idleT = 0) {
   const breath = walking ? 0 : Math.sin(idleT * 1.7) * 1.1 * scale;
   const shift = walking ? 0 : Math.sin(idleT * 0.62) * 2.6 * scale;
 
-  // the body rises twice per cycle, highest at mid-stance
-  const bob = walking ? -Math.abs(Math.cos(ph)) * 2.6 * scale : 0;
-  const lean = 0.055 * dir * (walking ? 1 : 0.45);
+  // the body rises twice per cycle, lowest at contact
+  const bob = walking ? -Math.abs(Math.cos(ph)) * 3.1 * scale : 0;
+  // loadLean pulls toward the carrying hand (left / −dir)
+  const lean = (0.09 * (walking ? 1 : 0.45) - loadLean) * dir;
 
   const hip = pt(
-    ground.x + Math.sin(ph) * 1.4 * dir + shift,
+    ground.x + Math.sin(ph) * 2.0 * dir + shift,
     ground.y - (thigh + shin) * 0.95 + bob
   );
   const chest = pt(hip.x + lean * 14, hip.y - torso - breath);
   const neck = pt(chest.x + lean * 5, chest.y - neckLen);
   // the head lags the chest a beat, which is most of what makes a walk read
-  const headLag = walking ? Math.sin(ph - 0.7) * 1.3 * scale * dir : 0;
-  const head = pt(neck.x + lean * 3 + headLag, neck.y - headR);
-  const shoulder = pt(chest.x, chest.y + 5 * scale);
+  const headLag = walking ? Math.sin(ph - 0.7) * 1.8 * scale * dir : 0;
+  const look = walking ? 2.2 * dir * scale : 0;
+  const head = pt(neck.x + lean * 3 + headLag + look, neck.y - headR);
+  const counter = walking ? -Math.sin(ph) * 2.4 * scale * dir : 0;
+  const shoulder = pt(chest.x + counter, chest.y + 5 * scale);
 
   // Standing is its own pose, not a walk frame held still. Borrowing a stride
   // frame left him frozen mid-step with his arms swinging — and since he comes
@@ -157,8 +166,11 @@ export function skeleton(ground, phase, walking, dir, scale, idleT = 0) {
   // Standing arms need to hang clear of the body. Left exactly vertical they
   // land on top of the spine and the figure loses both of them.
   const rest = walking ? 0 : 0.27;
-  const aR = (-swing * 0.5 + rest) * dir;
-  const aL = (swing * 0.5 - rest * 0.72) * dir;
+  const ampR = walking ? (armCarry ? 0.35 : 0.72) : 0.5;
+  const ampL = walking ? 0.72 : 0.5;
+  const restR = walking && armCarry ? 0.42 : rest;
+  const aR = (-swing * ampR + restR) * dir;
+  const aL = (swing * ampL - rest * 0.72) * dir;
   const eR = 0.2 + Math.max(0, -swing) * 0.28;
   const eL = 0.2 + Math.max(0, swing) * 0.28;
   const elbowR = down(shoulder, arm, aR);
@@ -288,7 +300,7 @@ export function drawFigure(sheet, p, costume) {
   // Weight hierarchy: the near side of the body carries the heaviest line, the
   // far side sits back a little lighter. Flat, uniform line weight everywhere
   // is what makes a drawing look plotted rather than drawn.
-  const wNear = 2.6 * Math.max(0.88, s);
+  const wNear = (p.walking ? 2.8 : 2.6) * Math.max(0.88, s);
   const wFar = 2.0 * Math.max(0.88, s);
   const far = p.dir > 0 ? "L" : "R";
   const near = far === "L" ? "R" : "L";
@@ -313,9 +325,10 @@ export function drawFigure(sheet, p, costume) {
   };
 
   // The shadow he stands in: a rubbed pool plus a hard accent right where the
-  // feet meet the ground, which is what pins a figure to the floor.
-  sheet.smudge(p.ground.x, p.ground.y + 2, 30 * s, 3.8 * s, 0, { alpha: 0.17 });
-  sheet.smudge(p.ground.x + 6 * s * p.dir, p.ground.y + 1, 14 * s, 2.4 * s, 0, { alpha: 0.13 });
+  // planted foot meets the ground, which is what pins a figure to the floor.
+  const planted = p.plantedR ? p.footR : p.footL;
+  sheet.smudge(planted.x, p.ground.y + 2, 30 * s, 3.8 * s, 0, { alpha: 0.17 });
+  sheet.smudge(planted.x + 6 * s * p.dir, p.ground.y + 1, 14 * s, 2.4 * s, 0, { alpha: 0.13 });
 
   leg(far, wFar, false);
   arm(far, wFar, false);
@@ -330,17 +343,24 @@ export function drawFigure(sheet, p, costume) {
   drawProps(sheet, p, costume);
 }
 
+function extrasFor(costume) {
+  if (costume === "suitcase") return { loadLean: 0.03, armCarry: false, stepScale: 1 };
+  if (costume === "linux" || costume === "badge") return { loadLean: 0, armCarry: true, stepScale: 1 };
+  return { loadLean: 0, armCarry: false, stepScale: 1 };
+}
+
 /**
  * Build a Sheet for one pose. Callers cache these by (costume, phase bucket).
  * Coordinates are relative to the feet at (0,0).
  */
 export function figureSheet({ phase, walking, dir, costume, scale, idleT = 0, seed = 1 }) {
   const sheet = new Sheet(seed);
-  const parts = skeleton(pt(0, 0), phase, walking, dir, scale, idleT);
+  const extras = extrasFor(costume);
+  const parts = skeleton(pt(0, 0), phase, walking, dir, scale, idleT, extras);
 
   if (costume === "dad") {
     // the child takes shorter, quicker steps to keep up
-    const child = skeleton(pt(44 * dir, 0), phase * 1.6 + 0.35, walking, dir, scale * 0.55, idleT);
+    const child = skeleton(pt(44 * dir, 0), phase * 1.35 + 0.35, walking, dir, scale * 0.55, idleT);
     drawFigure(sheet, parts, null);
     drawFigure(sheet, child, "child");
     sheet.line(parts.handR.x, parts.handR.y, child.handL.x, child.handL.y, {

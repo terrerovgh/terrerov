@@ -256,7 +256,7 @@ export function drawProps(sheet, p, costume) {
 
   if (costume === "student") {
     // backpack, swinging against the stride
-    const sw = swingOf(p, 1, 1.2, 2.2 * s);
+    const sw = swingOf(p, 1, 1.2, 2.2 * 1.15 * s);
     const bx = chest.x - 15 * s * dir + sw;
     const by = chest.y + 18 * s;
     const bag = [
@@ -305,7 +305,7 @@ export function drawProps(sheet, p, costume) {
 
   if (costume === "badge") {
     // the lanyard swings on its own, slower than the arms
-    const sw = swingOf(p, 1, 0.4, 2.6 * s);
+    const sw = swingOf(p, 1, 0.4, 2.6 * 1.15 * s);
     const bx = chest.x + sw;
     sheet.line(neck.x - 3 * s, neck.y + 3 * s, bx + 1 * s, chest.y + 22 * s, { width: 1.05 * s, alpha: 0.6 });
     sheet.line(neck.x + 3 * s, neck.y + 3 * s, bx + 1 * s, chest.y + 22 * s, { width: 1.05 * s, alpha: 0.6 });
@@ -337,7 +337,7 @@ export function drawProps(sheet, p, costume) {
 
   if (costume === "suitcase") {
     // the case bobs against the walk and the arm hangs heavier for it
-    const bob = p.walking ? Math.abs(Math.cos(p.phase)) * 2.2 * s : 0;
+    const bob = p.walking ? Math.abs(Math.cos(p.phase)) * 2.5 * s : 0;
     const x = handL.x - 13 * s;
     const y = handL.y + bob;
     const shape = [pt(x, y), pt(x + 27 * s, y - 1 * s), pt(x + 28 * s, y + 19 * s), pt(x + 1 * s, y + 20 * s)];
