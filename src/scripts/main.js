@@ -19,27 +19,46 @@
 import { STAGES } from "./stages.js";
 import { Sheet, renderSheet, makePaper, punchTooth } from "./charcoal.js";
 import { writeText, textHeight, underline, tag } from "./lettering.js";
-import { figureSheet, cycleLength, quantizePhase, PHASE_STEPS } from "./character.js";
+import { figureSheet, cycleLength, quantizePhase, PHASE_STEPS, setStep } from "./character.js";
 import { sceneSheets } from "./scenery.js";
 import {
   journeyAt,
   sceneAlpha,
   spanFor,
-  TRACK_SCREENS,
+  trackScreens,
   STAGE_COUNT,
   progressForStage,
   ARRIVE,
   WRITE_MS,
+  DWELL,
 } from "./journey.js";
 
 const canvas = document.getElementById("world");
 const ctx = canvas.getContext("2d");
 
 const searchParams = new URLSearchParams(location.search);
+
+function queryNumber(name, min, max) {
+  const raw = searchParams.get(name);
+  if (raw === null || raw === "") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  if (min != null && n < min) return null;
+  if (max != null && n > max) return null;
+  return n;
+}
+
 const journeyOpts = {
   legacy: searchParams.get("legacyJourney") === "1",
 };
+const dwellOverride = queryNumber("dwell", 0.02, 0.9);
+if (dwellOverride != null) journeyOpts.dwell = dwellOverride;
+const writeMs = queryNumber("writeMs", 1) ?? WRITE_MS;
+const trackOverride = queryNumber("track", 0.2, 2);
+const stepOverride = queryNumber("step", 1, 80);
+if (stepOverride != null) setStep(stepOverride);
 const forceGait = searchParams.get("gait") === "1";
+const debugHud = searchParams.get("debug") === "1";
 
 const state = {
   progress: 0,
@@ -63,6 +82,7 @@ const state = {
   write: { stage: -1, t0: 0, done: false, reveal: 0 },
   visited: new Set(),
   coverGoneAt: 0,
+  warmLeft: 0,
 };
 
 const DROP_PX = 34;
@@ -388,7 +408,6 @@ function neighborPhase(phase, delta) {
  */
 function warmWork(j, phase) {
   const budget = state.figBuiltThisFrame ? 0 : 2;
-  if (budget === 0) return;
 
   const next = STAGES[j.nextStage].costume;
   const cur = STAGES[j.stage].costume;
@@ -410,16 +429,24 @@ function warmWork(j, phase) {
     { costume: cur, phase: 0, walking: false, idle: 1 },
   );
 
-  let built = 0;
-  let dadThisPass = state.dadBuiltThisFrame;
-  for (const item of queue) {
-    if (built >= budget) break;
-    if (figureCache.map.has(figKey(item.costume, item.phase, item.walking, item.idle))) continue;
-    if (item.costume === "dad" && dadThisPass) continue;
-    figureTile(item.costume, item.phase, item.walking, item.idle);
-    built += 1;
-    if (item.costume === "dad") dadThisPass = true;
+  if (budget > 0) {
+    let built = 0;
+    let dadThisPass = state.dadBuiltThisFrame;
+    for (const item of queue) {
+      if (built >= budget) break;
+      if (figureCache.map.has(figKey(item.costume, item.phase, item.walking, item.idle))) continue;
+      if (item.costume === "dad" && dadThisPass) continue;
+      figureTile(item.costume, item.phase, item.walking, item.idle);
+      built += 1;
+      if (item.costume === "dad") dadThisPass = true;
+    }
   }
+
+  let left = 0;
+  for (const item of queue) {
+    if (!figureCache.map.has(figKey(item.costume, item.phase, item.walking, item.idle))) left += 1;
+  }
+  state.warmLeft = left;
 }
 
 /* --------------------------------------------------------------- cover --- */
@@ -515,7 +542,7 @@ function advanceWrite(j, now, frozen) {
     state.write = { stage: armed, t0: now, done: false, reveal: 0 };
   }
 
-  const t = (now - state.write.t0) / WRITE_MS;
+  const t = (now - state.write.t0) / writeMs;
   state.write.reveal = Math.min(1, Math.max(0, t));
   if (state.write.reveal >= 1) {
     state.write.done = true;
@@ -638,6 +665,49 @@ function frame() {
 
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = 1;
+  paintHud(j, now);
+}
+
+/* ----------------------------------------------------------- debug HUD --- */
+
+const hudStamps = [];
+
+function paintHud(j, now) {
+  if (!debugHud) return;
+
+  hudStamps.push(now);
+  while (hudStamps.length > 31) hudStamps.shift();
+  let fps = 0;
+  if (hudStamps.length > 1) {
+    const spanMs = hudStamps[hudStamps.length - 1] - hudStamps[0];
+    if (spanMs > 0) fps = ((hudStamps.length - 1) * 1000) / spanMs;
+  }
+
+  const writeAge = state.write.t0 ? Math.round(now - state.write.t0) : 0;
+  const lines = [
+    `progress ${state.progress.toFixed(4)}`,
+    `stage ${j.stage}`,
+    `gaitAmount ${j.gaitAmount.toFixed(3)}`,
+    `writeArmed ${j.writeArmed}`,
+    `write.reveal ${state.write.reveal.toFixed(3)}`,
+    `write.ms ${writeAge}`,
+    `costumeMix ${j.costumeMix.toFixed(3)}`,
+    `fps ${fps.toFixed(1)}`,
+    `scene ${sceneCache.map.size}  ground ${groundCache.map.size}`,
+    `text ${textCache.map.size}  figure ${figureCache.map.size}`,
+    `warmLeft ${state.warmLeft}`,
+  ];
+
+  ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "rgba(28, 22, 16, 0.88)";
+  const x = state.w - 10;
+  let y = 10;
+  for (const line of lines) {
+    ctx.fillText(line, x, y);
+    y += 14;
+  }
 }
 
 /* --------------------------------------------------------------- setup --- */
@@ -671,7 +741,10 @@ function resize() {
 
 function sizeTrack() {
   const track = document.querySelector(".track");
-  if (track) track.style.height = `${Math.round(window.innerHeight * TRACK_SCREENS)}px`;
+  if (track) {
+    const screens = trackScreens(window.innerWidth, trackOverride);
+    track.style.height = `${Math.round(window.innerHeight * screens)}px`;
+  }
 }
 
 function maxScroll() {
@@ -695,7 +768,8 @@ function setupKeys() {
     else if (e.key === "End") next = STAGE_COUNT - 1;
     if (next === null) return;
     e.preventDefault();
-    const p = progressForStage(Math.max(0, Math.min(STAGE_COUNT - 1, next)));
+    const dwell = journeyOpts.legacy ? 0.4 : (journeyOpts.dwell ?? DWELL);
+    const p = progressForStage(Math.max(0, Math.min(STAGE_COUNT - 1, next)), dwell);
     window.scrollTo({ top: p * maxScroll(), behavior: "smooth" });
   });
 }

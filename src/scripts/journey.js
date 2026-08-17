@@ -35,16 +35,23 @@ const LEGACY_DWELL = 0.4;
 /** Scroll-mapped write-on, only used when opts.legacy is set. */
 const WRITE_OF_DWELL = 0.62;
 
+const TRACK_PER_STAGE = 0.78;
+const TRACK_PER_STAGE_NARROW = 0.92;
+const NARROW_PX = 520;
+
 /**
- * Scroll height, in viewports. 13 stages × 0.78 ≈ 10.14.
- *
- * The walk covers a fixed distance between stops, so the only way to slow it
- * down is to spend more scroll crossing that distance. Going from 0.65 to 0.78
- * a stage, and handing a larger share of it to walking rather than standing,
- * stretches each leg by about a third. Still well under the 16 screens this
- * started at.
+ * Scroll height, in viewports. Desktop is 13 × 0.78 ≈ 10.14. Below 520 px the
+ * same stride only yields a handful of steps per stop, so the track stretches
+ * to 0.92 screens a stage (~12 viewports). `perStage` is an optional override
+ * from main.js (`?track=`), not read from the DOM here.
  */
-export const TRACK_SCREENS = STAGE_COUNT * 0.78;
+export function trackScreens(viewportWidth, perStage) {
+  const mul = perStage ?? (viewportWidth < NARROW_PX ? TRACK_PER_STAGE_NARROW : TRACK_PER_STAGE);
+  return STAGE_COUNT * mul;
+}
+
+/** Desktop default. Prefer `trackScreens` when a viewport is known. */
+export const TRACK_SCREENS = STAGE_COUNT * TRACK_PER_STAGE;
 
 /** Distance between two stops, in world units. Keyed to the viewport. */
 export function spanFor(visibleWorldWidth) {
@@ -115,7 +122,8 @@ function costumeMixOf(walkT, i) {
  *   costumeFrom / costumeTo / costumeMix
  *
  * opts.legacy (from main.js, not from the DOM here) restores DWELL=0.40 and
- * the old scroll-mapped writeT.
+ * the old scroll-mapped writeT. opts.dwell is an optional HOLD fraction
+ * (`?dwell=`), ignored when legacy is set.
  */
 export function journeyAt(progress, span, opts = {}) {
   const p = Math.min(1, Math.max(0, progress));
@@ -124,7 +132,7 @@ export function journeyAt(progress, span, opts = {}) {
   if (i >= STAGE_COUNT) i = STAGE_COUNT - 1;
   const local = u - i;
 
-  const dwell = opts.legacy ? LEGACY_DWELL : DWELL;
+  const dwell = opts.legacy ? LEGACY_DWELL : (opts.dwell ?? DWELL);
   const travel = 1 - dwell;
   const last = i === STAGE_COUNT - 1;
   const nextStage = Math.min(STAGE_COUNT - 1, i + 1);
@@ -181,9 +189,9 @@ export function sceneAlpha(worldX, index, span) {
 }
 
 /** Scroll progress that parks him at stage `i`, for keyboard jumps. */
-export function progressForStage(i) {
+export function progressForStage(i, dwell = DWELL) {
   const clamped = Math.min(STAGE_COUNT - 1, Math.max(0, i));
-  return (clamped + DWELL * 0.72) / STAGE_COUNT;
+  return (clamped + dwell * 0.72) / STAGE_COUNT;
 }
 
 /** Which stage a progress value belongs to. */

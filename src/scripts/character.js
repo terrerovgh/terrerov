@@ -40,8 +40,16 @@ function smooth(t) {
  */
 export const STEP = 32;
 
-export function cycleLength(scale) {
-  return STEP * Math.max(0.9, scale) * 4;
+// Session override so cycleLength and footTarget stay on the same stride.
+// ?step= is parsed in main.js; this module does not read the DOM.
+let stepLen = STEP;
+
+export function setStep(n) {
+  if (Number.isFinite(n) && n > 0) stepLen = n;
+}
+
+export function cycleLength(scale, step = stepLen) {
+  return step * Math.max(0.9, scale) * 4;
 }
 
 /**
@@ -120,7 +128,7 @@ export function skeleton(ground, phase, walking, dir, scale, idleT = 0, extras =
   const headR = 17.5 * scale;
   const arm = 27 * scale;
   const forearm = 25 * scale;
-  const step = STEP * scale * stepScale;
+  const step = stepLen * scale * stepScale;
   const lift = 21 * scale;
 
   const ph = walking ? phase : 0.12;

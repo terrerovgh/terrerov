@@ -18,7 +18,9 @@ npm run dev
 `npm run build` writes `dist/`, `npm run preview` serves that build.
 
 `?p=0.5` freezes the walk at a given point (0 to 1), which is how the frames
-get checked.
+get checked. `?gait=1` forces a walking pose on a freeze, for checking the
+stride. `?debug=1` draws an overlay (progress, gait, write clock, cache
+sizes) and does not change any constants.
 
 Arrow keys, Page Up/Down and Home/End jump from stop to stop.
 
