@@ -1,0 +1,5 @@
+# Cloudflare Pages. The site is static: `npm run build` writes dist/, and
+# Pages serves it. Headers live in public/_headers.
+name = "terrerov"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-08-17"
