@@ -48,14 +48,18 @@ is not committed.
 
 ## Deploying
 
-Cloudflare Pages, from `main`:
+Cloudflare Workers static assets, from `main`. There is no Worker script —
+`wrangler.toml` points at `dist/` and the files are served straight from
+Cloudflare's edge.
 
 | | |
 |---|---|
 | Build command | `npm run build` |
-| Output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 | Node version | `.nvmrc` (22.12.0) |
 
-`wrangler.toml` declares the output directory too, so the dashboard can pick it
-up on its own. `public/_headers` sets the cache and security headers: the
-bundle is content-hashed and pinned for a year, the HTML always revalidates.
+`npm run deploy` does both by hand, from a machine logged into `wrangler`.
+
+`public/_headers` sets the cache and security headers, and Workers honours it
+the same way Pages did: the bundle is content-hashed and pinned for a year,
+the HTML always revalidates.

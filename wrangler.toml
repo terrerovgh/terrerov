@@ -1,5 +1,10 @@
-# Cloudflare Pages. The site is static: `npm run build` writes dist/, and
-# Pages serves it. Headers live in public/_headers.
+# Cloudflare Workers, static assets only — there is no Worker script, just the
+# files Astro writes into dist/. `wrangler deploy` uploads that directory.
+#
+# `_headers` inside dist/ still sets the cache and security headers; Workers
+# static assets honours it the same way Pages did.
 name = "terrerov"
-pages_build_output_dir = "dist"
 compatibility_date = "2026-08-17"
+
+[assets]
+directory = "./dist"
