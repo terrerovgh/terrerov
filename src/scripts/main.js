@@ -507,7 +507,8 @@ function advanceWrite(j, now, frozen) {
   }
 
   if (state.write.stage !== armed) {
-    if (state.write.done && state.visited.has(armed)) {
+    // visited is the per-stop record; write.done is only the active clock
+    if (state.visited.has(armed)) {
       state.write = { stage: armed, t0: now, done: true, reveal: 1 };
       return;
     }
@@ -524,8 +525,8 @@ function advanceWrite(j, now, frozen) {
 
 function revealOf(i, j) {
   if (i < j.stage) return 1;
-  if (i === state.write.stage) return state.write.reveal;
   if (state.visited.has(i)) return 1;
+  if (i === state.write.stage) return state.write.reveal;
   return 0;
 }
 
