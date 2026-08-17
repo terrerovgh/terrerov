@@ -1,0 +1,91 @@
+html,
+body {
+  margin: 0;
+  background: #c3a06c;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+#world {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Scroll length is set from JS (TRACK_SCREENS in journey.js). This is only the
+   pre-hydration fallback, so the page has somewhere to scroll immediately. */
+.track {
+  height: 910vh;
+  pointer-events: none;
+}
+
+/*
+  The full CV as real text. Off-screen rather than display:none, so search
+  engines index it and screen readers can walk it, but it never competes with
+  the drawing. It comes back on screen for anyone who reaches it by keyboard.
+*/
+.readable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.readable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 6rem;
+  background: #c3a06c;
+  color: #241d16;
+  font: 1rem/1.6 Georgia, "Times New Roman", serif;
+  position: relative;
+  z-index: 2;
+}
+
+/*
+  Reduced motion: the walk is the whole point, so rather than animate it badly
+  we hand over the text version outright.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .readable {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+    max-width: 38rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+    color: #241d16;
+    font: 1rem/1.6 Georgia, "Times New Roman", serif;
+    z-index: 2;
+    /* the drawing stays faintly visible behind, but never at the cost of
+       being able to read the words in front of it */
+    background: rgba(203, 170, 120, 0.93);
+  }
+
+  .track {
+    display: none;
+  }
+
+  #world {
+    opacity: 0.18;
+  }
+}

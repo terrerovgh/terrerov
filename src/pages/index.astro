@@ -1,0 +1,162 @@
+---
+import "../styles/global.css";
+
+const canonical = new URL("/", Astro.site).href;
+const title = "Linux Systems & Network Administrator · Computer Engineer CV";
+const description =
+  "Computer engineer from Camagüey, Cuba. Six years as systems and network administrator at Cuba's National Radar Center; now solar tracking field service in the United States. Linux, networks, servers, SQL Server.";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="Linux systems administrator, network administrator, computer engineer, sysadmin, solar tracking, field service, SQL Server, Camagüey Cuba"
+    />
+    <link rel="icon" href="/assets/site/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta
+      property="og:description"
+      content="Six years running systems and networks at Cuba's National Radar Center. Now solar tracking field service in the US. A charcoal figure walks the whole line."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <canvas id="world" aria-hidden="true"></canvas>
+    <div class="track" aria-hidden="true"></div>
+
+    {/*
+      The drawing is the experience, but a CV that exists only inside a canvas is
+      invisible to a search engine and to a screen reader. The same content lives
+      here as real text.
+    */}
+    <main class="readable">
+      <article>
+        <h1>Computer engineer · Linux systems and network administrator</h1>
+        <p class="lede">
+          Six years keeping critical infrastructure online. Systems and network
+          administrator at Cuba's National Radar Center, now solar tracking field
+          service in the United States. Looking for systems, network or Linux
+          work — remote or in the field. <a href="mailto:terrerov@gmail.com"
+            >terrerov@gmail.com</a
+          >
+        </p>
+
+        <h2>Experience</h2>
+
+        <section>
+          <h3>Systems and network administrator</h3>
+          <p class="place">
+            National Radar Center, Provincial Meteorology Center · Camagüey,
+            Cuba · six years
+          </p>
+          <p>
+            Systems and network administrator at Cuba's National Radar Center.
+            Servers, links, and a weather service that depended on all of it
+            staying up.
+          </p>
+          <ul>
+            <li>Linux administration</li><li>Networks</li><li>Servers</li><li>
+              Radar infrastructure
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Computer science specialist</h3>
+          <p class="place">University of Camagüey, Economics Department</p>
+          <p>
+            SQL Server and the accounting systems for a whole university
+            department. If a number moved on that campus, it went through me.
+          </p>
+          <ul>
+            <li>SQL Server</li><li>Databases</li><li>Internal systems</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Solar tracking field service</h3>
+          <p class="place">Solar farms · United States</p>
+          <p>
+            Solar tracking systems across US solar farms — the mechanics and the
+            logic that turn every row to follow the sun all day.
+          </p>
+          <ul>
+            <li>Solar tracking</li><li>Field service</li><li>Troubleshooting</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Trades and kitchens</h3>
+          <p class="place">United States</p>
+          <p>
+            Construction, remodeling, parking lots, delivery routes. Then
+            kitchens: Wingstop, Cuban and Italian. A kitchen on a Friday night
+            teaches what an outage teaches: prioritize, do not freeze, get the
+            plate out. You read a system differently once you have carried it.
+          </p>
+        </section>
+
+        <h2>Education</h2>
+
+        <section>
+          <h3>Computer engineering</h3>
+          <p class="place">University of Camagüey · five years</p>
+          <p>
+            Informatics and exact sciences over five years. Where the trade
+            started, and where I learned to sit with a problem until it moved. I
+            became a father in my fourth year — exams and a newborn in the same
+            week. Nothing since has felt busy.
+          </p>
+        </section>
+
+        <h2>The line</h2>
+
+        <section>
+          <p>
+            I grew up in Florida, Camagüey, a small town in the middle of Cuba.
+            We moved often enough that I lost count of the schools; the studying
+            stuck. After the radar center I packed one suitcase for the United
+            States — new country, no contacts, no shortcuts. The trade came with
+            me.
+          </p>
+          <p>
+            Free software was the night workshop the whole time. Job site or
+            kitchen line, I am still a sysadmin in my head.
+          </p>
+        </section>
+
+        <h2>Skills</h2>
+        <ul>
+          <li>Linux, open source, Bash</li>
+          <li>Networking and network administration</li>
+          <li>Server and systems administration</li>
+          <li>SQL Server and databases</li>
+          <li>Solar tracking systems, field service and troubleshooting</li>
+        </ul>
+
+        <h2>Contact</h2>
+        <section>
+          <p>
+            I am looking for systems, network or Linux work — remote or in the
+            field. One email is enough: <a href="mailto:terrerov@gmail.com"
+              >terrerov@gmail.com</a
+            >
+          </p>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      import "../scripts/main.js";
+    </script>
+  </body>
+</html>
