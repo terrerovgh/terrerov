@@ -174,10 +174,10 @@ export function journeyAt(progress, span, opts = {}) {
 /** Alpha for stage `index`'s vignette given where the camera is. */
 export function sceneAlpha(worldX, index, span) {
   const d = Math.abs(worldX - index * span);
-  const hold = span * 0.34;
-  const fade = span * 0.46;
+  const hold = span * 0.28;
+  const fade = span * 0.52;
   if (d <= hold) return 1;
-  return Math.max(0, 1 - (d - hold) / fade);
+  return smoothstep(Math.max(0, 1 - (d - hold) / fade));
 }
 
 /** Scroll progress that parks him at stage `i`, for keyboard jumps. */
