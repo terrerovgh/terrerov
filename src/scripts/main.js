@@ -33,6 +33,10 @@ import {
 const canvas = document.getElementById("world");
 const ctx = canvas.getContext("2d");
 
+const journeyOpts = {
+  legacy: new URLSearchParams(location.search).get("legacyJourney") === "1",
+};
+
 const state = {
   progress: 0,
   target: 0,
@@ -347,7 +351,7 @@ function coverSheet() {
 function frame() {
   const { w, h } = state;
   const span = state.span;
-  const j = journeyAt(state.progress, span);
+  const j = journeyAt(state.progress, span, journeyOpts);
   const camX = j.worldX - state.screenX;
 
   // The board goes down, then every mark is multiplied onto it. Compositing
@@ -388,7 +392,9 @@ function frame() {
     }
     const tx = Math.max(22, Math.round(sx - state.w * 0.3));
     const ty = Math.round(h * 0.1);
-    const reveal = i === j.stage ? j.writeT : i < j.stage ? 1 : 0;
+    const reveal = journeyOpts.legacy
+      ? i === j.stage ? j.writeT : i < j.stage ? 1 : 0
+      : i <= j.stage ? 1 : 0;
     if (reveal > 0.002) {
       ig.globalAlpha = a * textA;
       if (reveal >= 1) {
@@ -413,7 +419,7 @@ function frame() {
   // the walker
   const phase = quantizePhase((j.worldX / cycleLength(state.charScale)) * Math.PI * 2);
   const idleBucket = j.walking ? 0 : Math.floor(j.dwellT * 6);
-  const costume = STAGES[j.stage].costume;
+  const costume = j.costumeFrom;
   const fig = figureTile(costume, phase, j.walking, idleBucket);
   ig.drawImage(fig.canvas, Math.round(state.screenX - fig.ox), Math.round(state.groundY - fig.oy));
 
@@ -479,7 +485,7 @@ function queryProgress() {
 
 function setupKeys() {
   window.addEventListener("keydown", (e) => {
-    const cur = Math.round(state.target * STAGE_COUNT - 0.25);
+    const cur = journeyAt(state.target, state.span, journeyOpts).stage;
     let next = null;
     if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") next = cur + 1;
     else if (e.key === "ArrowLeft" || e.key === "PageUp") next = cur - 1;

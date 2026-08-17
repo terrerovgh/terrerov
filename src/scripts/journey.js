@@ -23,14 +23,20 @@ import { STAGES } from "./stages.js";
 export const STAGE_COUNT = STAGES.length;
 
 /** Share of a stage's slot spent standing still. The rest is walking. */
-const DWELL = 0.4;
-const TRAVEL = 1 - DWELL;
+export const DWELL = 0.20;
+export const TRAVEL = 1 - DWELL;
+export const BLEND_OF_TRAVEL = 0.12;
+export const COSTUME_MIX_OF_TRAVEL = 0.15;
+export const ARRIVE = 0.04;
+export const WRITE_MS = 1600;
 
-/** Text finishes writing well before the pause ends, so it can be read. */
+const LEGACY_DWELL = 0.4;
+
+/** Scroll-mapped write-on, only used when opts.legacy is set. */
 const WRITE_OF_DWELL = 0.62;
 
 /**
- * Scroll height, in viewports. 14 stages x 0.78 ≈ 10.9.
+ * Scroll height, in viewports. 13 stages × 0.78 ≈ 10.14.
  *
  * The walk covers a fixed distance between stops, so the only way to slow it
  * down is to spend more scroll crossing that distance. Going from 0.65 to 0.78
@@ -75,51 +81,94 @@ function walkSpeed(t) {
   return (1 - x) / RAMP / norm;
 }
 
+function smoothstep(t) {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
+
+function gaitAmountOf(walkT, inTravel) {
+  if (!inTravel) return 0;
+  const b = BLEND_OF_TRAVEL;
+  const up = smoothstep(walkT / b);
+  const down = 1 - smoothstep((walkT - (1 - b)) / b);
+  return up * down;
+}
+
+function costumeMixOf(walkT, i) {
+  const from = STAGES[i].costume;
+  const to = STAGES[i + 1].costume;
+  if (from === to) return 0;
+  const u = (walkT - (1 - COSTUME_MIX_OF_TRAVEL)) / COSTUME_MIX_OF_TRAVEL;
+  return Math.min(1, Math.max(0, u));
+}
+
 /**
  * progress in [0,1] -> where he is and what the page should be doing.
  *
- *   worldX   camera/character position in world units
- *   stage    index of the stage he is at or heading toward
- *   walking  whether the legs should move
- *   walkT    0..1 through the current travel leg
- *   writeT   0..1 of the current stage's text that has been written
- *   speed    world units per unit of progress, for foot-planting checks
+ *   stage       slot index: HOLD of i = standing at i; TRAVEL of i = leaving i
+ *   nextStage   min(stage+1, N-1)
+ *   gaitAmount  0 idle .. 1 stride
+ *   walking     gaitAmount > ARRIVE
+ *   writeArmed  true iff local < DWELL, or the entire last slot
+ *   walkT       0..1 through TRAVEL, 0 in HOLD
+ *   dwellT      0..1 through HOLD, 1 in TRAVEL
+ *   costumeFrom / costumeTo / costumeMix
+ *
+ * opts.legacy (from main.js, not from the DOM here) restores DWELL=0.40 and
+ * the old scroll-mapped writeT.
  */
-export function journeyAt(progress, span) {
+export function journeyAt(progress, span, opts = {}) {
   const p = Math.min(1, Math.max(0, progress));
   const u = p * STAGE_COUNT;
   let i = Math.floor(u);
   if (i >= STAGE_COUNT) i = STAGE_COUNT - 1;
   const local = u - i;
 
-  if (local < DWELL) {
-    // standing at stop i
-    return {
+  const dwell = opts.legacy ? LEGACY_DWELL : DWELL;
+  const travel = 1 - dwell;
+  const last = i === STAGE_COUNT - 1;
+  const nextStage = Math.min(STAGE_COUNT - 1, i + 1);
+  const costumeFrom = STAGES[i].costume;
+  const costumeTo = STAGES[nextStage].costume;
+
+  // Last slot is HOLD only — any local — so he never walks past the last stop.
+  if (last || local < dwell) {
+    const sample = {
       worldX: i * span,
       stage: i,
+      nextStage,
       walking: false,
       walkT: 0,
-      dwellT: local / DWELL,
-      writeT: Math.min(1, local / (DWELL * WRITE_OF_DWELL)),
+      dwellT: last ? local : local / dwell,
+      gaitAmount: 0,
+      writeArmed: true,
+      costumeFrom,
+      costumeTo,
+      costumeMix: 0,
       speed: 0,
     };
+    if (opts.legacy) sample.writeT = Math.min(1, local / (dwell * WRITE_OF_DWELL));
+    return sample;
   }
 
-  const t = (local - DWELL) / TRAVEL;
-  const next = Math.min(STAGE_COUNT - 1, i + 1);
-  const eased = easeWalk(t);
-  const speed = walkSpeed(t);
-
-  return {
-    worldX: (i + (next - i) * eased) * span,
+  const walkT = (local - dwell) / travel;
+  const gaitAmount = gaitAmountOf(walkT, true);
+  const sample = {
+    worldX: (i + easeWalk(walkT)) * span,
     stage: i,
-    nextStage: next,
-    walking: next !== i,
-    walkT: t,
+    nextStage,
+    walking: opts.legacy ? true : gaitAmount > ARRIVE,
+    walkT,
     dwellT: 1,
-    writeT: 1,
-    speed,
+    gaitAmount,
+    writeArmed: false,
+    costumeFrom,
+    costumeTo,
+    costumeMix: costumeMixOf(walkT, i),
+    speed: walkSpeed(walkT),
   };
+  if (opts.legacy) sample.writeT = 1;
+  return sample;
 }
 
 /** Alpha for stage `index`'s vignette given where the camera is. */
@@ -134,7 +183,7 @@ export function sceneAlpha(worldX, index, span) {
 /** Scroll progress that parks him at stage `i`, for keyboard jumps. */
 export function progressForStage(i) {
   const clamped = Math.min(STAGE_COUNT - 1, Math.max(0, i));
-  return (clamped + DWELL * 0.55) / STAGE_COUNT;
+  return (clamped + DWELL * 0.72) / STAGE_COUNT;
 }
 
 /** Which stage a progress value belongs to. */

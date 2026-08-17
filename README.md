@@ -35,7 +35,7 @@ public/                 copied verbatim: _headers, robots.txt, favicon
 src/scripts/charcoal.js   stroke engine, kraft paper, grain, hatching
 src/scripts/alphabet.js   ~80 glyphs as pen strokes
 src/scripts/lettering.js  writing: per-letter variation, write-on reveal
-src/scripts/journey.js    scroll -> where he is (walk, then pause, then walk)
+src/scripts/journey.js    scroll -> where he is (short hold, then walk; same order)
 src/scripts/character.js  skeleton, gait, idle
 src/scripts/costumes.js   garments, hats and props per stage
 src/scripts/scenery.js    one composed vignette per stage
