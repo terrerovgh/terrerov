@@ -29,6 +29,7 @@ import {
   STAGE_COUNT,
   progressForStage,
   ARRIVE,
+  WRITE_MS,
 } from "./journey.js";
 
 const canvas = document.getElementById("world");
@@ -59,7 +60,29 @@ const state = {
   figScratch: null,
   figBuiltThisFrame: false,
   dadBuiltThisFrame: false,
+  write: { stage: -1, t0: 0, done: false, reveal: 0 },
+  visited: new Set(),
+  coverGoneAt: 0,
 };
+
+const DROP_PX = 34;
+const RISE_PX = 16;
+const TEXT_HOLD = 0.18;
+const TEXT_FADE = 0.28;
+const COVER_END = 0.010;
+const COVER_GAP_MS = 150;
+
+const loggedTextArc = new Set();
+
+function easeOutCubic(t) {
+  const u = 1 - t;
+  return 1 - u * u * u;
+}
+
+function smoothstep(t) {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
 
 /** Where the walker stands on screen, and where the ground line sits. */
 function layout() {
@@ -244,6 +267,10 @@ function buildTextSheet(i) {
 function textBundle(i) {
   return textCache.get(`text:${i}:${sizeKey()}`, () => {
     const built = buildTextSheet(i);
+    if (!loggedTextArc.has(i)) {
+      loggedTextArc.add(i);
+      console.info(`text:${STAGES[i].id} sheet.total`, built.sheet.total);
+    }
     return { ...built, baked: null };
   });
 }
@@ -455,6 +482,53 @@ function coverSheet() {
   });
 }
 
+/* ---------------------------------------------------------- letter-drop --- */
+
+function advanceWrite(j, now, frozen) {
+  const armed = j.writeArmed ? j.stage : -1;
+
+  if (frozen) {
+    state.write = { stage: j.stage, t0: now, done: true, reveal: 1 };
+    return;
+  }
+
+  // slot 0 waits for the cover to leave and the empty-paper gap
+  if (armed === 0 && (!state.coverGoneAt || now < state.coverGoneAt + COVER_GAP_MS)) {
+    return;
+  }
+
+  if (armed < 0) {
+    return;
+  }
+
+  if (state.write.done && state.write.stage === armed) {
+    state.write.reveal = 1;
+    return;
+  }
+
+  if (state.write.stage !== armed) {
+    if (state.write.done && state.visited.has(armed)) {
+      state.write = { stage: armed, t0: now, done: true, reveal: 1 };
+      return;
+    }
+    state.write = { stage: armed, t0: now, done: false, reveal: 0 };
+  }
+
+  const t = (now - state.write.t0) / WRITE_MS;
+  state.write.reveal = Math.min(1, Math.max(0, t));
+  if (state.write.reveal >= 1) {
+    state.write.done = true;
+    state.visited.add(armed);
+  }
+}
+
+function revealOf(i, j) {
+  if (i < j.stage) return 1;
+  if (i === state.write.stage) return state.write.reveal;
+  if (state.visited.has(i)) return 1;
+  return 0;
+}
+
 /* ---------------------------------------------------------------- frame --- */
 
 function frame() {
@@ -465,6 +539,13 @@ function frame() {
   const span = state.span;
   const j = journeyAt(state.progress, span, journeyOpts);
   const camX = j.worldX - state.screenX;
+
+  if (state.progress > COVER_END && !state.coverGoneAt) {
+    state.coverGoneAt = now;
+  }
+  if (!journeyOpts.legacy) {
+    advanceWrite(j, now, queryProgress() !== null);
+  }
 
   // The board goes down, then every mark is multiplied onto it. Compositing
   // straight onto the visible canvas rather than through an intermediate ink
@@ -497,7 +578,9 @@ function frame() {
     // on its own, much faster than the scenery does.
     const bundle = textBundle(i);
     const away = Math.abs(j.worldX - i * span);
-    const textA = Math.max(0, 1 - away / (span * 0.2));
+    const textA = away <= span * TEXT_HOLD
+      ? 1
+      : Math.max(0, 1 - (away - span * TEXT_HOLD) / (span * TEXT_FADE));
     if (textA <= 0.004) {
       ig.globalAlpha = 1;
       continue;
@@ -506,24 +589,29 @@ function frame() {
     const ty = Math.round(h * 0.1);
     const reveal = journeyOpts.legacy
       ? i === j.stage ? j.writeT : i < j.stage ? 1 : 0
-      : i <= j.stage ? 1 : 0;
-    if (reveal > 0.002) {
-      ig.globalAlpha = a * textA;
-      if (reveal >= 1) {
-        if (!bundle.baked) {
-          // the first baseline sits at sheet y=0, so ascenders live at negative
-          // y — the tile needs real headroom or the top line loses its heads
-          const pad = 70;
-          const c = makeTile(bundle.width + pad * 2, bundle.height + pad * 2);
-          const g = c.getContext("2d");
-          renderSheet(g, bundle.sheet, { x: pad, y: pad });
-          bundle.baked = c;
-          bundle.pad = pad;
-        }
-        ig.drawImage(bundle.baked, tx - bundle.pad, ty - bundle.pad);
-      } else {
-        renderSheet(ig, bundle.sheet, { x: tx, y: ty, reveal });
+      : revealOf(i, j);
+    const leaveT = i < j.stage
+      ? smoothstep((away - span * TEXT_HOLD) / (span * TEXT_FADE))
+      : 0;
+    const drop = (1 - easeOutCubic(reveal)) * DROP_PX;
+    const rise = leaveT * RISE_PX;
+    const y = ty - drop + rise;
+    if (reveal >= 1) {
+      if (!bundle.baked) {
+        // the first baseline sits at sheet y=0, so ascenders live at negative
+        // y — the tile needs real headroom or the top line loses its heads
+        const pad = 70;
+        const c = makeTile(bundle.width + pad * 2, bundle.height + pad * 2);
+        const g = c.getContext("2d");
+        renderSheet(g, bundle.sheet, { x: pad, y: pad });
+        bundle.baked = c;
+        bundle.pad = pad;
       }
+      ig.globalAlpha = a * textA;
+      ig.drawImage(bundle.baked, tx - bundle.pad, y - bundle.pad);
+    } else if (reveal > 0.002) {
+      ig.globalAlpha = a * textA;
+      renderSheet(ig, bundle.sheet, { x: tx, y, reveal });
     }
     ig.globalAlpha = 1;
   }
@@ -537,12 +625,14 @@ function frame() {
   blitWalker(ig, walkerTiles(j.costumeFrom, j.costumeTo, j.costumeMix, phase, gaitAmount, idleBucket));
   warmWork(j, phase);
 
-  // the cover, gone before the first stage starts writing itself
-  if (state.progress < 0.022) {
-    const a = Math.max(0, 1 - state.progress / 0.019);
-    ig.globalAlpha = a;
-    renderSheet(ig, coverSheet().sheet);
-    ig.globalAlpha = 1;
+  // cover fades by COVER_END, then a short clock gap, then origen writes on
+  if (state.progress <= COVER_END) {
+    const a = 1 - state.progress / COVER_END;
+    if (a > 0.004) {
+      ig.globalAlpha = a;
+      renderSheet(ig, coverSheet().sheet);
+      ig.globalAlpha = 1;
+    }
   }
 
   ctx.globalCompositeOperation = "source-over";
