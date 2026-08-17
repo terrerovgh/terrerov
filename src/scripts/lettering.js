@@ -208,6 +208,16 @@ export function textHeight(text, opts = {}) {
   return lines.length * (size * h.line + lineGap);
 }
 
+/**
+ * The lines `writeText` would set the text on. Callers that need to underline
+ * or box a block have to know where the last line actually ends.
+ */
+export function wrapLines(text, opts = {}) {
+  const { size = 24, hand = "note", maxWidth = 0 } = opts;
+  const h = HANDS[hand] || HANDS.note;
+  return wrap(text, maxWidth ? maxWidth / size : 0, h.track);
+}
+
 /** Width of a single line, without drawing it. */
 export function textWidth(text, opts = {}) {
   const { size = 24, hand = "note" } = opts;

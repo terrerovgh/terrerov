@@ -6,6 +6,12 @@ body {
 
 html {
   overflow-y: scroll;
+  /*
+    One gesture, one stage. The stops are the only places the scroll is allowed
+    to rest, so a wheel notch or a swipe lands with the walker parked and his
+    text written out, never mid-stride between two of them.
+  */
+  scroll-snap-type: y mandatory;
 }
 
 #world {
@@ -20,8 +26,19 @@ html {
 /* Scroll length is set from JS (TRACK_SCREENS in journey.js). This is only the
    pre-hydration fallback, so the page has somewhere to scroll immediately. */
 .track {
-  height: 910vh;
+  position: relative;
+  height: 1470vh;
   pointer-events: none;
+}
+
+/* One per stop, parked at that stop's reading position. Written by sizeTrack(). */
+.stop {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /*
@@ -62,6 +79,10 @@ html {
   we hand over the text version outright.
 */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
+
   .readable {
     position: static;
     width: auto;
