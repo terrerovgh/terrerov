@@ -673,12 +673,12 @@ function frame() {
   const fig = figureTile(costume, phase, j.walking, idleBucket, boil);
   ig.drawImage(fig.canvas, Math.round(state.screenX - fig.ox), Math.round(state.groundY - fig.oy));
 
-  // While he stands there, quietly draw the poses he is about to need. Building
-  // one costs about as long as a frame, so meeting them for the first time
-  // mid-stride is exactly where the animation would hitch.
-  // The stop he is heading for comes first: a scene tile costs more than a
-  // frame, and he only gets one chance to build it out of sight.
-  if (!j.walking && !warmNext(j.stage)) warmPoses(costume, idleBucket);
+  // He no longer stands anywhere, so the next stop's scenery has to be built
+  // while he is still walking toward it. A scene tile costs more than a frame,
+  // so it is built early in the slot — just after leaving the last scene, a
+  // whole span of ground before he needs the next — where a single dropped
+  // frame is furthest from being seen. One item per frame, most expensive first.
+  if (j.walkT < 0.5) warmNext(j.stage);
 
   // the cover, gone before the first stage starts writing itself
   const coverEnd = progressForStage(0) * 0.55;
