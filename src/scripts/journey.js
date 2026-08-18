@@ -47,6 +47,15 @@ const SLOT_SCREENS = 0.7;
 const READ_CENTER = 0.4;
 
 /**
+ * A short lead-in before the first stop, in slots. He starts a few steps back
+ * and walks up to the first scene while the cover holds — long enough to read
+ * "who is this and why believe them" and to see him moving before the timeline
+ * begins, short enough that it is a doorstep, not a stage of its own. Half a
+ * slot is about five steps.
+ */
+const INTRO = 0.55;
+
+/**
  * How far into a slot the writing takes to appear. Only a gate: the text also
  * has a clock of its own (WRITE_SECONDS in main.js) so it writes at a readable
  * speed even when the scroll arrives all at once. Whichever of the two is
@@ -58,11 +67,11 @@ const WRITE_OF_SLOT = 0.28;
 const FADE_START = 0.78;
 
 /**
- * Length of the trip in slots. It ends on the last stop's reading rest point:
- * the page bottom lands with him a few steps into the final scene and its
- * writing full on, never walking past it into blank ground.
+ * Length of the trip in slots. The lead-in, then the stops, ending on the last
+ * one's reading rest point: the page bottom lands with him a few steps into the
+ * final scene and its writing full on, never walking past it into blank ground.
  */
-const U_MAX = STAGE_COUNT - 1 + READ_CENTER;
+const U_MAX = INTRO + (STAGE_COUNT - 1) + READ_CENTER;
 
 /** Scroll height, in viewports: the trip, plus the one screen you are looking through. */
 export const TRACK_SCREENS = U_MAX * SLOT_SCREENS + 1;
@@ -73,7 +82,7 @@ export const SLOT_PROGRESS = 1 / U_MAX;
 /** Where stop `i` comes to rest, as a fraction of the whole scroll. */
 export function progressForStage(i) {
   const clamped = Math.min(STAGE_COUNT - 1, Math.max(0, i));
-  return Math.min(1, (clamped + READ_CENTER) / U_MAX);
+  return Math.min(1, (INTRO + clamped + READ_CENTER) / U_MAX);
 }
 
 /**
@@ -107,11 +116,38 @@ export function smoothstep(t) {
  *   walkT    0..1 across the current slot
  *   writeT   0..1 of the current stage's text the scroll has paid for
  *   textA    how visible the current stage's writing should be
+ *   cover    how visible the opening presentation should be (only in the lead-in)
  *   speed    world units per unit of progress, for foot-planting checks
  */
 export function journeyAt(progress, span) {
   const p = Math.min(1, Math.max(0, progress));
-  const u = p * U_MAX;
+  // u = 0 is the first scene. The lead-in lives at negative u: he starts back
+  // at -INTRO and walks up to it. worldX runs off the same u the whole way, so
+  // the intro and the timeline are one unbroken walk with no seam.
+  const u = p * U_MAX - INTRO;
+
+  if (u < 0) {
+    // The lead-in. He starts here, standing, while the cover holds — this is
+    // the frame the page loads on, and it waits for the reader. The moment they
+    // scroll, q lifts off zero and he sets off, walking the last few steps up to
+    // the first stop; the cover clears just as he arrives. Standing only at the
+    // very start (q == 0) means he is a settled figure waiting, not a walk
+    // frozen mid-stride.
+    const q = (u + INTRO) / INTRO; // 0 at the start, 1 as he reaches the first scene
+    return {
+      worldX: u * span,
+      stage: 0,
+      nextStage: 0,
+      walking: q > 1e-4,
+      walkT: q,
+      dwellT: 1,
+      writeT: 0,
+      textA: 0,
+      cover: 1 - smoothstep(Math.max(0, (q - 0.5) / 0.5)),
+      speed: 1,
+    };
+  }
+
   let i = Math.floor(u);
   if (i >= STAGE_COUNT) i = STAGE_COUNT - 1;
   const local = u - i; // 0..1 across stop i's slot
@@ -120,7 +156,7 @@ export function journeyAt(progress, span) {
   // so there is no ease-down to a halt at a stop and no lurch away from one. He
   // walks the whole line at one speed and the cadence never breaks.
   return {
-    worldX: (i + local) * span,
+    worldX: u * span,
     stage: i,
     nextStage: Math.min(STAGE_COUNT - 1, i + 1),
     walking: true,
@@ -131,6 +167,7 @@ export function journeyAt(progress, span) {
     // stop's writing begins. The last stop never reaches its fade — the page
     // ends before it, on the reading rest point — so contact stays on the board.
     textA: local < FADE_START ? 1 : 1 - smoothstep((local - FADE_START) / (1 - FADE_START)),
+    cover: 0,
     speed: 1,
   };
 }
@@ -144,8 +181,9 @@ export function sceneAlpha(worldX, index, span) {
   return 1 - smoothstep((d - hold) / fade);
 }
 
-/** Which stage a progress value belongs to. */
+/** Which stage a progress value belongs to. The lead-in counts as the first. */
 export function stageOf(progress) {
-  const u = Math.min(1, Math.max(0, progress)) * U_MAX;
+  const u = Math.min(1, Math.max(0, progress)) * U_MAX - INTRO;
+  if (u < 0) return 0;
   return Math.min(STAGE_COUNT - 1, Math.floor(u));
 }
