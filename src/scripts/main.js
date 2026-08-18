@@ -680,11 +680,12 @@ function frame() {
   // frame is furthest from being seen. One item per frame, most expensive first.
   if (j.walkT < 0.5) warmNext(j.stage);
 
-  // the cover, gone before the first stage starts writing itself
-  const coverEnd = progressForStage(0) * 0.55;
-  if (state.progress < coverEnd) {
-    const a = 1 - smoothstep(state.progress / coverEnd);
-    ig.globalAlpha = a;
+  // The opening presentation, held over the lead-in while he walks the first
+  // few steps up to the first scene, and cleared as he arrives — before that
+  // scene's writing begins. Its visibility rides on the journey now, not on a
+  // raw scroll cutoff, so it gets the whole doorstep instead of a sliver of it.
+  if (j.cover > 0.004) {
+    ig.globalAlpha = j.cover;
     renderSheet(ig, coverSheet().sheet);
     ig.globalAlpha = 1;
   }
