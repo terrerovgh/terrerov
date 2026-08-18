@@ -127,16 +127,19 @@ export function journeyAt(progress, span) {
   const u = p * U_MAX - INTRO;
 
   if (u < 0) {
-    // The lead-in: he walks the last few steps up to the first stop while the
-    // cover holds. No stage writing yet — the presentation has the board. The
-    // cover is full for most of it and clears just as he arrives.
+    // The lead-in. He starts here, standing, while the cover holds — this is
+    // the frame the page loads on, and it waits for the reader. The moment they
+    // scroll, q lifts off zero and he sets off, walking the last few steps up to
+    // the first stop; the cover clears just as he arrives. Standing only at the
+    // very start (q == 0) means he is a settled figure waiting, not a walk
+    // frozen mid-stride.
     const q = (u + INTRO) / INTRO; // 0 at the start, 1 as he reaches the first scene
     return {
       worldX: u * span,
       stage: 0,
       nextStage: 0,
-      walking: true,
-      walkT: 0,
+      walking: q > 1e-4,
+      walkT: q,
       dwellT: 1,
       writeT: 0,
       textA: 0,
