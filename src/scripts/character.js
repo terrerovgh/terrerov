@@ -13,8 +13,8 @@
  *   - he breathes and shifts his weight when he stops, instead of freezing.
  */
 
-import { Sheet } from "./charcoal.js";
-import { drawGarment, drawHat, drawProps } from "./costumes.js";
+import { Sheet, ring, nudge, nudgeAll, chaikin, hash, DENSITY } from "./charcoal.js";
+import { drawGarment, drawHat, drawProps, LEGWEAR } from "./costumes.js";
 
 const TWO_PI = Math.PI * 2;
 
@@ -206,8 +206,34 @@ function disc(cx, cy, r, n = 16) {
   return out;
 }
 
-function limb(sheet, a, b, w) {
-  sheet.line(a.x, a.y, b.x, b.y, { width: w, alpha: 0.88, wobble: 1.15, overshoot: 0.9 });
+/**
+ * How thick each part of him is, at scale 1, at the joint it hangs from and at
+ * the far end. Taken off the head radius the way a figure is blocked in on
+ * paper, not invented: a thigh is a bit over half a head across, a forearm a
+ * quarter of one.
+ */
+const GIRTH = {
+  torso: [17.5, 19, 15],
+  leg: [9.6, 6.2, 4.6],
+  arm: [6.8, 5.1, 3.8],
+};
+
+/**
+ * A whole limb, drawn as one mass: two contours running its full length and a
+ * breath of tone inside. `joints` is the chain, `girths` the width at each.
+ */
+function limb(sheet, joints, girths, s, w, light = false, seed) {
+  const poly = sheet.chainForm(joints, girths.map((g) => g * s), {
+    width: w,
+    alpha: 0.88,
+    seed,
+  });
+  if (!light) {
+    // the side turning away from the light, kept very pale — at this size
+    // anything heavier stops reading as a round form and starts reading as dirt
+    sheet.tone(poly, { angle: -1.2, width: 4.4 * s, alpha: DENSITY.ghost, falloff: 0.9 });
+  }
+  return poly;
 }
 
 /**
@@ -228,33 +254,70 @@ function shoe(sheet, foot, roll, planted, dir, s) {
   const ry = 4.2 * s;
   const cos = Math.cos(tilt);
   const sin = Math.sin(tilt);
+  const seed = 311.7 + (planted ? 3 : 0) + dir;
   const shape = [];
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * TWO_PI;
-    const px = Math.cos(a) * rx * (a > Math.PI ? 0.94 : 1);
-    const py = Math.sin(a) * ry;
+    // the toe runs longer than the heel — a shoe is not symmetrical, and the
+    // old version was an ellipse with one side pinched, which read as a pebble
+    const stretch = Math.cos(a) > 0 ? 1.12 : 0.86;
+    const px = Math.cos(a) * rx * stretch;
+    const py = Math.sin(a) * ry * (Math.sin(a) < 0 ? 0.78 : 1);
     shape.push(pt(cx + px * cos - py * sin, cy + px * sin + py * cos));
   }
-  sheet.poly(shape, { width: 1.7 * s, alpha: 0.86 });
-  sheet.tone(shape, { angle: tilt + 0.2, width: 3.4 * s, alpha: 0.2, falloff: 0.7 });
-  sheet.hatch(shape, { angle: tilt - 0.9, gap: 3.4 * s, alpha: 0.2, width: 0.8 });
-  // the sole presses into the ground
+  const drawn = chaikin(nudgeAll(shape, seed, 0.9 * s), true, 1);
+  sheet.blob(drawn, { width: 1.7 * s, alpha: 0.86, seed });
+  sheet.tone(drawn, { angle: tilt + 0.2, width: 3.4 * s, alpha: DENSITY.firm, falloff: 0.7 });
+  sheet.hatch(drawn, { angle: tilt - 0.9, gap: 3.4 * s, alpha: DENSITY.firm, width: 0.8 });
+  // The sole presses into the ground. This is charcoal and stays charcoal: it
+  // is drawing, not annotation, and in the red chalk it read as if the shoe
+  // were bleeding — which is the whole reason the accent is kept rare.
   sheet.accent(cx, cy + ry * 0.75, rx * 1.1, tilt, { width: 1.9 * s, alpha: 0.45 });
 }
 
-function mitten(sheet, x, y, dir, s) {
-  sheet.ellipse(x, y, 4.7 * s, 3.9 * s, 0.25 * dir, { width: 1.4 * s, alpha: 0.82, ghost: 0.5 });
-  sheet.ellipse(x + 3.2 * dir * s, y - 1.5 * s, 2.1 * s, 1.8 * s, 0.6 * dir, {
-    width: 1.2 * s,
-    alpha: 0.72,
-    ghost: 0,
-  });
+/**
+ * The hand: one closed mass with a thumb pushed out of it, rather than two
+ * ellipses sitting next to each other. At this size that is all a hand can be,
+ * but it has to be ONE shape or it reads as a mitten someone dropped.
+ */
+function mitten(sheet, x, y, dir, s, seed) {
+  const palm = ring(x, y, 4.6 * s, 4 * s, 0.25 * dir, 0.6, seed, 12);
+  // push the two points nearest the thumb out into a lobe
+  const i0 = dir > 0 ? 2 : 8;
+  for (let k = 0; k < 3; k++) {
+    const i = (i0 + k) % palm.length;
+    palm[i] = pt(palm[i].x + 2.4 * dir * s, palm[i].y - 1.3 * s);
+  }
+  const drawn = chaikin(palm, true, 1);
+  sheet.blob(drawn, { width: 1.4 * s, alpha: 0.82, seed });
+  sheet.tone(drawn, { angle: -0.9, width: 3 * s, alpha: DENSITY.ghost, falloff: 0.9 });
 }
 
+/**
+ * The head.
+ *
+ * It used to be `circle()`, and one perfect circle was doing more to make this
+ * figure look machine-drawn than everything else put together — the eye finds a
+ * true circle instantly. It is a ring now: a skull slightly taller than it is
+ * wide, sat at a degree or two off vertical, with the radius misjudged on the
+ * way round. `hand` is low because a head is the one thing on a figure that
+ * gets drawn slowly.
+ */
 function head(sheet, p) {
   const w = 2.5 * Math.max(0.88, p.scale);
   const s = p.scale;
-  // the construction circle stays visible, the way it does in a real sketch
+  const seed = 51.3 + p.dir * 7;
+  const skull = ring(
+    p.head.x,
+    p.head.y,
+    p.r * 0.95,
+    p.r * 1.05,
+    (hash(seed) - 0.5) * 0.16,
+    0.4,
+    seed,
+    14
+  );
+  // the construction arc stays visible, the way it does in a real sketch
   sheet.guide(
     [
       pt(p.head.x - p.r * 1.1, p.head.y),
@@ -268,14 +331,24 @@ function head(sheet, p) {
   // drags are packed tight and kept very pale.
   // wide drags, few of them: at 2px spacing this one detail cost more to build
   // than the rest of the figure put together
-  sheet.tone(disc(p.head.x, p.head.y, p.r * 0.92), {
+  sheet.tone(skull, {
     angle: 1.35,
     width: 5.4 * s,
-    alpha: 0.05,
+    alpha: DENSITY.ghost,
     falloff: 0.95,
     from: p.dir > 0 ? 1 : 0,
   });
-  sheet.circle(p.head.x, p.head.y, p.r, { width: w, alpha: 0.9 });
+  sheet.blob(skull, { width: w, alpha: 0.9, seed });
+  // gone round a second time on the far side, the way you close a head you are
+  // not quite happy with
+  sheet.stroke(skull.slice(Math.round(skull.length * 0.55)), {
+    width: w * 0.6,
+    alpha: 0.3,
+    wobble: 0.9,
+    overshoot: 1.4,
+    search: 0,
+    seed: seed + 19,
+  });
   sheet.dot(p.head.x + p.r * 0.4 * p.dir, p.head.y - p.r * 0.02, 2.4 * s, { alpha: 0.9 });
 }
 
@@ -293,23 +366,56 @@ export function drawFigure(sheet, p, costume) {
   const far = p.dir > 0 ? "L" : "R";
   const near = far === "L" ? "R" : "L";
 
+  // The far side of the body is not just lighter, it is thinner: a limb behind
+  // the trunk is further away, and drawing it at the same girth flattens him.
   const leg = (side, w, strong) => {
     const knee = side === "L" ? p.kneeL : p.kneeR;
     const foot = side === "L" ? p.footL : p.footR;
     const roll = side === "L" ? p.rollL : p.rollR;
     const planted = side === "L" ? p.plantedL : p.plantedR;
-    limb(sheet, p.hip, knee, w);
-    limb(sheet, knee, foot, w);
+    const k = strong ? 1 : 0.88;
+    // Both legs hang off one pelvis, but rooting them at the same point makes
+    // two full-width masses start on top of each other. A hair apart is enough.
+    const root = pt(p.hip.x - (strong ? 1 : -1) * p.dir * 1.6 * s, p.hip.y);
+    const shank = limb(sheet, [root, knee, foot], GIRTH.leg.map((g) => g * k), s, w, !strong,
+      (side === "L" ? 41.7 : 63.1) + p.dir);
+    // Trousers are not a garment with a silhouette of their own at this size —
+    // they are the leg with denim rubbed into it. The far leg takes less, the
+    // way everything on that side does.
+    const cloth = LEGWEAR[costume];
+    if (cloth) {
+      sheet.wash(shank, {
+        angle: -1.15,
+        width: 4 * s,
+        alpha: strong ? 0.28 : 0.2,
+        pigment: cloth,
+        seed: (side === "L" ? 41.7 : 63.1) + 7,
+      });
+    }
     if (strong) joint(sheet, knee, Math.PI * 0.5, s);
     shoe(sheet, foot, roll, planted, p.dir, s);
   };
   const arm = (side, w, strong) => {
     const elbow = side === "L" ? p.elbowL : p.elbowR;
     const hand = side === "L" ? p.handL : p.handR;
-    limb(sheet, p.shoulder, elbow, w * 0.92);
-    limb(sheet, elbow, hand, w * 0.92);
-    if (strong) joint(sheet, elbow, 0.3, s);
-    mitten(sheet, hand.x, hand.y, p.dir, s);
+    const seed = (side === "L" ? 71.3 : 97.1) + p.dir;
+    // The near arm hangs off the EDGE of the trunk, not off its centreline —
+    // rooted at the spine it came out through the middle of his chest.
+    //
+    // The far arm is not drawn from the shoulder at all. Seen from the side its
+    // upper half is behind the body, and drawing it anyway put two lines
+    // straight across his chest, because a trunk made of two contours does not
+    // hide anything the way a single thick stroke used to. So only the part that
+    // actually clears the body is drawn: elbow, forearm, hand.
+    if (!strong) {
+      limb(sheet, [elbow, hand], [GIRTH.arm[1] * 0.88, GIRTH.arm[2] * 0.88], s, w * 0.92, true, seed);
+      mitten(sheet, hand.x, hand.y, p.dir, s, seed);
+      return;
+    }
+    const root = pt(p.shoulder.x + p.dir * GIRTH.torso[0] * 0.34 * s, p.shoulder.y);
+    limb(sheet, [root, elbow, hand], GIRTH.arm, s, w * 0.92, false, seed);
+    joint(sheet, elbow, 0.3, s);
+    mitten(sheet, hand.x, hand.y, p.dir, s, seed);
   };
 
   // The shadow he stands in: a rubbed pool plus a hard accent right where the
@@ -319,7 +425,9 @@ export function drawFigure(sheet, p, costume) {
 
   leg(far, wFar, false);
   arm(far, wFar, false);
-  limb(sheet, p.neck, p.hip, wNear);
+  // The trunk: neck, chest, hip in one chain, so the neck runs into the
+  // shoulders instead of being a separate pair of lines stuck on top.
+  limb(sheet, [p.neck, p.chest, p.hip], [7.6, GIRTH.torso[1], GIRTH.torso[2]], s, wNear, false, 23.9);
   joint(sheet, p.hip, 0.1, s);
   joint(sheet, p.shoulder, 0.1, s);
   drawGarment(sheet, p, costume);
@@ -333,9 +441,13 @@ export function drawFigure(sheet, p, costume) {
 /**
  * Build a Sheet for one pose. Callers cache these by (costume, phase bucket).
  * Coordinates are relative to the feet at (0,0).
+ *
+ * `boil` redraws the same pose in a different hand — same skeleton, same
+ * costume, different charcoal. Flipping between a few of them is what stops him
+ * looking like a photograph of a drawing while he stands still.
  */
-export function figureSheet({ phase, walking, dir, costume, scale, idleT = 0, seed = 1 }) {
-  const sheet = new Sheet(seed);
+export function figureSheet({ phase, walking, dir, costume, scale, idleT = 0, seed = 1, boil = 0 }) {
+  const sheet = new Sheet(seed, boil);
   const parts = skeleton(pt(0, 0), phase, walking, dir, scale, idleT);
 
   if (costume === "dad") {
