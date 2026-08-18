@@ -74,6 +74,81 @@ function swing(x, seed) {
 
 /* ------------------------------------------------------------- geometry --- */
 
+/**
+ * Where a hand actually goes wrong.
+ *
+ * A shaky line drawn along a perfect path still reads as machine-made, because
+ * the mistake is in the wrong place. What a person gets wrong is the SHAPE: they
+ * misjudge where the far corner of a box is, or how far the hem of a coat comes
+ * round, and then they draw to that wrong point with a steady hand. Wobbling the
+ * stroke instead only produces an exact drawing made by someone shivering.
+ *
+ * So the error goes in here, into the construction, before anything is drawn —
+ * and once it is here the stroke on top is allowed to be calm.
+ */
+export function nudge(p, seed, amount = 2.2) {
+  return {
+    x: p.x + (hash(seed * 1.7 + 0.3) - 0.5) * 2 * amount,
+    y: p.y + (hash(seed * 3.1 + 1.9) - 0.5) * 2 * amount,
+  };
+}
+
+/** Nudge every point of a shape, each on its own. */
+export function nudgeAll(pts, seed, amount = 2.2) {
+  return pts.map((p, i) => nudge(p, seed + i * 7.3, amount));
+}
+
+/**
+ * One Chaikin pass per call: every corner gets cut. Two passes turn a polygon
+ * into something that reads as drawn round rather than plotted.
+ */
+export function chaikin(pts, closed = true, passes = 1) {
+  let cur = pts;
+  for (let k = 0; k < passes; k++) {
+    const out = [];
+    const n = cur.length;
+    const last = closed ? n : n - 1;
+    if (!closed) out.push(cur[0]);
+    for (let i = 0; i < last; i++) {
+      const a = cur[i];
+      const b = cur[(i + 1) % n];
+      out.push({ x: a.x * 0.75 + b.x * 0.25, y: a.y * 0.75 + b.y * 0.25 });
+      out.push({ x: a.x * 0.25 + b.x * 0.75, y: a.y * 0.25 + b.y * 0.75 });
+    }
+    if (!closed) out.push(cur[n - 1]);
+    cur = out;
+  }
+  return cur;
+}
+
+/**
+ * A ring of points round an ellipse, breathing — the shape primitive that
+ * replaces `circle()` for anything that is not machined.
+ *
+ * `hand` says how carefully it was drawn, and it is a statement about the
+ * person, not a detail: about .4 for something they looked at while they made it
+ * (a head, a face), 1 for a mass they scribbled in (foliage, a heap). Nothing
+ * here is a curve — it is points, smoothed once, exactly as a shape gets built
+ * on paper.
+ */
+export function ring(cx, cy, rx, ry, rot = 0, hand = 0.55, seed = 1, n = 16) {
+  const cos = Math.cos(rot);
+  const sin = Math.sin(rot);
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const th = (i / n) * TAU;
+    // two harmonics: the slow one is the shape being misjudged, the faster one
+    // is the hand not holding the radius steady on the way round
+    const k = 1 + (0.17 * Math.sin(th * 2 + seed) + 0.1 * Math.sin(th * 5 + seed * 1.7)) * hand;
+    const px = Math.cos(th) * rx * k;
+    const py = Math.sin(th) * ry * k;
+    pts.push({ x: cx + px * cos - py * sin, y: cy + px * sin + py * cos });
+  }
+  return chaikin(pts, true, 1);
+}
+
+
+
 function dist(a, b) {
   return Math.hypot(b.x - a.x, b.y - a.y);
 }
@@ -190,13 +265,78 @@ function humanize(pts, seed, amp, over) {
 
 /* ------------------------------------------------------------ the sheet --- */
 
-// Warm, not black. Charcoal on kraft reads brown-grey, and true black is the
-// fastest way to make a drawing look printed.
-const INK = [44, 36, 29];
+/**
+ * Two sticks, the way a trois-crayons drawing is made: charcoal for everything
+ * that is form, and a red chalk kept for the few marks that are an annotation
+ * rather than a drawing — an underline, a box round a word, the press where a
+ * sole meets the ground. Used on more than that it stops being an accent.
+ *
+ * Neither is black. True black is the fastest way to make a drawing look
+ * printed; on cream paper there is contrast to spend, so the charcoal is darker
+ * than it was on kraft but still warm.
+ */
+const PIGMENTS = {
+  charcoal: [38, 34, 31],
+  sanguine: [150, 72, 58],
 
-function inkColor(alpha, tint = 0) {
-  return `rgba(${INK[0] + tint}, ${INK[1] + tint}, ${INK[2] + tint}, ${alpha})`;
+  /*
+   * Coloured chalk, and it obeys two rules without exception.
+   *
+   * It only ever goes INSIDE a shape, as tone rubbed into it. Every contour on
+   * this page stays charcoal, because the moment an outline takes a colour the
+   * drawing stops being a charcoal drawing and starts being a cartoon fill with
+   * a black keyline round it.
+   *
+   * And it is laid pale. Chalk on paper is a stain that lets the grain and the
+   * hatching underneath come through; anything approaching an opaque fill reads
+   * as paint, or worse, as a vector.
+   *
+   * There is deliberately no white here. White is not a pigment you add, it is
+   * the paper you left alone — a white hard hat is drawn by keeping it bare and
+   * putting the tone on everything around and under it.
+   */
+  hiviz: [206, 158, 30],
+  denim: [72, 96, 134],
+  slate: [58, 64, 74],
+  rust: [146, 84, 48],
+  olive: [98, 112, 66],
+  brick: [158, 96, 74],
+};
+
+function pigment(name, alpha, tint = 0) {
+  const p = PIGMENTS[name] || PIGMENTS.charcoal;
+  return `rgba(${p[0] + tint}, ${p[1] + tint}, ${p[2] + tint}, ${alpha})`;
 }
+
+/**
+ * How dark a mass is asked to be — the one idea worth taking from the reference
+ * generator's material step: a part says how dark, and the engine owns how the
+ * dark is made.
+ *
+ * These are NOT the reference's numbers (`black: 1 … light: .34`). Those are
+ * multipliers in an engine that builds density a different way; here a tone is a
+ * translucent charcoal drag laid with `multiply`, so the dial IS the alpha, and
+ * it lives in a narrow band — past about 0.22 a single pass stops reading as a
+ * turned form and starts reading as a smear. So the ladder is built from the
+ * values the drawing already reached for, gathered into four rungs it can share:
+ *
+ *   ghost  a whisper that turns a form without reading as dirt — a skull, the
+ *          lit face of a box, the far side of a limb
+ *   soft   a soft mass — cloth folds, the shading down a leg
+ *   mid    structure — the side of a crate, a hood, a hatched plane that turns
+ *   firm   a mark you are meant to see — a shoe, a bag, a clipboard
+ *
+ * The point is shared vocabulary: the whisper on his head and the whisper on a
+ * distant roof are now literally the same value, so the whole page holds one
+ * tonal key instead of forty hand-picked alphas drifting apart. Colour is a
+ * separate axis (see `wash`) and does not come through here.
+ */
+export const DENSITY = {
+  ghost: 0.06,
+  soft: 0.1,
+  mid: 0.16,
+  firm: 0.21,
+};
 
 const DEFAULTS = {
   width: 2.1,
@@ -207,15 +347,30 @@ const DEFAULTS = {
   grain: 1,
   taper: 1, // 0 = flat width, 1 = full pressure curve
   tint: 0,
+  pigment: "charcoal",
 };
 
 /**
  * A display list of charcoal marks. Build once, render many times, reveal
  * progressively.
+ *
+ * Two seeds, and the difference between them is the whole reason the drawing can
+ * boil without falling apart:
+ *
+ *   seed   what the drawing IS. Which way a coat folds, where a prop sits, where
+ *          the pencil started going round a circle. Fixed for a given subject.
+ *   boil   how the hand made it THIS time. The wander of the spine, the pressure
+ *          along it, how the edges are gnawed, where the grain catches.
+ *
+ * Draw the same subject three times with a different `boil` and you get three
+ * drawings of one thing rather than three different things — which, flipped, is
+ * the illusion of life. Get the split wrong and the coat changes shape between
+ * frames, which is the classic way this effect fails.
  */
 export class Sheet {
-  constructor(seed = 1) {
+  constructor(seed = 1, boil = 0) {
     this.seed = seed;
+    this.boil = boil;
     this.items = [];
     this.total = 0;
     this._n = 0;
@@ -225,6 +380,14 @@ export class Sheet {
   next() {
     this._n += 1;
     return this.seed * 131.7 + this._n * 17.13;
+  }
+
+  /**
+   * The seed the mark-making rides on. Everything the engine adds on top of the
+   * geometry it was handed goes through here; the geometry itself never does.
+   */
+  _hand(seed) {
+    return seed + this.boil * 613.7;
   }
 
   _push(item) {
@@ -244,13 +407,14 @@ export class Sheet {
     // samples about a pixel apart to have anything to chew on
     const spacing = Math.max(1.0, o.width * 0.45);
     const base = resample(raw, spacing);
-    const pts = humanize(base, seed, 1.35 * o.wobble, 3.2 * o.overshoot);
+    const hand = this._hand(seed);
+    const pts = humanize(base, hand, 1.35 * o.wobble, 3.2 * o.overshoot);
     return this._push({
       kind: "stroke",
       pts,
       len: polylineLength(pts),
       o,
-      seed,
+      seed: hand,
     });
   }
 
@@ -269,16 +433,154 @@ export class Sheet {
    * opt-in and belongs to `curve`, not here.
    */
   poly(points, opts = {}) {
-    if (opts.smooth) {
-      const wrapped = points.concat([points[0], points[1]]);
-      return this.stroke(spline(wrapped, 6), { ...opts, smooth: false, overshoot: 0.6 });
+    // Every corner is misjudged before a single edge is drawn.
+    //
+    // This is the one line that does the most work in the whole project. A
+    // person ruling a crate does not put the corners where they belong and then
+    // shake along the edges — they put each corner slightly wrong, by eye, and
+    // then draw to it with a steady hand. Exact corners with wobbly edges
+    // between them is precisely what a machine imitating a person looks like,
+    // and it was what every box, panel, pier and hem here was doing.
+    //
+    // Pass `exact: true` for the rare thing that really is machined.
+    const seed = opts.seed ?? this.next();
+
+    // How wrong the corner goes, and how far the stroke runs past it, both scale
+    // with the object. Two pixels is nothing on a building and is the whole hat
+    // on a hat — at a fixed size the small props all came out as scaffolding,
+    // four lines crossing past each other at every corner.
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const p of points) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
     }
-    for (let i = 0; i < points.length; i++) {
-      const a = points[i];
-      const b = points[(i + 1) % points.length];
-      this.stroke([a, b], { overshoot: 1.15, ...opts, smooth: false });
+    const span = Math.hypot(maxX - minX, maxY - minY) || 1;
+    const jitter = opts.exact ? 0 : opts.jitter ?? Math.min(2.4, Math.max(0.3, span * 0.022));
+    const over = Math.min(1.15, Math.max(0.22, span * 0.011));
+    const pts = jitter > 0 ? nudgeAll(points, seed, jitter) : points;
+
+    if (opts.smooth) {
+      const wrapped = pts.concat([pts[0], pts[1]]);
+      return this.stroke(spline(wrapped, 6), { ...opts, seed, smooth: false, overshoot: 0.6 });
+    }
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % pts.length];
+      this.stroke([a, b], { overshoot: over, ...opts, seed: seed + i * 5.9, smooth: false });
     }
     return this;
+  }
+
+  /**
+   * A closed hand-drawn shape: one stroke carried round the ring and a little
+   * past where it started. The ring is expected to carry its own error already
+   * (see `ring`), so the stroke over it stays calm.
+   */
+  blob(points, opts = {}) {
+    if (!points || points.length < 3) return this;
+    const wrapped = points.concat(points.slice(0, 3));
+    return this.stroke(wrapped, { wobble: 0.7, overshoot: 0, ...opts, smooth: false });
+  }
+
+  /**
+   * A limb CHAIN drawn as one form: two contours running the whole length of the
+   * limb — hip to knee to ankle — in one stroke each.
+   *
+   * Drawn a bone at a time, the two outlines arrive at the knee at different
+   * angles and cross, and the leg turns into a bundle of sticks. A person draws
+   * the whole leg with two strokes and turns the corner at the joint, so the
+   * normal at each joint is mitred between the bone coming in and the bone going
+   * out.
+   *
+   * `joints` is the chain of points, `widths` the girth at each of them.
+   * Returns the enclosed polygon so the caller can lay tone inside it.
+   */
+  chainForm(joints, widths, opts = {}) {
+    const n = joints.length;
+    if (n < 2) return [];
+    const seed = opts.seed ?? this.next();
+    const dirs = [];
+    for (let i = 0; i < n - 1; i++) {
+      const dx = joints[i + 1].x - joints[i].x;
+      const dy = joints[i + 1].y - joints[i].y;
+      const l = Math.hypot(dx, dy) || 1;
+      dirs.push({ x: dx / l, y: dy / l });
+    }
+    const nrm = [];
+    for (let i = 0; i < n; i++) {
+      const a = dirs[Math.max(0, i - 1)];
+      const b = dirs[Math.min(dirs.length - 1, i)];
+      let mx = -(a.y + b.y) / 2;
+      let my = (a.x + b.x) / 2;
+      const l = Math.hypot(mx, my) || 1;
+      // A mitre blows up on a hairpin — and a hard-bent knee IS a hairpin. Let
+      // the outside of the bend swell a little and no more: past about 1.3 the
+      // inner rail crosses the centreline and the leg ties itself in a knot.
+      // A real knee does not bulge on the inside of the bend either, it tucks.
+      const scale = Math.min(1.3, 1 / Math.max(0.62, l));
+      nrm.push({ x: (mx / l) * scale, y: (my / l) * scale });
+    }
+    const rail = (side, k) =>
+      joints.map((p, i) =>
+        nudge(
+          {
+            x: p.x + nrm[i].x * (widths[i] / 2) * side,
+            y: p.y + nrm[i].y * (widths[i] / 2) * side,
+          },
+          seed + k + i * 4.7,
+          0.7
+        )
+      );
+    const L = rail(1, 11.3);
+    const R = rail(-1, 31.7);
+    const o = { width: 1.5, alpha: 0.86, wobble: 0.72, overshoot: 0.75, ...opts };
+    this.stroke(L, { ...o, smooth: 7, seed: seed + 3.3 });
+    this.stroke(R, { ...o, smooth: 7, seed: seed + 9.7 });
+    return L.concat(R.slice().reverse());
+  }
+
+  /**
+   * A limb drawn as a form: two contours bounding a mass, wider at the joint it
+   * hangs from and narrower at the far end.
+   *
+   * One line down the middle is a diagram of an arm. Two lines round it is a
+   * drawing of one, and it is most of what separates this figure from a
+   * schematic. The two rails are nudged apart independently so they are not
+   * parallel — a person draws the second line by eye against the first, and
+   * misses.
+   *
+   * Returns the enclosed polygon so the caller can lay tone inside it.
+   */
+  form(a, b, wA, wB, opts = {}) {
+    const seed = opts.seed ?? this.next();
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    // limbs are not straight: one slow bend along the whole length
+    const bow = (hash(seed * 2.7) - 0.5) * Math.min(2.6, len * 0.055);
+    const rail = (side, k) => {
+      const ha = (wA / 2) * side;
+      const hb = (wB / 2) * side;
+      const hm = (ha + hb) / 2 + bow;
+      return [
+        nudge({ x: a.x + nx * ha, y: a.y + ny * ha }, seed + k, 0.85),
+        { x: (a.x + b.x) / 2 + nx * hm, y: (a.y + b.y) / 2 + ny * hm },
+        nudge({ x: b.x + nx * hb, y: b.y + ny * hb }, seed + k + 5.1, 0.85),
+      ];
+    };
+    const L = rail(1, 11.3);
+    const R = rail(-1, 31.7);
+    const o = { width: 1.5, alpha: 0.86, wobble: 0.7, overshoot: 1.1, ...opts };
+    this.stroke(L, { ...o, smooth: 6, seed: seed + 3.3 });
+    this.stroke(R, { ...o, smooth: 6, seed: seed + 9.7 });
+    return L.concat(R.slice().reverse());
   }
 
   circle(x, y, r, opts = {}) {
@@ -353,7 +655,7 @@ export class Sheet {
       r,
       len: r * 3,
       o: { ...DEFAULTS, ...opts },
-      seed,
+      seed: this._hand(seed),
     });
   }
 
@@ -369,7 +671,7 @@ export class Sheet {
       rot,
       len: (rx + ry) * 0.5,
       o: { alpha: 0.16, ...opts },
-      seed,
+      seed: this._hand(seed),
     });
   }
 
@@ -429,6 +731,7 @@ export class Sheet {
       alpha = 0.3,
       cross = 0,
       seed = this.next(),
+      pigment = "charcoal",
     } = opts;
 
     const run = (ang, s, a) =>
@@ -446,6 +749,7 @@ export class Sheet {
             search: 0,
             grain: 0.4,
             taper: 0.7,
+            pigment,
             seed: s + k * 13.1,
           });
         }
@@ -473,6 +777,7 @@ export class Sheet {
       seed = this.next(),
       falloff = 0.55,
       from = 0,
+      pigment = "charcoal",
     } = opts;
     // gap under the width is what makes the drags overlap and fuse
     const gapOf = (k) => width * (0.42 + hash(seed + k * 4.3) * 0.22);
@@ -487,8 +792,34 @@ export class Sheet {
         search: 0,
         grain: 0.9,
         taper: 0.5,
+        pigment,
         seed: seed + k * 17.7,
       });
+    });
+    return this;
+  }
+
+  /**
+   * Colour rubbed into a shape.
+   *
+   * One lay of broad drags reads as stripes at this size — laid that way the
+   * hi-vis vest came out tartan. Chalk is not hatched on, it is rubbed in, so it
+   * goes down in two crossing passes at roughly half strength each and the paper
+   * grain does the rest. Flat across the shape rather than falling off, because
+   * this is the colour of the thing, not the light on it: the charcoal tone laid
+   * over the top afterwards is what turns the form.
+   */
+  wash(polygon, opts = {}) {
+    const { pigment = "charcoal", alpha = 0.24, width = 7, angle = -0.9 } = opts;
+    const seed = opts.seed ?? this.next();
+    this.tone(polygon, { angle, width, alpha: alpha * 0.62, falloff: 0.22, seed, pigment });
+    this.tone(polygon, {
+      angle: angle + 1.28,
+      width: width * 0.86,
+      alpha: alpha * 0.55,
+      falloff: 0.18,
+      seed: seed + 313.7,
+      pigment,
     });
     return this;
   }
@@ -535,7 +866,7 @@ export class Sheet {
       ry,
       len: (rx + ry) * 0.4,
       o: { alpha: opts.alpha ?? 0.5 },
-      seed,
+      seed: this._hand(seed),
     });
   }
 }
@@ -634,7 +965,7 @@ function drawStroke(ctx, item, cut) {
   if (o.grain > 0) {
     const dl = hl.map((h, i) => h + 0.35 + base[i] * 0.34);
     const dr = hr.map((h, i) => h + 0.35 + base[i] * 0.34);
-    ctx.fillStyle = inkColor(Math.min(0.14, o.alpha * 0.16 * o.grain), 26);
+    ctx.fillStyle = pigment(o.pigment, Math.min(0.14, o.alpha * 0.16 * o.grain), 26);
     ribbonLR(ctx, pts, nrm, dl, dr, 0, n - 1);
   }
 
@@ -652,7 +983,7 @@ function drawStroke(ctx, item, cut) {
       off.push({ x: pts[i].x + nrm[i].x * d, y: pts[i].y + nrm[i].y * d });
       oh.push(base[i] * 0.52);
     }
-    ctx.fillStyle = inkColor(o.alpha * 0.17 * o.search, 28);
+    ctx.fillStyle = pigment(o.pigment, o.alpha * 0.17 * o.search, 28);
     ribbonLR(ctx, off, normals(off), oh, oh, 0, n - 1);
   }
 
@@ -671,7 +1002,7 @@ function drawStroke(ctx, item, cut) {
     // now and then the hand lightens right off, the way it does crossing a
     // rough patch of board or easing round a curve
     if (hash(seed * 5.3 + k * 12.7) > 0.87) dens *= 0.34;
-    ctx.fillStyle = inkColor(Math.min(0.96, o.alpha * dens), o.tint);
+    ctx.fillStyle = pigment(o.pigment, Math.min(0.96, o.alpha * dens), o.tint);
     ribbonLR(ctx, pts, nrm, hl, hr, i, to);
     i = to;
     k++;
@@ -681,14 +1012,14 @@ function drawStroke(ctx, item, cut) {
   //    goes properly black. A thin core, well inside the edges.
   if (o.width > 1.4) {
     const cl = base.map((b) => b * 0.34);
-    ctx.fillStyle = inkColor(Math.min(0.9, o.alpha * 0.5), o.tint);
+    ctx.fillStyle = pigment(o.pigment, Math.min(0.9, o.alpha * 0.5), o.tint);
     ribbonLR(ctx, pts, nrm, cl, cl, 0, n - 1);
   }
 }
 
 function drawDot(ctx, item, cut) {
   const r = item.r * (0.65 + cut * 0.35);
-  ctx.fillStyle = inkColor(item.o.alpha * 0.95, item.o.tint);
+  ctx.fillStyle = pigment(item.o.pigment, item.o.alpha * 0.95, item.o.tint);
   ctx.beginPath();
   for (let i = 0; i <= 14; i++) {
     const a = (i / 14) * TAU;
@@ -710,9 +1041,9 @@ function drawSmudge(ctx, item, cut) {
   const r = Math.max(rx, ry);
   const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
   const a = o.alpha * cut;
-  g.addColorStop(0, inkColor(a));
-  g.addColorStop(0.45, inkColor(a * 0.6));
-  g.addColorStop(1, inkColor(0));
+  g.addColorStop(0, pigment(o.pigment, a));
+  g.addColorStop(0.45, pigment(o.pigment, a * 0.6));
+  g.addColorStop(1, pigment(o.pigment, 0));
   ctx.fillStyle = g;
   ctx.scale(1, ry / r);
   // three offset blobs, not one clean oval
@@ -780,8 +1111,12 @@ function offscreen(w, h) {
 }
 
 /**
- * Kraft board. Base wash, fibre, blotching, a ghost of the corrugation, wear
- * along the edges, and a couple of creases.
+ * Cream laid paper. Base wash, fibre, blotching, wear along the edges, and a
+ * couple of creases.
+ *
+ * This used to be kraft board, which was the wrong surface for the job: the
+ * writing is the CV, and brown card costs about a third of the contrast a
+ * charcoal line has to work with. Cream is what the drawing was always for.
  */
 export function makePaper(w, h, seed = 7) {
   const c = offscreen(w, h);
@@ -790,10 +1125,10 @@ export function makePaper(w, h, seed = 7) {
   const H = c.height;
 
   const grd = g.createLinearGradient(0, 0, W * 0.6, H);
-  grd.addColorStop(0, "#cdad7c");
-  grd.addColorStop(0.42, "#c6a370");
-  grd.addColorStop(0.78, "#bd9964");
-  grd.addColorStop(1, "#b28d5a");
+  grd.addColorStop(0, "#f4ecdb");
+  grd.addColorStop(0.42, "#efe5d0");
+  grd.addColorStop(0.78, "#e9dcc4");
+  grd.addColorStop(1, "#e4d6ba");
   g.fillStyle = grd;
   g.fillRect(0, 0, W, H);
 
@@ -805,7 +1140,7 @@ export function makePaper(w, h, seed = 7) {
     const dark = hash(seed + i * 5.9) > 0.45;
     const rg = g.createRadialGradient(bx, by, 0, bx, by, br);
     const a = 0.02 + hash(seed + i * 9.1) * 0.035;
-    rg.addColorStop(0, dark ? `rgba(120,92,54,${a})` : `rgba(226,201,158,${a})`);
+    rg.addColorStop(0, dark ? `rgba(150,132,104,${a})` : `rgba(255,250,240,${a})`);
     rg.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = rg;
     g.fillRect(bx - br, by - br, br * 2, br * 2);
@@ -830,30 +1165,17 @@ export function makePaper(w, h, seed = 7) {
 
   // fibre streaks
   g.save();
-  g.globalAlpha = 0.03;
+  g.globalAlpha = 0.022;
   g.lineCap = "round";
   for (let i = 0; i < 220; i++) {
     const x = hash(seed + i * 3.13) * W;
     const y = hash(seed + i * 7.71) * H;
     const len = 20 + hash(seed + i * 1.9) * 150;
-    g.strokeStyle = hash(seed + i * 4.4) > 0.5 ? "#6b4c2e" : "#e6cfa6";
+    g.strokeStyle = hash(seed + i * 4.4) > 0.5 ? "#a2917a" : "#fbf5e6";
     g.lineWidth = 0.5 + hash(seed + i * 2.7) * 0.9;
     g.beginPath();
     g.moveTo(x, y);
     g.quadraticCurveTo(x + len * 0.5, y + (hash(seed + i * 5.5) - 0.5) * 14, x + len, y + (hash(seed + i) - 0.5) * 9);
-    g.stroke();
-  }
-  g.restore();
-
-  // ghost of the corrugation, very faint
-  g.save();
-  g.globalAlpha = 0.016;
-  g.strokeStyle = "#7a5834";
-  g.lineWidth = 3;
-  for (let x = -20; x < W + 20; x += 13) {
-    g.beginPath();
-    g.moveTo(x + noise(x * 0.02, seed) * 6, 0);
-    g.lineTo(x + noise(x * 0.02, seed + 1) * 6, H);
     g.stroke();
   }
   g.restore();
@@ -864,14 +1186,14 @@ export function makePaper(w, h, seed = 7) {
     const y0 = (0.2 + hash(seed + i * 12.3) * 0.6) * H;
     const drift = (hash(seed + i * 4.9) - 0.5) * H * 0.25;
     g.globalAlpha = 0.05;
-    g.strokeStyle = "#8a6538";
+    g.strokeStyle = "#c0ac89";
     g.lineWidth = 1.6;
     g.beginPath();
     g.moveTo(-10, y0);
     g.bezierCurveTo(W * 0.3, y0 + drift, W * 0.7, y0 - drift, W + 10, y0 + drift * 0.4);
     g.stroke();
-    g.globalAlpha = 0.035;
-    g.strokeStyle = "#f0dcb4";
+    g.globalAlpha = 0.04;
+    g.strokeStyle = "#fffaf0";
     g.lineWidth = 1.1;
     g.beginPath();
     g.moveTo(-10, y0 - 1.8);
@@ -883,7 +1205,7 @@ export function makePaper(w, h, seed = 7) {
   // wear at the edges
   const vg = g.createRadialGradient(W * 0.5, H * 0.46, Math.min(W, H) * 0.28, W * 0.5, H * 0.5, Math.max(W, H) * 0.78);
   vg.addColorStop(0, "rgba(0,0,0,0)");
-  vg.addColorStop(1, "rgba(58,40,22,0.2)");
+  vg.addColorStop(1, "rgba(126,106,74,0.15)");
   g.fillStyle = vg;
   g.fillRect(0, 0, W, H);
 

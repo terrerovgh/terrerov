@@ -13,7 +13,7 @@
  * as it is drawn in, and cached to a tile once it is complete.
  */
 
-import { Sheet, hash } from "./charcoal.js";
+import { Sheet, hash, ring, DENSITY } from "./charcoal.js";
 
 function pt(x, y) {
   return { x, y };
@@ -36,29 +36,43 @@ function shadow(sheet, x, groundY, w, alpha = 0.15) {
 function boxIso(sheet, x, y, w, h, depth, o = {}) {
   const a = { width: o.width ?? 1.6, alpha: o.alpha ?? 0.84 };
   const gap = o.gap ?? 4.4;
+
+  // A hand's perspective drifts. Projected, the two receding edges are the same
+  // length and exactly parallel, and the eye reads that instantly as a machine
+  // drawing however much the strokes shake. Drawn by eye they disagree — the far
+  // corner is judged separately from the near one, and the box leans a little
+  // as a result. That disagreement is the whole difference here.
+  const seed = o.seed ?? 100 + hash(x * 3.1 + y * 7.7) * 900;
+  const dNear = depth * (0.9 + hash(seed) * 0.2);
+  const dFar = depth * (0.9 + hash(seed + 3.7) * 0.2);
+  const rNear = -dNear * (0.48 + hash(seed + 7.1) * 0.16);
+  const rFar = -dFar * (0.48 + hash(seed + 11.3) * 0.16);
+  // the far vertical is not vertical either
+  const lean = (hash(seed + 17.9) - 0.5) * depth * 0.14;
+
   const face = [pt(x, y), pt(x + w, y), pt(x + w, y + h), pt(x, y + h)];
   const side = [
     pt(x + w, y),
-    pt(x + w + depth, y - depth * 0.55),
-    pt(x + w + depth, y + h - depth * 0.55),
+    pt(x + w + dNear, y + rNear),
+    pt(x + w + dNear + lean, y + h + rNear * 0.86),
     pt(x + w, y + h),
   ];
   const top = [
     pt(x, y),
     pt(x + w, y),
-    pt(x + w + depth, y - depth * 0.55),
-    pt(x + depth, y - depth * 0.55),
+    pt(x + w + dNear, y + rNear),
+    pt(x + dFar, y + rFar),
   ];
 
   // faintest tone on the lit face, just enough that it is not blank paper
-  sheet.tone(face, { angle: -1.45, width: gap * 1.5, alpha: 0.055, falloff: 0.85, from: 1 });
+  sheet.tone(face, { angle: -1.45, width: gap * 1.5, alpha: DENSITY.ghost, falloff: 0.85, from: 1 });
   sheet.poly(face, a);
 
-  sheet.tone(side, { angle: -1.15, width: gap * 1.3, alpha: 0.2, falloff: 0.5 });
+  sheet.tone(side, { angle: -1.15, width: gap * 1.3, alpha: DENSITY.firm, falloff: 0.5 });
   sheet.poly(side, { ...a, width: a.width * 0.85 });
-  sheet.hatch(side, { angle: -1.1, gap: gap * 1.15, alpha: 0.2, width: 0.8 });
+  sheet.hatch(side, { angle: -1.1, gap: gap * 1.15, alpha: DENSITY.firm, width: 0.8 });
 
-  sheet.tone(top, { angle: -0.35, width: gap * 1.4, alpha: 0.1, falloff: 0.6 });
+  sheet.tone(top, { angle: -0.35, width: gap * 1.4, alpha: DENSITY.soft, falloff: 0.6 });
   sheet.poly(top, { ...a, width: a.width * 0.8 });
 
   // the corner where the two planes meet gets pressed
@@ -85,18 +99,21 @@ function palm(sheet, x, groundY, h) {
     sheet.line(xx - 2, yy, xx + 6, yy + 1.5, { width: 0.85, alpha: 0.36 });
   }
   const cx = x + lean + 2;
+  const fronds = [];
   for (let i = 0; i < 9; i++) {
     const a = -2.85 + i * 0.63;
     const len = h * (0.34 + hash(x + i * 2.3) * 0.12);
+    const tip = pt(cx + Math.cos(a) * len, top + Math.sin(a) * len * 0.44 + 7);
+    fronds.push(pt(cx + Math.cos(a) * len * 0.5, top + Math.sin(a) * len * 0.16 - 9), tip);
     sheet.curve(
-      [
-        pt(cx, top),
-        pt(cx + Math.cos(a) * len * 0.5, top + Math.sin(a) * len * 0.16 - 9),
-        pt(cx + Math.cos(a) * len, top + Math.sin(a) * len * 0.44 + 7),
-      ],
+      [pt(cx, top), fronds[fronds.length - 2], tip],
       { width: 1.45, alpha: 0.72 }
     );
   }
+  // a wash of green rubbed through the crown — the one place a colour reads as
+  // the thing rather than as a stain, and kept faint so it stays chalk on paper
+  fronds.push(pt(cx, top));
+  sheet.wash(fronds, { angle: -0.4, width: 6, alpha: 0.12, pigment: "olive", seed: x });
   shadow(sheet, cx, groundY, 26, 0.13);
 }
 
@@ -128,6 +145,69 @@ function hills(sheet, x, groundY, w) {
   sheet.curve(pts, { width: 1.15, alpha: 0.26, search: 0, grain: 0.3, wobble: 0.7 });
 }
 
+/**
+ * The middle distance.
+ *
+ * Every scene here was drawn on one line: a horizon, and then everything else
+ * standing on the same ground at the same size. That is what made them read as
+ * objects arranged on a shelf instead of as a place, and no amount of pale ink
+ * on the back layer fixes it — aerial perspective on its own is not depth.
+ *
+ * Depth on paper is things sitting HIGHER and smaller. The ground receding up
+ * the page is the oldest trick there is. So this puts a raised ground line a
+ * good way above his feet and scatters plain shapes along it, with no detail in
+ * them whatever: at that size detail is exactly what gives the game away.
+ */
+function midground(sheet, x, groundY, w, seed, n = 6) {
+  const lift = 30 + hash(seed) * 16;
+  const y = groundY - lift;
+
+  // the far ground: broken, never a ruled line — it is mostly hidden by what
+  // stands in front of it anyway
+  for (let i = 0; i < 5; i++) {
+    const x0 = x + (w / 5) * i + hash(seed + i * 3.3) * 14;
+    const run = (w / 5) * (0.55 + hash(seed + i * 7.1) * 0.4);
+    sheet.line(x0, y + hash(seed + i) * 2, x0 + run, y + hash(seed + i * 2.2) * 2, {
+      width: 0.85,
+      alpha: 0.2,
+      search: 0,
+      grain: 0.3,
+    });
+  }
+
+  for (let i = 0; i < n; i++) {
+    const px = x + w * ((i + 0.35 + hash(seed + i * 5.7) * 0.4) / n);
+    const kind = hash(seed + i * 11.3);
+    const sc = 0.5 + hash(seed + i * 13.9) * 0.55;
+    const a = 0.34 + hash(seed + i * 2.9) * 0.16;
+    if (kind < 0.42) {
+      // a shed: a box and a roof, three strokes
+      const bw = 22 * sc;
+      const bh = 15 * sc;
+      sheet.poly(
+        [pt(px, y - bh), pt(px + bw, y - bh), pt(px + bw, y), pt(px, y)],
+        { width: 0.95, alpha: a, search: 0 }
+      );
+      sheet.line(px - 3, y - bh, px + bw * 0.5, y - bh - 8 * sc, { width: 0.9, alpha: a });
+      sheet.line(px + bw * 0.5, y - bh - 8 * sc, px + bw + 3, y - bh, { width: 0.9, alpha: a });
+    } else if (kind < 0.72) {
+      // a tree: a trunk and a mass, scribbled not outlined
+      const th = 20 * sc;
+      sheet.line(px, y, px + 1, y - th, { width: 0.9, alpha: a });
+      sheet.blob(ring(px + 1, y - th - 5 * sc, 8 * sc, 6.5 * sc, 0, 1, seed + i * 17.7, 10), {
+        width: 0.85,
+        alpha: a * 0.9,
+        search: 0,
+      });
+    } else {
+      // a post, and the wire running off it
+      const ph = 24 * sc;
+      sheet.line(px, y, px - 1, y - ph, { width: 0.85, alpha: a });
+      sheet.line(px - 5, y - ph + 3, px + 5, y - ph + 2, { width: 0.7, alpha: a * 0.8 });
+    }
+  }
+}
+
 function house(sheet, x, groundY, s = 1) {
   const w = 150 * s;
   const h = 78 * s;
@@ -137,8 +217,8 @@ function house(sheet, x, groundY, s = 1) {
   sheet.line(x - 7, base - h, x + w / 2, base - h - 38 * s, { width: 1.7, alpha: 0.85 });
   sheet.line(x + w / 2, base - h - 38 * s, x + w + 7, base - h, { width: 1.7, alpha: 0.85 });
   const roof = [pt(x - 7, base - h), pt(x + w / 2, base - h - 38 * s), pt(x + w + 7, base - h)];
-  sheet.tone(roof, { angle: -1.35, width: 5 * s, alpha: 0.16, falloff: 0.6 });
-  sheet.hatch(roof, { angle: -1.35, gap: 5.6 * s, alpha: 0.2, width: 0.8 });
+  sheet.tone(roof, { angle: -1.35, width: 5 * s, alpha: DENSITY.mid, falloff: 0.6 });
+  sheet.hatch(roof, { angle: -1.35, gap: 5.6 * s, alpha: DENSITY.firm, width: 0.8 });
   sheet.box(x + w * 0.42, base - 34 * s, 17 * s, 34 * s, { width: 1.3, alpha: 0.76 });
   sheet.box(x + 14 * s, base - 46 * s, 19 * s, 17 * s, { width: 1.2, alpha: 0.7 });
   sheet.box(x + w - 34 * s, base - 46 * s, 19 * s, 17 * s, { width: 1.2, alpha: 0.7 });
@@ -160,7 +240,7 @@ function books(sheet, x, groundY) {
       pt(cx + p.x * cos - p.y * sin, cy + p.x * sin + p.y * cos)
     );
     sheet.poly(corners, { width: 1.4, alpha: 0.8 });
-    sheet.hatch(corners, { angle: rot - 1.4, gap: 3.2, alpha: 0.2, width: 0.7 });
+    sheet.hatch(corners, { angle: rot - 1.4, gap: 3.2, alpha: DENSITY.firm, width: 0.7 });
     sheet.line(corners[0].x + 3, corners[0].y + 2.5, corners[1].x - 3, corners[1].y + 2.5, {
       width: 0.85,
       alpha: 0.45,
@@ -208,7 +288,7 @@ function arch(sheet, x, groundY) {
   ];
   for (const pier of [pierL, pierR]) {
     sheet.poly(pier, { width: 1.8, alpha: 0.82 });
-    sheet.hatch(pier, { angle: -1.3, gap: 6, alpha: 0.16, width: 0.75 });
+    sheet.hatch(pier, { angle: -1.3, gap: 6, alpha: DENSITY.mid, width: 0.75 });
   }
   // caps thrown in the air
   for (let i = 0; i < 8; i++) {
@@ -268,7 +348,7 @@ function radar(sheet, x, groundY) {
     pt(x + 28, deck + 13),
   ];
   sheet.poly(deckShape, { width: 1.5, alpha: 0.8 });
-  sheet.hatch(deckShape, { angle: -0.5, gap: 3.6, alpha: 0.22, width: 0.7 });
+  sheet.hatch(deckShape, { angle: -0.5, gap: 3.6, alpha: DENSITY.firm, width: 0.7 });
   // railing
   for (let i = 0; i <= 6; i++) {
     const px = x + 34 + i * 9.4;
@@ -290,8 +370,8 @@ function radar(sheet, x, groundY) {
     const py = Math.sin(a) * ry;
     face.push(pt(cx + 12 + px * Math.cos(tilt) - py * Math.sin(tilt), mastTop - 16 + px * Math.sin(tilt) + py * Math.cos(tilt)));
   }
-  sheet.tone(face, { angle: tilt + 1.5, width: 5.4, alpha: 0.17, falloff: 0.8 });
-  sheet.hatch(face, { angle: tilt + 1.5, gap: 6, alpha: 0.17, width: 0.8 });
+  sheet.tone(face, { angle: tilt + 1.5, width: 5.4, alpha: DENSITY.mid, falloff: 0.8 });
+  sheet.hatch(face, { angle: tilt + 1.5, gap: 6, alpha: DENSITY.mid, width: 0.8 });
   // the bowl's depth, and the feed arm out front
   sheet.curve(
     [pt(cx + 12 - rx * 0.86, mastTop - 16 + rx * 0.46), pt(cx + 16, mastTop + 6), pt(cx + 12 + rx * 0.86, mastTop - 16 - rx * 0.42)],
@@ -328,7 +408,7 @@ function plane(sheet, x, y) {
   // swept wing and tailplane
   const wing = [pt(x - 4, y + 2), pt(x + 24, y + 22), pt(x + 34, y + 22), pt(x + 14, y + 1)];
   sheet.poly(wing, { width: 1.3, alpha: 0.62 });
-  sheet.hatch(wing, { angle: -0.7, gap: 4.5, alpha: 0.16, width: 0.7 });
+  sheet.hatch(wing, { angle: -0.7, gap: 4.5, alpha: DENSITY.mid, width: 0.7 });
   const tail = [pt(x - 40, y + 2), pt(x - 30, y - 18), pt(x - 22, y - 18), pt(x - 26, y + 1)];
   sheet.poly(tail, { width: 1.25, alpha: 0.6 });
   // windows
@@ -432,9 +512,11 @@ function panels(sheet, x, groundY) {
     const face = [pt(0, 0), pt(w, 0), pt(w, h), pt(0, h)].map((p) =>
       pt(px + p.x * cos - p.y * sin, oy + p.x * sin + p.y * cos)
     );
+    // silicon reads blue-black; the chalk carries the colour, the hatch the shine
+    sheet.wash(face, { angle: tilt - 0.3, width: 4.6 * s, alpha: 0.16, pigment: "denim", seed: px });
     sheet.poly(face, { width: 1.4, alpha: 0.8 });
-    sheet.tone(face, { angle: tilt - 1.25, width: 4.6 * s, alpha: 0.14, falloff: 0.85, from: 1 });
-    sheet.hatch(face, { angle: tilt - 1.25, gap: 4.8 * s, alpha: 0.15, width: 0.75 });
+    sheet.tone(face, { angle: tilt - 1.25, width: 4.6 * s, alpha: DENSITY.soft, falloff: 0.85, from: 1 });
+    sheet.hatch(face, { angle: tilt - 1.25, gap: 4.8 * s, alpha: DENSITY.soft, width: 0.75 });
     for (let r = 1; r < 3; r++) {
       const a = face[0];
       const b = face[1];
@@ -548,6 +630,7 @@ const CLEAR = 100;
 
 export const SCENES = {
   origen(back, front, groundY) {
+    midground(back, -300, groundY, 900, 3.1, 11);
     hills(back, -320, groundY, 900);
     wires(back, -260, groundY, 3, 190);
     birds(back, CLEAR + 190, groundY - 300, 4);
@@ -557,6 +640,7 @@ export const SCENES = {
     palm(front, CLEAR + 5, groundY, 150);
   },
   escuela(back, front, groundY) {
+    midground(back, -300, groundY, 900, 9.7, 11);
     hills(back, -280, groundY, 760);
     birds(back, CLEAR + 240, groundY - 280, 3);
     scrub(front, -280, groundY, 760, 9, 7);
@@ -565,10 +649,12 @@ export const SCENES = {
     books(front, CLEAR + 96, groundY);
   },
   universidad(back, front, groundY) {
+    midground(back, -300, groundY, 900, 15.3, 11);
     arch(back, CLEAR + 190, groundY);
     classroom(front, CLEAR + 10, groundY);
   },
   padre(back, front, groundY) {
+    midground(back, -300, groundY, 900, 21.9, 11);
     house(back, CLEAR + 150, groundY, 0.7);
     // a small chair and a ball: the furniture of a young family
     front.box(CLEAR + 10, groundY - 26, 22, 26, { width: 1.3, alpha: 0.72 });
@@ -580,19 +666,23 @@ export const SCENES = {
     shadow(front, CLEAR + 21, groundY, 18, 0.12);
   },
   grado(back, front, groundY) {
+    midground(back, -300, groundY, 900, 28.5, 11);
     arch(front, CLEAR + 10, groundY);
   },
   economia(back, front, groundY) {
+    midground(back, -300, groundY, 900, 35.1, 11);
     wires(back, CLEAR + 220, groundY, 3, 160);
     office(front, CLEAR + 10, groundY);
   },
   radares(back, front, groundY) {
+    midground(back, -320, groundY, 940, 41.7, 11);
     hills(back, -340, groundY, 940);
     birds(back, CLEAR + 330, groundY - 320, 3);
     scrub(front, -320, groundY, 940, 11, 13);
     radar(front, CLEAR, groundY);
   },
   viaje(back, front, groundY) {
+    midground(back, -300, groundY, 880, 48.3, 11);
     hills(back, -300, groundY, 860);
     birds(back, CLEAR - 60, groundY - 260, 3);
     scrub(front, -280, groundY, 860, 10, 37);
@@ -608,10 +698,11 @@ export const SCENES = {
       pt(CLEAR + 40, groundY - 58),
     ];
     front.poly(board, { width: 1.3, alpha: 0.74 });
-    front.hatch(board, { angle: -1.2, gap: 5, alpha: 0.14, width: 0.7 });
+    front.hatch(board, { angle: -1.2, gap: 5, alpha: DENSITY.mid, width: 0.7 });
     shadow(front, CLEAR + 40, groundY, 16, 0.12);
   },
   oficios(back, front, groundY) {
+    midground(back, -280, groundY, 800, 54.9, 10);
     hills(back, -280, groundY, 780);
     wires(back, CLEAR + 260, groundY, 3, 170);
     frameHouse(front, CLEAR + 10, groundY);
@@ -630,6 +721,7 @@ export const SCENES = {
     stove(front, CLEAR + 20, groundY);
   },
   solar(back, front, groundY) {
+    midground(back, -320, groundY, 940, 61.5, 11);
     hills(back, -340, groundY, 940);
     scrub(front, -320, groundY, 940, 14, 29);
     panels(front, CLEAR, groundY);

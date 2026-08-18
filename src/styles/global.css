@@ -1,11 +1,23 @@
 html,
 body {
   margin: 0;
-  background: #c3a06c;
+  background: #efe5d0;
 }
 
 html {
   overflow-y: scroll;
+  /*
+    No scroll snapping of any kind. Moving the scrollbar under the reader is a
+    jump however gently it is done — `mandatory` fought the trackpad outright,
+    and even `proximity` yanks the page the moment a gesture ends near a stop.
+
+    The problem snapping was there to solve is real: let the scroll rest halfway
+    along a leg and he stands frozen mid-stride. But that is the WALKER's
+    problem, not the scrollbar's, and it is solved where he lives — when the
+    scroll goes quiet, main.js walks him on to the nearest stop at his own pace
+    and leaves the page exactly where the reader put it. Nothing moves that the
+    reader did not move.
+  */
 }
 
 #world {
@@ -20,7 +32,8 @@ html {
 /* Scroll length is set from JS (TRACK_SCREENS in journey.js). This is only the
    pre-hydration fallback, so the page has somewhere to scroll immediately. */
 .track {
-  height: 910vh;
+  position: relative;
+  height: 1096vh;
   pointer-events: none;
 }
 
@@ -50,8 +63,8 @@ html {
   max-width: 38rem;
   margin: 0 auto;
   padding: 2rem 1.25rem 6rem;
-  background: #c3a06c;
-  color: #241d16;
+  background: #efe5d0;
+  color: #26221f;
   font: 1rem/1.6 Georgia, "Times New Roman", serif;
   position: relative;
   z-index: 2;
@@ -73,12 +86,12 @@ html {
     max-width: 38rem;
     margin: 0 auto;
     padding: 2rem 1.5rem 6rem;
-    color: #241d16;
+    color: #26221f;
     font: 1rem/1.6 Georgia, "Times New Roman", serif;
     z-index: 2;
     /* the drawing stays faintly visible behind, but never at the cost of
        being able to read the words in front of it */
-    background: rgba(203, 170, 120, 0.93);
+    background: rgba(243, 236, 220, 0.94);
   }
 
   .track {

@@ -13,11 +13,29 @@
 import { GLYPHS, MARKS, ACCENTED, DOTLESS, SPACE } from "./alphabet.js";
 import { hash, fbm } from "./charcoal.js";
 
-/** The same person, writing at three speeds. */
+/**
+ * The same person, writing at three speeds.
+ *
+ * These are tuned for reading first and character second, which is the other way
+ * round from where they started. The words ARE the CV: a reader who has to
+ * decode a letter has stopped reading it.
+ *
+ * What changed and why:
+ *
+ *   jitter   was up to 1.7 — nearly two full units of wander per control point,
+ *            which is enough to turn an `a` into an `o` and an `rn` into an `m`.
+ *            A person writing something they want read does not do that.
+ *   alpha    the small hand sat at .6, which is a pencil note in the margin, not
+ *            a line of a CV. Everything is darker now.
+ *   track    letters are set further apart. Most of what read as "messy" was
+ *            neighbouring letters touching, not the letterforms themselves.
+ *   slant    less lean. A steep italic costs legibility at this size and buys
+ *            nothing the hand does not already give.
+ */
 const HANDS = {
-  display: { weight: 0.088, alpha: 0.9, slant: 0.035, track: 0.045, jitter: 1.15, wobble: 1.1, line: 1.2 },
-  note: { weight: 0.105, alpha: 0.78, slant: 0.1, track: 0.02, jitter: 1.55, wobble: 1.25, line: 1.4 },
-  small: { weight: 0.12, alpha: 0.6, slant: 0.085, track: 0.03, jitter: 1.7, wobble: 1.3, line: 1.32 },
+  display: { weight: 0.082, alpha: 0.94, slant: 0.022, track: 0.055, jitter: 0.62, wobble: 0.85, line: 1.24 },
+  note: { weight: 0.092, alpha: 0.88, slant: 0.05, track: 0.038, jitter: 0.7, wobble: 0.9, line: 1.46 },
+  small: { weight: 0.1, alpha: 0.78, slant: 0.045, track: 0.045, jitter: 0.75, wobble: 0.95, line: 1.36 },
 };
 
 function glyphFor(ch) {
@@ -90,6 +108,7 @@ export function writeText(sheet, text, x, y, opts = {}) {
     tilt = 0,
     tint = 0,
     lineGap = 0,
+    pigment = "charcoal",
   } = opts;
 
   const h = HANDS[hand] || HANDS.note;
@@ -114,7 +133,7 @@ export function writeText(sheet, text, x, y, opts = {}) {
 
     const baseY = li * lineStep;
     // a hand-ruled line sags a little and drifts down as it goes
-    const sagAmp = size * 0.035 * h.jitter;
+    const sagAmp = size * 0.022 * h.jitter;
     const lineSeed = seed * 7.13 + li * 31.7;
 
     for (let ci = 0; ci < line.length; ci++) {
@@ -132,21 +151,25 @@ export function writeText(sheet, text, x, y, opts = {}) {
       const gs = lineSeed + ci * 13.9 + ch.charCodeAt(0) * 0.77;
       const t = lineW ? pen / lineW : 0;
       const sag = Math.sin(t * Math.PI) * sagAmp * 0.5 + (fbm(t * 2.6 + lineSeed, lineSeed) - 0.5) * sagAmp * 2;
-      const rot = (hash(gs * 1.7) - 0.5) * 0.12 * h.jitter;
+      const rot = (hash(gs * 1.7) - 0.5) * 0.07 * h.jitter;
       const cr = Math.cos(rot);
       const sr = Math.sin(rot);
-      const scaleY = 0.92 + hash(gs * 2.9) * 0.18;
-      const scaleX = 0.9 + hash(gs * 4.1) * 0.19;
+      // a letter varies in size, but not so much that two of the same word read
+      // as different words
+      const scaleY = 0.96 + hash(gs * 2.9) * 0.09;
+      const scaleX = 0.95 + hash(gs * 4.1) * 0.09;
       const cx = found.g.a * 0.5;
       // some letters get leaned on harder than others — the strongest cue that
       // a hand wrote this and not a font renderer
-      const press = 0.7 + hash(gs * 8.3) * 0.65;
-      const ink = 0.82 + hash(gs * 5.9) * 0.34;
+      // some letters get leaned on harder than others, but none of them get
+      // leaned on so lightly that they drop out of the line
+      const press = 0.84 + hash(gs * 8.3) * 0.34;
+      const ink = 0.9 + hash(gs * 5.9) * 0.2;
 
       const put = (gx, gy, k) => {
         // per-point wander, so no two instances of a letter match
-        const jx = (hash(gs + k * 5.3) - 0.5) * 0.03 * h.jitter;
-        const jy = (hash(gs + k * 9.1) - 0.5) * 0.03 * h.jitter;
+        const jx = (hash(gs + k * 5.3) - 0.5) * 0.022 * h.jitter;
+        const jy = (hash(gs + k * 9.1) - 0.5) * 0.022 * h.jitter;
         let ex = (gx + jx - cx) * scaleX;
         let ey = (gy + jy) * scaleY;
         ex -= ey * h.slant; // the lean
@@ -156,14 +179,17 @@ export function writeText(sheet, text, x, y, opts = {}) {
       };
 
       const strokeOpts = {
-        width: Math.max(0.85, size * h.weight * press),
-        alpha: Math.min(0.95, h.alpha * alpha * ink),
+        width: Math.max(0.95, size * h.weight * press),
+        alpha: Math.min(0.96, h.alpha * alpha * ink),
         wobble: h.wobble,
-        overshoot: 0.85,
-        search: 0.4,
-        grain: 0.8,
+        // A searching line under every letter is a lovely thing on a drawing and
+        // a second ghost letter on a word. It comes right down for text.
+        overshoot: 0.5,
+        search: 0.12,
+        grain: 0.55,
         taper: 0.85,
         tint,
+        pigment,
         seed: gs,
       };
 
@@ -190,7 +216,12 @@ export function writeText(sheet, text, x, y, opts = {}) {
       if (found.mark && found.mark.d) dots.push(...found.mark.d);
       dots.forEach((d, di) => {
         const p = put(d[0], d[1], 40 + di * 3);
-        sheet.dot(p.x, p.y, Math.max(0.7, d[2] * size), { alpha: h.alpha * alpha * 0.95, tint, seed: gs + di });
+        sheet.dot(p.x, p.y, Math.max(0.7, d[2] * size), {
+          alpha: h.alpha * alpha * 0.95,
+          tint,
+          pigment,
+          seed: gs + di,
+        });
       });
 
       pen += (found.g.a * scaleX + track) * size * (0.97 + hash(gs * 6.7) * 0.07);
@@ -208,6 +239,16 @@ export function textHeight(text, opts = {}) {
   return lines.length * (size * h.line + lineGap);
 }
 
+/**
+ * The lines `writeText` would set the text on. Callers that need to underline
+ * or box a block have to know where the last line actually ends.
+ */
+export function wrapLines(text, opts = {}) {
+  const { size = 24, hand = "note", maxWidth = 0 } = opts;
+  const h = HANDS[hand] || HANDS.note;
+  return wrap(text, maxWidth ? maxWidth / size : 0, h.track);
+}
+
 /** Width of a single line, without drawing it. */
 export function textWidth(text, opts = {}) {
   const { size = 24, hand = "note" } = opts;
@@ -217,7 +258,7 @@ export function textWidth(text, opts = {}) {
 
 /** The line someone draws under a heading, in one quick pass. */
 export function underline(sheet, x, y, w, opts = {}) {
-  const { alpha = 0.5, seed = 1, width = 1.6 } = opts;
+  const { alpha = 0.5, seed = 1, width = 1.6, pigment = "sanguine" } = opts;
   const pts = [];
   const n = 8;
   for (let i = 0; i <= n; i++) {
@@ -227,7 +268,17 @@ export function underline(sheet, x, y, w, opts = {}) {
       y: y + Math.sin(t * Math.PI) * 1.6 + (hash(seed + i * 3.1) - 0.5) * 1.4,
     });
   }
-  sheet.stroke(pts, { width, alpha, wobble: 1.3, overshoot: 2.4, search: 0.5, taper: 1, seed, smooth: 6 });
+  sheet.stroke(pts, {
+    width,
+    alpha,
+    wobble: 1.3,
+    overshoot: 2.4,
+    search: 0.5,
+    taper: 1,
+    pigment,
+    seed,
+    smooth: 6,
+  });
 }
 
 /** A hand-boxed tag for the skill chips. Corners never meet. */
@@ -240,7 +291,17 @@ export function tag(sheet, text, x, y, opts = {}) {
   const right = x + w + padX;
   const top = y - size * 0.74 - padY;
   const bottom = y + size * 0.16 + padY;
-  const o = { width: 1.15, alpha: alpha * 0.55, wobble: 1.4, overshoot: 1.6, search: 0.3, seed };
+  // the box is drawn round the word afterwards, the way you ring something in
+  // the margin — so it is the red chalk, and the word itself is not
+  const o = {
+    width: 1.15,
+    alpha: alpha * 0.62,
+    wobble: 1.4,
+    overshoot: 1.6,
+    search: 0.3,
+    pigment: "sanguine",
+    seed,
+  };
   sheet.line(left, top, right, top + (hash(seed) - 0.5) * 2, o);
   sheet.line(right, top, right + (hash(seed + 1) - 0.5) * 2, bottom, o);
   sheet.line(right, bottom, left, bottom + (hash(seed + 2) - 0.5) * 2, o);
